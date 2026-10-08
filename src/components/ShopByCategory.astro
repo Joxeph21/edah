@@ -1,0 +1,77 @@
+---
+// src/components/home/ShopByCategory.astro
+import { Image } from "astro:assets";
+import type { ImageMetadata } from "astro";
+import SectionHeading from "./SectionHeading.astro";
+
+interface Category {
+  label: string;
+  filter: string; // matches the ?filter= values on /shop
+  blurb: string;
+  image?: ImageMetadata;
+}
+
+interface Props {
+  categories?: Category[];
+}
+
+const {
+  categories = [
+    { label: "Paintings", filter: "paintings", blurb: "Oil & acrylic worlds" },
+    { label: "Sculptures", filter: "sculptures", blurb: "Surreal forms & masks" },
+    { label: "Prints", filter: "prints", blurb: "Editions to live with" },
+  ],
+} = Astro.props;
+---
+
+<section
+  class="mx-auto w-full max-w-6xl px-6 py-20 md:px-10 md:py-28"
+  aria-labelledby="categories-title"
+  data-reveal-section
+>
+  <SectionHeading eyebrow="find your way in" title="shop by category" id="categories-title" />
+
+  <ul class="grid gap-5 md:grid-cols-3 md:gap-6">
+    {
+      categories.map((cat, i) => (
+        <li data-reveal>
+          <a
+            href={`/shop?filter=${cat.filter}`}
+            class="group relative block aspect-[4/5] overflow-hidden rounded-2xl bg-neutral-200 md:aspect-[3/4]"
+          >
+            {cat.image ? (
+              <Image
+                src={cat.image}
+                alt=""
+                width={700}
+                class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+              />
+            ) : (
+              <div
+                class="h-full w-full transition-transform duration-500 group-hover:scale-105"
+                style={`background: hsl(${22 + i * 38} 24% ${78 - i * 4}%)`}
+              />
+            )}
+            <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent" />
+            <div class="absolute inset-x-0 bottom-0 flex items-end justify-between p-6 text-white">
+              <div>
+                <h3 class="font-architects-daughter text-3xl tracking-widest">{cat.label}</h3>
+                <p class="mt-1 text-sm tracking-wide text-white/80">{cat.blurb}</p>
+              </div>
+              <span
+                class="grid size-10 place-items-center rounded-full bg-white/20 transition-colors group-hover:bg-white group-hover:text-neutral-900"
+                aria-hidden="true"
+              >
+                →
+              </span>
+            </div>
+          </a>
+        </li>
+      ))
+    }
+  </ul>
+</section>
+
+<script>
+  import "@/lib/reveal";
+</script>

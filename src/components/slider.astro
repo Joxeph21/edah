@@ -1,0 +1,476 @@
+---
+// src/components/Slider.astro
+import { Image } from "astro:assets";
+import type { ImageMetadata } from "astro";
+
+interface Slide {
+  src?: ImageMetadata; // leave empty to render a placeholder box
+  alt?: string;
+  title?: string;
+}
+
+interface Props {
+  slides?: Slide[];
+  interval?: number; // ms between autoplay steps
+  variant?: "cylinder" | "arc";
+  label?: string; // accessible name for the carousel
+}
+
+const {
+  slides = Array.from({ length: 8 }, (_, i): Slide => ({
+    title: `Piece ${i + 1}`,
+  })),
+  interval = 3500,
+  variant = "cylinder",
+  label = "Featured work",
+} = Astro.props;
+---
+
+<section
+  class="slider w-full"
+  data-slider
+  data-interval={interval}
+  data-variant={variant}
+  aria-roledescription="carousel"
+  aria-label={label}
+>
+  <div
+    data-viewport
+    tabindex="0"
+    class="slider-viewport relative w-full touch-pan-y select-none overflow-hidden rounded-xl outline-none focus-visible:ring-2 focus-visible:ring-[#6b5252]/50"
+  >
+    <ul data-stage class="slider-stage absolute inset-0 m-0 list-none p-0">
+      {
+        slides.map((slide, i) => (
+          <li
+            data-slide
+            role="group"
+            aria-roledescription="slide"
+            aria-label={`${i + 1} of ${slides.length}`}
+            class="slide absolute inset-0 m-auto overflow-hidden rounded-2xl bg-neutral-200 shadow-xl will-change-transform"
+          >
+            {slide.src ? (
+              <Image
+                src={slide.src}
+                alt={slide.alt ?? ""}
+                width={600}
+                draggable={false}
+                class="h-full w-full object-cover"
+              />
+            ) : (
+              <div
+                class="flex h-full w-full flex-col items-center justify-center gap-2"
+                style={`background: hsl(${20 + i * 9} 22% ${80 - (i % 3) * 5}%)`}
+              >
+                <span class="font-architects-daughter text-6xl text-[#6b5252]/60">
+                  {i + 1}
+                </span>
+                {slide.title && (
+                  <span class="text-sm tracking-widest text-[#6b5252]/70">
+                    {slide.title}
+                  </span>
+                )}
+              </div>
+            )}
+          </li>
+        ))
+      }
+    </ul>
+  </div>
+
+  <!-- Controls -->
+  <div class="mt-6 flex items-center justify-center gap-4">
+    <button
+      type="button"
+      data-prev
+      aria-label="Previous slide"
+      class="grid size-10 place-items-center rounded-full border border-neutral-300 transition-colors hover:bg-neutral-200"
+    >
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 24 24"
+        class="size-5"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        aria-hidden="true"><path d="m15 18-6-6 6-6"></path></svg
+      >
+    </button>
+
+    <div class="flex items-center gap-2" role="group" aria-label="Choose slide">
+      {
+        slides.map((_, i) => (
+          <button
+            type="button"
+            data-dot={i}
+            aria-label={`Go to slide ${i + 1}`}
+            class="h-2 w-2 rounded-full bg-neutral-300 transition-all duration-300"
+          />
+        ))
+      }
+    </div>
+
+    <button
+      type="button"
+      data-next
+      aria-label="Next slide"
+      class="grid size-10 place-items-center rounded-full border border-neutral-300 transition-colors hover:bg-neutral-200"
+    >
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 24 24"
+        class="size-5"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        aria-hidden="true"><path d="m9 18 6-6-6-6"></path></svg
+      >
+    </button>
+
+    <button
+      type="button"
+      data-toggle
+      aria-label="Pause autoplay"
+      aria-pressed="false"
+      class="ml-2 grid size-10 place-items-center rounded-full border border-neutral-300 transition-colors hover:bg-neutral-200"
+    >
+      <svg
+        data-icon-pause
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 24 24"
+        class="size-4"
+        fill="currentColor"
+        aria-hidden="true"
+      >
+        <rect x="6" y="5" width="4" height="14" rx="1"></rect>
+        <rect x="14" y="5" width="4" height="14" rx="1"></rect>
+      </svg>
+      <svg
+        data-icon-play
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 24 24"
+        class="hidden size-4"
+        fill="currentColor"
+        aria-hidden="true"
+      >
+        <path d="M7 4.5v15a1 1 0 0 0 1.5.86l12-7.5a1 1 0 0 0 0-1.72l-12-7.5A1 1 0 0 0 7 4.5z"
+        ></path>
+      </svg>
+    </button>
+  </div>
+</section>
+
+<style>
+  .slider {
+    --slide-w: clamp(11rem, 22vw, 17rem);
+  }
+
+  .slider-viewport {
+    height: calc(var(--slide-w) * 4 / 3 + 5rem);
+    perspective: 1400px;
+  }
+
+  /* The smile-shaped arc needs more vertical room */
+  .slider[data-variant="arc"] .slider-viewport {
+    height: calc(var(--slide-w) * 2 + 2rem);
+  }
+
+  .slider-stage {
+    transform-style: preserve-3d;
+  }
+
+  .slide {
+    width: var(--slide-w);
+    height: calc(var(--slide-w) * 4 / 3);
+  }
+
+  /* Before JS positions everything, show only the first slide */
+  .slide:not(:first-child) {
+    opacity: 0;
+  }
+</style>
+
+<script>
+  import { animate } from "motion";
+
+  type Variant = "cylinder" | "arc";
+
+  const ACTIVE_DOT = ["w-6", "bg-[#6b5252]"];
+  const IDLE_DOT = ["w-2", "bg-neutral-300"];
+
+  // Tuning
+  const VISIBLE = 3; // slides each side of centre before they fade out fully
+  const GAP = 1.12; // spacing between slides (1 = touching)
+  const STEP = { cylinder: 0.5, arc: 0.3 }; // angle between slides, in radians
+  const DURATION = 0.8; // seconds per move
+
+  function initSlider(root: HTMLElement) {
+    const viewport = root.querySelector<HTMLElement>("[data-viewport]")!;
+    const items = Array.from(
+      root.querySelectorAll<HTMLElement>("[data-slide]")
+    );
+    const dots = Array.from(
+      root.querySelectorAll<HTMLButtonElement>("[data-dot]")
+    );
+    const prevBtn = root.querySelector<HTMLButtonElement>("[data-prev]")!;
+    const nextBtn = root.querySelector<HTMLButtonElement>("[data-next]")!;
+    const toggleBtn = root.querySelector<HTMLButtonElement>("[data-toggle]")!;
+    const iconPause = root.querySelector<SVGElement>("[data-icon-pause]")!;
+    const iconPlay = root.querySelector<SVGElement>("[data-icon-play]")!;
+
+    const n = items.length;
+    if (n < 2) return;
+
+    const interval = Number(root.dataset.interval) || 3500;
+    const variant: Variant = root.dataset.variant === "arc" ? "arc" : "cylinder";
+    const step = STEP[variant];
+    const reduceMotion = window.matchMedia(
+      "(prefers-reduced-motion: reduce)"
+    ).matches;
+
+    let R = 0; // radius of the curve, in px
+    let pos = 0; // current (fractional) position
+    let target = 0; // where we're heading
+    let anim: { stop: () => void } | undefined;
+    let timer: number | undefined;
+    let animating = false;
+    let suppressClick = false; // set after a swipe so it doesn't count as a click
+
+    let hovered = false;
+    let focused = false;
+    let userPaused = false;
+    let tabHidden = document.hidden;
+
+    const mod = (v: number) => ((v % n) + n) % n;
+
+    // Shortest signed distance from `from` to slide `i` on the loop
+    const shortest = (i: number, from: number) => {
+      let d = mod(i - from);
+      if (d > n / 2) d -= n;
+      return d;
+    };
+
+    function measure() {
+      const w = items[0].offsetWidth;
+      R = (w * GAP) / (2 * Math.tan(step / 2));
+    }
+
+    function render(p: number) {
+      // Arc variant: sides rise, so push everything down to stay centred
+      const arcShift = ((1 - Math.cos(2 * step)) * R) / 2;
+      items.forEach((el, i) => {
+        const d = shortest(i, p);
+        const abs = Math.abs(d);
+        const theta = d * step;
+        const deg = (theta * 180) / Math.PI;
+
+        const opacity =
+          abs <= 1
+            ? 1 - 0.3 * abs
+            : Math.max(0, 0.7 * (1 - (abs - 1) / (VISIBLE - 1)));
+
+        // Perspective enlarges anything pulled toward the viewer, so shrink
+        // the side slides a little to keep the centre one dominant.
+        const scale = Math.max(0.6, 1 - 0.1 * abs);
+
+        // Concave "curved screen": the sides wrap toward the viewer.
+        el.style.transform =
+          variant === "arc"
+            ? `translate3d(${Math.sin(theta) * R}px, ${arcShift - (1 - Math.cos(theta)) * R}px, 0) rotate(${-deg}deg) scale(${scale})`
+            : `translate3d(${Math.sin(theta) * R}px, 0, ${(1 - Math.cos(theta)) * R}px) rotateY(${-deg}deg) scale(${scale})`;
+        el.style.opacity = String(opacity);
+        el.style.visibility = opacity < 0.01 ? "hidden" : "visible";
+        el.style.zIndex = String(Math.round((n - abs) * 10));
+        el.style.cursor = abs < 0.5 ? "default" : "pointer";
+        el.setAttribute("aria-hidden", abs < 0.5 ? "false" : "true");
+      });
+    }
+
+    function updateDots() {
+      const current = mod(Math.round(target));
+      dots.forEach((dot, i) => {
+        const active = i === current;
+        dot.classList.remove(...(active ? IDLE_DOT : ACTIVE_DOT));
+        dot.classList.add(...(active ? ACTIVE_DOT : IDLE_DOT));
+        if (active) dot.setAttribute("aria-current", "true");
+        else dot.removeAttribute("aria-current");
+      });
+    }
+
+    const canPlay = () =>
+      !reduceMotion && !hovered && !focused && !userPaused && !tabHidden;
+
+    function schedule() {
+      window.clearTimeout(timer);
+      if (animating || !canPlay()) return;
+      timer = window.setTimeout(() => {
+        if (!root.isConnected) return;
+        goTo(Math.round(target) + 1);
+      }, interval);
+    }
+
+    function goTo(t: number) {
+      if (t === target && !animating) return;
+      window.clearTimeout(timer);
+      anim?.stop();
+
+      target = t;
+      animating = true;
+      updateDots();
+
+      anim = animate(pos, t, {
+        duration: reduceMotion ? 0 : DURATION,
+        ease: [0.22, 1, 0.36, 1] as [number, number, number, number],
+        onUpdate: (v: number) => {
+          pos = v;
+          render(v);
+        },
+        onComplete: () => {
+          pos = t;
+          render(t);
+          animating = false;
+          schedule();
+        },
+      });
+    }
+
+    const goBy = (dir: number) => goTo(Math.round(target) + dir);
+
+    // --- Controls ---
+    prevBtn.addEventListener("click", () => goBy(-1));
+    nextBtn.addEventListener("click", () => goBy(1));
+
+    dots.forEach((dot, i) => {
+      dot.addEventListener("click", () => {
+        const base = Math.round(target);
+        goTo(base + shortest(i, base));
+      });
+    });
+
+    // Click a side slide to bring it to the centre
+    items.forEach((el, i) => {
+      el.addEventListener("click", (e) => {
+        if (suppressClick) {
+          e.preventDefault();
+          return;
+        }
+        const base = Math.round(target);
+        const diff = shortest(i, base);
+        if (diff !== 0) {
+          e.preventDefault(); // don't follow links inside a side slide
+          goTo(base + diff);
+        }
+      });
+    });
+
+    toggleBtn.addEventListener("click", () => {
+      userPaused = !userPaused;
+      toggleBtn.setAttribute("aria-pressed", String(userPaused));
+      toggleBtn.setAttribute(
+        "aria-label",
+        userPaused ? "Play autoplay" : "Pause autoplay"
+      );
+      iconPause.classList.toggle("hidden", userPaused);
+      iconPlay.classList.toggle("hidden", !userPaused);
+      schedule();
+    });
+
+    // --- Keyboard ---
+    viewport.addEventListener("keydown", (e) => {
+      if (e.key === "ArrowLeft") {
+        e.preventDefault();
+        goBy(-1);
+      } else if (e.key === "ArrowRight") {
+        e.preventDefault();
+        goBy(1);
+      }
+    });
+
+    // --- Swipe / drag ---
+    let startX = 0;
+    let dragging = false;
+
+    viewport.addEventListener("pointerdown", (e) => {
+      startX = e.clientX;
+      dragging = true;
+      suppressClick = false;
+    });
+    viewport.addEventListener("pointerup", (e) => {
+      if (!dragging) return;
+      dragging = false;
+      const dx = e.clientX - startX;
+      if (Math.abs(dx) > 50) {
+        suppressClick = true;
+        goBy(dx < 0 ? 1 : -1);
+      }
+    });
+    viewport.addEventListener("pointercancel", () => {
+      dragging = false;
+    });
+
+    // --- Pause on hover / focus / hidden tab ---
+    root.addEventListener("pointerenter", (e) => {
+      if (e.pointerType !== "mouse") return;
+      hovered = true;
+      window.clearTimeout(timer);
+    });
+    root.addEventListener("pointerleave", (e) => {
+      if (e.pointerType !== "mouse") return;
+      hovered = false;
+      schedule();
+    });
+
+    root.addEventListener("focusin", (e) => {
+      // Only keyboard focus pauses, so a mouse click doesn't stall autoplay
+      if ((e.target as HTMLElement).matches(":focus-visible")) {
+        focused = true;
+        window.clearTimeout(timer);
+      }
+    });
+    root.addEventListener("focusout", (e) => {
+      if (!root.contains(e.relatedTarget as Node | null)) {
+        focused = false;
+        schedule();
+      }
+    });
+
+    const onVisibility = () => {
+      if (!root.isConnected) {
+        document.removeEventListener("visibilitychange", onVisibility);
+        return;
+      }
+      tabHidden = document.hidden;
+      if (tabHidden) window.clearTimeout(timer);
+      else schedule();
+    };
+    document.addEventListener("visibilitychange", onVisibility);
+
+    // --- Layout ---
+    new ResizeObserver(() => {
+      measure();
+      render(pos);
+    }).observe(viewport);
+
+    measure();
+    render(0);
+    updateDots();
+    schedule();
+  }
+
+  function init() {
+    document
+      .querySelectorAll<HTMLElement>("[data-slider]:not([data-bound])")
+      .forEach((root) => {
+        root.dataset.bound = "true";
+        initSlider(root);
+      });
+  }
+
+  init();
+  // With <ClientRouter />, re-run after each navigation
+  document.addEventListener("astro:page-load", init);
+</script>

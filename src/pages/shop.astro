@@ -1,0 +1,221 @@
+---
+import Layout from "@/layouts/Layout.astro";
+
+export const prerender = false;
+
+const FILTERS = ["all", "paintings", "sculptures", "prints", "merch"] as const;
+type Filter = (typeof FILTERS)[number];
+
+const raw = Astro.url.searchParams.get("filter")?.toLowerCase();
+const currentFilter: Filter = FILTERS.includes(raw as Filter)
+  ? (raw as Filter)
+  : "all";
+
+const products = [
+  { id: 1, title: "Morning Light", category: "paintings", price: "$1,200", image: "/placeholder.jpg" },
+  { id: 2, title: "Bronze Dream", category: "sculptures", price: "$3,500", image: "/placeholder.jpg" },
+  { id: 3, title: "Limited Edition Print #1", category: "prints", price: "$150", image: "/placeholder.jpg" },
+  { id: 4, title: "Ocean Depths", category: "paintings", price: "$2,800", image: "/placeholder.jpg" },
+  { id: 5, title: "Clay Figure", category: "sculptures", price: "$900", image: "/placeholder.jpg" },
+  { id: 6, title: "Art Print Series", category: "prints", price: "$200", image: "/placeholder.jpg" },
+  { id: 7, title: "Sunset Abstract", category: "paintings", price: "$1,800", image: "/placeholder.jpg" },
+  { id: 8, title: "Wood Carving", category: "sculptures", price: "$1,500", image: "/placeholder.jpg" },
+  { id: 9, title: "Signed Print", category: "prints", price: "$250", image: "/placeholder.jpg" },
+];
+
+const matches = (category: string) =>
+  currentFilter === "all" || category === currentFilter;
+
+const activeClasses = "bg-primary text-white font-semibold";
+const idleClasses = "hover:bg-primary  hover:text-white bg-neutral-200";
+const visibleCount = products.filter((p) => matches(p.category)).length;
+---
+
+<Layout title="Shop">
+  <section class="content relative w-full px-10 min-h-screen">
+    <div class="flex items-start gap-6">
+      <aside class="sticky lg:flex hidden w-60 top-40 self-start">
+        <div class="flex flex-col gap-4 h-96 bg-neutral-100 rounded-xl p-6">
+          <h3 class="font-architects-daughter text-xl tracking-wider mb-4">
+            Categories
+          </h3>
+          {
+            FILTERS.map((filter) => (
+              <a
+                href={`/shop?filter=${filter}`}
+                data-filter={filter}
+                class:list={[
+                  "w-full text-left px-4 py-2 rounded-lg transition-colors capitalize",
+                  filter === currentFilter ? activeClasses : idleClasses,
+                ]}
+              >
+                {filter}
+              </a>
+            ))
+          }
+        </div>
+      </aside>
+
+      <section class="flex w-full flex-col items-center gap-6 flex-1">
+        <h2 class="text-6xl font-bold mb-5 tracking-wider text-center w-full">
+          Shop the collection
+        </h2>
+        <p class="max-w-3xl tracking-widest font-light text-center">
+          Thank you for visiting my art shop. Each piece serves as a portal into
+          worlds of impossibilities and stories to get lost in. I invite you to
+          wander through these creations, hoping you find a piece that connects
+          with you.
+        </p>
+
+        <div class="w-full flex mx-auto my-5 lg:hidden items-center gap-2 overflow-x-auto">
+              {
+            FILTERS.map((filter) => (
+              <a
+                href={`/shop?filter=${filter}`}
+                data-filter={filter}
+                class:list={[
+                  "w-fit text-sm mx-auto text-left px-4 py-2 rounded-lg transition-colors capitalize",
+                  filter === currentFilter ? activeClasses : idleClasses,
+                ]}
+              >
+                {filter}
+              </a>
+            ))
+          }
+        </div>
+
+        <div id="shop-grid" class="w-full mt-8 grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+          {
+            products.map((product) => (
+              <article
+                data-category={product.category}
+                class:list={[
+                  "h-53 bg-neutral-100 rounded-xl p-4 flex flex-col gap-2 relative group",
+                  { hidden: !matches(product.category) },
+                ]}
+              >
+                <div class="absolute inset-0 bg-black/10 opacity-0 group-hover:opacity-100 transition-opacity rounded-xl" />
+                <div class="relative z-10 flex-1 flex flex-col justify-between">
+                  <h3 class="font-architects-daughter text-lg tracking-wider">
+                    {product.title}
+                  </h3>
+                  <span class="font-biryani font-medium">{product.price}</span>
+                </div>
+                <span class="text-xs text-neutral-500 capitalize">
+                  {product.category}
+                </span>
+              </article>
+            ))
+          }
+        </div>
+
+        <p
+          id="empty"
+          class:list={[
+            "text-center py-12 text-neutral-500",
+            { hidden: visibleCount > 0 },
+          ]}
+        >
+          No products found in this category.
+        </p>
+      </section>
+    </div>
+  </section>
+</Layout>
+
+<script>
+  import { animate, stagger } from "motion";
+
+  const ACTIVE = ["bg-primary", "text-white", "font-semibold"];
+  const IDLE = ["hover:bg-neutral-200"];
+
+  function init() {
+    const links = document.querySelectorAll<HTMLAnchorElement>("[data-filter]");
+    const items = Array.from(
+      document.querySelectorAll<HTMLElement>("#shop-grid [data-category]")
+    );
+    const empty = document.querySelector<HTMLElement>("#empty");
+
+    if (!items.length || !empty) return;
+
+    let token = 0; // guards against overlapping animations on rapid clicks
+
+    async function applyFilter(filter: string) {
+      const run = ++token;
+
+      // Sidebar active state
+      links.forEach((link) => {
+        const active = link.dataset.filter === filter;
+        link.classList.remove(...(active ? IDLE : ACTIVE));
+        link.classList.add(...(active ? ACTIVE : IDLE));
+      });
+
+      // Keep the URL shareable without navigating
+      const url = new URL(window.location.href);
+      url.searchParams.set("filter", filter);
+      history.replaceState({}, "", url);
+
+      const show = items.filter(
+        (i) => filter === "all" || i.dataset.category === filter
+      );
+      const leaving = items.filter(
+        (i) => !show.includes(i) && !i.classList.contains("hidden")
+      );
+      const entering = show.filter((i) => i.classList.contains("hidden"));
+      const staying = show.filter((i) => !i.classList.contains("hidden"));
+
+      // 1. Fade out items that are leaving
+      if (leaving.length) {
+        await animate(
+          leaving,
+          { opacity: 0, scale: 0.9 },
+          { duration: 0.2 }
+        );
+        if (run !== token) return; // a newer click took over
+      }
+
+      // 2. FLIP: record positions of items that stay, before layout changes
+      const first = new Map(
+        staying.map((el) => [el, el.getBoundingClientRect()])
+      );
+
+      // 3. Change the layout
+      leaving.forEach((i) => i.classList.add("hidden"));
+      entering.forEach((i) => i.classList.remove("hidden"));
+      empty!.classList.toggle("hidden", show.length > 0);
+
+      // 4. FLIP: animate staying items from their old position to the new one
+      staying.forEach((el) => {
+        const before = first.get(el)!;
+        const after = el.getBoundingClientRect();
+        const dx = before.left - after.left;
+        const dy = before.top - after.top;
+
+        animate(
+          el,
+          { x: [dx, 0], y: [dy, 0], opacity: 1, scale: 1 },
+          { type: "spring", stiffness: 300, damping: 30 }
+        );
+      });
+
+      // 5. Animate new items in with a stagger
+      if (entering.length) {
+        animate(
+          entering,
+          { opacity: [0, 1], scale: [0.9, 1], y: [20, 0] },
+          { duration: 0.35, delay: stagger(0.05), ease: "easeOut" }
+        );
+      }
+    }
+
+    links.forEach((link) => {
+      link.addEventListener("click", (e) => {
+        e.preventDefault();
+        applyFilter(link.dataset.filter!);
+      });
+    });
+  }
+
+  init();
+
+</script>

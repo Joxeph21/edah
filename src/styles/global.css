@@ -1,0 +1,37 @@
+@import "tailwindcss";
+
+@theme {
+  --font-architects-daughter: "Architects Daughter", cursive;
+  --font-biryani: "Biryani", sans-serif;
+
+  /* Color themes */
+  --color-background: #f6f4f0;
+  --color-primary: #222222;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  @apply font-architects-daughter;
+}
+body {
+  @apply font-biryani text-primary;
+}
+
+@utility flex-center {
+  @apply flex items-center justify-center;
+}
+@utility col-center {
+  @apply flex flex-col items-center justify-center;
+}
+
+@utility flex-between {
+  @apply flex items-center justify-between;
+}
+
+.content {
+  @apply w-full flex flex-col gap-6 py-10
+}

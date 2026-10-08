@@ -1,0 +1,32 @@
+---
+// src/components/home/QuoteBand.astro
+interface Props {
+  quote?: string;
+  attribution?: string;
+}
+const {
+  quote = "Can we keep the special magic we have, even if keeping it feels outdated?",
+  attribution = "Edah",
+} = Astro.props;
+---
+
+<section class="w-full bg-[#15616d] text-white" data-reveal-section>
+  <figure class="mx-auto flex max-w-4xl flex-col items-center gap-6 px-6 py-20 text-center md:px-10 md:py-28">
+    <span class="font-architects-daughter text-7xl leading-none text-white/30" aria-hidden="true" data-reveal>
+      “
+    </span>
+    <blockquote
+      class="-mt-8 font-architects-daughter text-3xl leading-snug tracking-wider md:text-5xl"
+      data-reveal
+    >
+      {quote}
+    </blockquote>
+    <figcaption class="text-sm uppercase tracking-[0.3em] text-white/70" data-reveal>
+      {attribution}
+    </figcaption>
+  </figure>
+</section>
+
+<script>
+  import "@/lib/reveal";
+</script>

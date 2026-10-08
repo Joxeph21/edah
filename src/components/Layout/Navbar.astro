@@ -1,0 +1,236 @@
+---
+import { NAV_LINKS } from "@/constants";
+
+const { pathname } = Astro.url;
+const path = pathname.replace(/\/$/, "") || "/";
+
+const base = "cursor-pointer ease-in transition-all duration-200 py-2 px-1";
+const linkActive = "font-semibold border-b";
+const linkIdle = "hover:border-b";
+const itemActive = "font-semibold bg-neutral-100";
+const itemIdle = "hover:bg-neutral-100";
+---
+
+<nav class="relative w-max hidden lg:flex items-center justify-center gap-6" id="navbar">
+  <div
+    class="navbar-underline absolute bottom-0 left-0 h-1 bg-current transition-all duration-300 ease-out pointer-events-none"
+    style="width: 0; transform: translateX(0);"
+  >
+  </div>
+
+  {
+    NAV_LINKS.map((el) => {
+      const children = el.children;
+
+      // Plain link
+      if (!children?.length) {
+        const active = path === el.path;
+        return (
+          <a
+            href={el.path}
+            data-astro-prefetch
+            data-path={el.path}
+            data-match={el.path}
+            data-active={linkActive}
+            data-idle={linkIdle}
+            aria-current={active ? "page" : undefined}
+            class:list={[base, "flex flex-col gap-3", active ? linkActive : linkIdle]}
+          >
+            {el.label}
+          </a>
+        );
+      }
+
+      // Dropdown
+      const childPaths = children.map((c) => c.path);
+      const groupActive = childPaths.includes(path);
+      const menuId = `menu-${el.label.toLowerCase().replace(/\s+/g, "-")}`;
+
+      return (
+        <div class="group relative" data-dropdown data-open="false">
+          <button
+            type="button"
+            data-trigger
+            aria-haspopup="true"
+            aria-expanded="false"
+            aria-controls={menuId}
+            data-match={childPaths.join(",")}
+            data-active={linkActive}
+            data-idle={linkIdle}
+            class:list={[base, "inline-flex items-center gap-1", groupActive ? linkActive : linkIdle]}
+          >
+            {el.label}
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
+              class="size-4 transition-transform duration-200 group-data-[open=true]:rotate-180"
+            >
+              <path d="m6 9 6 6 6-6" />
+            </svg>
+          </button>
+
+          {/* pt-3 is an invisible bridge so the pointer can travel from button to menu */}
+          <div
+            id={menuId}
+            class="invisible absolute left-1/2 top-full z-20 -translate-x-1/2 translate-y-1 pt-3 opacity-0 transition-[opacity,translate,visibility] duration-200 group-data-[open=true]:visible group-data-[open=true]:translate-y-0 group-data-[open=true]:opacity-100"
+          >
+            <ul
+              role="list"
+              class="min-w-56 rounded-xl border border-neutral-200 bg-neutral-100 p-2 shadow-lg"
+            >
+              {children.map((child) => {
+                const active = path === child.path;
+                return (
+                  <li>
+                    <a
+                      href={child.path}
+                      data-astro-prefetch
+                      data-match={child.path}
+                      data-active={itemActive}
+                      data-idle={itemIdle}
+                      aria-current={active ? "page" : undefined}
+                      class:list={[
+                        "block whitespace-nowrap rounded-lg px-4 py-2 text-sm tracking-wide transition-colors",
+                        active ? itemActive : itemIdle,
+                      ]}
+                    >
+                      {child.label}
+                    </a>
+                  </li>
+                );
+              })}
+            </ul>
+          </div>
+        </div>
+      );
+    })
+  }
+</nav>
+
+<script>
+  const CLOSE_DELAY = 120;
+
+  function setOpen(dd: HTMLElement, open: boolean) {
+    dd.dataset.open = String(open);
+    dd.querySelector("[data-trigger]")?.setAttribute(
+      "aria-expanded",
+      String(open)
+    );
+  }
+
+  function closeAll(except?: HTMLElement | null) {
+    document
+      .querySelectorAll<HTMLElement>("[data-dropdown]")
+      .forEach((dd) => {
+        if (dd !== except) setOpen(dd, false);
+      });
+  }
+
+  // Active state, so it stays correct if the header persists across navigations
+  function updateActive() {
+    const path = location.pathname.replace(/\/$/, "") || "/";
+    document.querySelectorAll<HTMLElement>("[data-match]").forEach((el) => {
+      const isMatch = el.dataset.match!.split(",").includes(path);
+      const on = (el.dataset.active ?? "").split(" ").filter(Boolean);
+      const off = (el.dataset.idle ?? "").split(" ").filter(Boolean);
+
+      el.classList.remove(...(isMatch ? off : on));
+      el.classList.add(...(isMatch ? on : off));
+
+      if (el.tagName === "A") {
+        if (isMatch) el.setAttribute("aria-current", "page");
+        else el.removeAttribute("aria-current");
+      }
+    });
+  }
+
+  function bindDropdowns() {
+    document
+      .querySelectorAll<HTMLElement>("[data-dropdown]:not([data-bound])")
+      .forEach((dd) => {
+        dd.dataset.bound = "true";
+        const trigger = dd.querySelector<HTMLButtonElement>("[data-trigger]")!;
+
+        let timer: number | undefined;
+        let pointerType = "mouse";
+
+        const open = () => {
+          clearTimeout(timer);
+          closeAll(dd);
+          setOpen(dd, true);
+        };
+        const close = () => {
+          clearTimeout(timer);
+          setOpen(dd, false);
+        };
+
+        // Hover (mouse only)
+        dd.addEventListener("pointerenter", (e) => {
+          pointerType = e.pointerType;
+          if (e.pointerType === "mouse") open();
+        });
+        dd.addEventListener("pointerleave", (e) => {
+          if (e.pointerType === "mouse") {
+            timer = window.setTimeout(close, CLOSE_DELAY);
+          }
+        });
+
+        // Click / tap / keyboard
+        trigger.addEventListener("pointerdown", (e) => {
+          pointerType = e.pointerType;
+        });
+        trigger.addEventListener("click", (e) => {
+          // A real mouse click on a hover-opened menu keeps it open;
+          // taps and keyboard activation (detail === 0) toggle it.
+          if (pointerType === "mouse" && e.detail > 0) {
+            open();
+          } else {
+            dd.dataset.open === "true" ? close() : open();
+          }
+        });
+
+        // Close when focus leaves the dropdown (tabbing away)
+        dd.addEventListener("focusout", (e) => {
+          if (!dd.contains(e.relatedTarget as Node | null)) close();
+        });
+
+        // Close after choosing a link
+        dd.addEventListener("click", (e) => {
+          if ((e.target as Element).closest("a")) close();
+        });
+      });
+  }
+
+  // Document-level listeners: added once
+  document.addEventListener("pointerdown", (e) => {
+    const inside = (e.target as Element).closest<HTMLElement>("[data-dropdown]");
+    closeAll(inside);
+  });
+
+  document.addEventListener("keydown", (e) => {
+    if (e.key !== "Escape") return;
+    const openDd = document.querySelector<HTMLElement>(
+      '[data-dropdown][data-open="true"]'
+    );
+    if (!openDd) return;
+    setOpen(openDd, false);
+    if (openDd.contains(document.activeElement)) {
+      openDd.querySelector<HTMLElement>("[data-trigger]")?.focus();
+    }
+  });
+
+  function init() {
+    closeAll();
+    bindDropdowns();
+    updateActive();
+  }
+
+  init();
+  document.addEventListener("astro:page-load", init);
+</script>

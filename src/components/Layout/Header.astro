@@ -1,0 +1,139 @@
+---
+import Logo from "../../ui/Logo.astro";
+import Navbar from "./Navbar.astro";
+
+export const prerender = false;
+---
+
+<header class="w-full z-10 bg-background sticky top-0 flex-between px-6 lg:px-10 py-10">
+  <div class="flex items-center gap-3">
+    <button id="mobile-nav" class="cursor-pointer flex items-center justify-center lg:hidden" aria-label="Toggle menu" aria-expanded="false" aria-controls="mobile-menu">
+      <svg class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <line class="hamburger-line" x1="4" y1="6" x2="20" y2="6"></line>
+        <line class="hamburger-line" x1="4" y1="12" x2="20" y2="12"></line>
+        <line class="hamburger-line" x1="4" y1="18" x2="20" y2="18"></line>
+      </svg>
+    </button>
+    <Logo />
+  </div>
+  <Navbar />
+  <div class="flex justify-end items-center gap-4 max-w-[20%] w-full">
+    <a href="/cart" class="cursor-pointer flex-center gap-px">
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="24px"
+        height="24px"
+        viewBox="0 0 24 24"
+      >
+        <path d="M0 0h24v24H0z" fill="none"></path>
+        <g fill="none" stroke="currentColor">
+          <circle cx="10" cy="19" r="1.5"></circle>
+          <circle cx="17" cy="19" r="1.5"></circle>
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            d="M3.5 4h2l3.504 11H17"></path>
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            d="M8.224 12.5L6.3 6.5h12.507a.5.5 0 0 1 .475.658l-1.667 5a.5.5 0 0 1-.474.342z"
+          ></path>
+        </g>
+      </svg>
+
+      <span data-cart-count>0</span>
+    </a>
+  </div>
+
+  <!-- Mobile Menu -->
+  <div id="mobile-menu" class="lg:hidden h-[calc(100vh-100px)] mt-auto fixed inset-0 z-50 bg-background pt-20 px-6 opacity-0 pointer-events-none transition-opacity duration-300">
+    <nav class="flex flex-col items-start gap-6">
+      <a href="/shop" class="text-2xl font-architects-daughter tracking-wider hover:text-accent">Art Shop</a>
+      <a href="/commisions" class="text-2xl font-architects-daughter tracking-wider hover:text-accent">Commissions</a>
+      <a href="/portfolio" class="text-2xl font-architects-daughter tracking-wider hover:text-accent">Portfolio</a>
+      <a href="/biography" class="text-2xl font-architects-daughter tracking-wider hover:text-accent">Bio</a>
+      <a href="/resume" class="text-2xl font-architects-daughter tracking-wider hover:text-accent">CV</a>
+      <a href="/contact" class="text-2xl font-architects-daughter tracking-wider hover:text-accent">Contact</a>
+    </nav>
+  </div>
+</header>
+
+<script>
+  import { animate } from "motion";
+  import { syncCartBadges } from "@/lib/cart";
+
+  syncCartBadges();
+  window.addEventListener("storage", syncCartBadges);
+  window.addEventListener("pageshow", syncCartBadges);
+  document.addEventListener("astro:page-load", syncCartBadges);
+
+  // Mobile nav toggle
+  const toggleBtn = document.getElementById("mobile-nav") as HTMLButtonElement;
+  const mobileMenu = document.getElementById("mobile-menu") as HTMLDivElement;
+  const lines = toggleBtn?.querySelectorAll(".hamburger-line");
+
+  let isOpen = false;
+
+  function toggleMenu() {
+    if (!toggleBtn || !mobileMenu || !lines.length) return;
+
+    isOpen = !isOpen;
+    toggleBtn.setAttribute("aria-expanded", String(isOpen));
+
+    if (isOpen) {
+      mobileMenu.classList.remove("opacity-0", "pointer-events-none");
+      mobileMenu.classList.add("opacity-100", "pointer-events-auto");
+
+      // Animate hamburger to X
+      animate(
+        lines[0],
+        { y: [0, 9], rotate: [0, 45] },
+        { duration: 0.3, ease: "easeOut" }
+      );
+      animate(
+        lines[1],
+        { opacity: [1, 0] },
+        { duration: 0.2, ease: "easeOut" }
+      );
+      animate(
+        lines[2],
+        { y: [0, -9], rotate: [0, -45] },
+        { duration: 0.3, ease: "easeOut" }
+      );
+    } else {
+      mobileMenu.classList.add("opacity-0", "pointer-events-none");
+      mobileMenu.classList.remove("opacity-100", "pointer-events-auto");
+
+      // Animate X back to hamburger
+      animate(
+        lines[0],
+        { y: [9, 0], rotate: [45, 0] },
+        { duration: 0.3, ease: "easeOut" }
+      );
+      animate(
+        lines[1],
+        { opacity: [0, 1] },
+        { duration: 0.2, delay: 0.1, ease: "easeOut" }
+      );
+      animate(
+        lines[2],
+        { y: [-9, 0], rotate: [-45, 0] },
+        { duration: 0.3, ease: "easeOut" }
+      );
+    }
+  }
+
+  toggleBtn?.addEventListener("click", toggleMenu);
+
+  // Close menu when clicking a link
+  mobileMenu?.querySelectorAll("a").forEach((link) => {
+    link.addEventListener("click", () => {
+      if (isOpen) toggleMenu();
+    });
+  });
+
+  // Close on escape
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && isOpen) toggleMenu();
+  });
+</script>

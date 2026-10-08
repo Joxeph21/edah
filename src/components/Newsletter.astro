@@ -1,0 +1,106 @@
+---
+// src/components/home/Newsletter.astro
+interface Props {
+  /** Your form endpoint (Formspree, Buttondown, Mailchimp, etc.) */
+  action?: string;
+}
+const { action = "" } = Astro.props;
+---
+
+<section
+  class="mx-auto w-full max-w-6xl px-6 py-20 md:px-10 md:py-28"
+  aria-labelledby="newsletter-title"
+  data-reveal-section
+>
+  <div class="rounded-3xl bg-neutral-100 px-6 py-14 text-center md:px-16">
+    <p class="mb-3 text-xs uppercase tracking-[0.3em] text-neutral-500" data-reveal>
+      stay in the loop
+    </p>
+    <h2 id="newsletter-title" class="text-4xl tracking-widest text-[#6b5252] md:text-5xl" data-reveal>
+      studio notes
+    </h2>
+    <p class="mx-auto mt-5 max-w-xl text-base leading-8 tracking-wide text-neutral-700" data-reveal>
+      Occasional emails with new work, commission openings and a look behind
+      the scenes.
+    </p>
+
+    <form
+      data-newsletter
+      action={action}
+      method="POST"
+      class="mx-auto mt-8 flex max-w-md flex-col gap-3 sm:flex-row"
+      data-reveal
+    >
+      <label for="newsletter-email" class="sr-only">Email address</label>
+      <input
+        id="newsletter-email"
+        name="email"
+        type="email"
+        required
+        autocomplete="email"
+        placeholder="you@example.com"
+        class="w-full flex-1 rounded-full border border-neutral-300 bg-white px-6 py-3 outline-none focus-visible:ring-2 focus-visible:ring-[#6b5252]/50"
+      />
+      <!-- Honeypot: real visitors never see or fill this -->
+      <input type="text" name="website" tabindex="-1" autocomplete="off" class="hidden" aria-hidden="true" />
+      <button
+        type="submit"
+        class="rounded-full bg-primary px-8 py-3 font-semibold text-white transition-opacity hover:opacity-90 disabled:opacity-50"
+      >
+        Subscribe
+      </button>
+    </form>
+
+    <p data-newsletter-status role="status" aria-live="polite" class="mt-4 min-h-6 text-sm tracking-wide"></p>
+  </div>
+</section>
+
+<script>
+  import "@/lib/reveal";
+
+  function init() {
+    document
+      .querySelectorAll<HTMLFormElement>("[data-newsletter]:not([data-bound])")
+      .forEach((form) => {
+        form.dataset.bound = "true";
+        const status = form
+          .closest("section")!
+          .querySelector<HTMLElement>("[data-newsletter-status]")!;
+        const button = form.querySelector<HTMLButtonElement>("button[type=submit]")!;
+
+        form.addEventListener("submit", async (e) => {
+          e.preventDefault();
+          const data = new FormData(form);
+          if (data.get("website")) return; // honeypot tripped
+
+          button.disabled = true;
+          status.textContent = "";
+          status.className = "mt-4 min-h-6 text-sm tracking-wide";
+
+          try {
+            if (form.getAttribute("action")) {
+              const res = await fetch(form.action, {
+                method: "POST",
+                body: data,
+                headers: { Accept: "application/json" },
+              });
+              if (!res.ok) throw new Error(String(res.status));
+            } else {
+              console.warn("Newsletter: no `action` set, nothing was sent.");
+            }
+            form.reset();
+            status.textContent = "Thank you, you're on the list.";
+            status.classList.add("text-neutral-700");
+          } catch {
+            status.textContent = "Something went wrong. Please try again.";
+            status.classList.add("text-red-700");
+          } finally {
+            button.disabled = false;
+          }
+        });
+      });
+  }
+
+  init();
+  document.addEventListener("astro:page-load", init);
+</script>

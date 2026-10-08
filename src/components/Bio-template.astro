@@ -1,0 +1,70 @@
+---
+import { Image } from "astro:assets";
+import type { ImageMetadata } from "astro";
+
+interface Props {
+  title: string;
+  lead?: string;
+  paragraphs: string[];
+  image: ImageMetadata;
+  alt: string;
+  imagePosition?: "left" | "right";
+  cutout?: boolean;
+}
+
+const {
+  title,
+  lead,
+  paragraphs,
+  image,
+  alt,
+  imagePosition = "right",
+  cutout = false,
+} = Astro.props;
+
+const columns =
+  imagePosition === "left"
+    ? "md:grid-cols-[minmax(0,26rem)_minmax(0,1fr)]"
+    : "md:grid-cols-[minmax(0,1fr)_minmax(0,26rem)]";
+const figureOrder = imagePosition === "left" ? "md:order-first" : "md:order-last";
+---
+
+<div class={`grid w-full items-center gap-10 py-10 md:gap-20 md:py-16 ${columns}`}>
+  <article class="mx-auto w-full max-w-prose">
+    <h2 class="pb-6 text-4xl tracking-widest text-[#6b5252] md:text-5xl">
+      {title}
+    </h2>
+    <span class="mb-8 block h-px w-12 bg-[#6b5252]"></span>
+
+    {
+      lead && (
+        <p class="mb-8 text-xl font-medium leading-9 text-neutral-900">
+          {lead}
+        </p>
+      )
+    }
+
+    <div class="space-y-6 text-base leading-8 tracking-wide text-neutral-700">
+      {paragraphs.map((text) => <p>{text}</p>)}
+    </div>
+  </article>
+
+  <figure class={`order-first w-full ${figureOrder}`}>
+    <div
+      class:list={[
+        "aspect-4/5 overflow-hidden rounded-3xl",
+        { "bg-[#e9e4da]": cutout },
+      ]}
+    >
+      <Image
+        src={image}
+        alt={alt}
+        width={900}
+        class:list={[
+          "h-full w-full object-cover object-center",
+          { "mix-blend-multiply": cutout },
+        ]}
+      />
+    </div>
+  </figure>
+</div>

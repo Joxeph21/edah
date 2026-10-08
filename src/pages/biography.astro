@@ -1,0 +1,69 @@
+---
+import Layout from "@/layouts/Layout.astro";
+import image1 from "@/assets/images/image-1.jpeg";
+import image2 from "@/assets/images/image-2.jpeg";
+import BioTemplate from "@/components/Bio-template.astro";
+
+const bio_items = [
+  {
+    title: "biography",
+    lead: "Edah is a multidisciplinary fine artist based in Lagos, Nigeria.",
+    paragraphs: [
+      "Born in Ogun and raised in Lagos Nigeria, Edah's love of storytelling began in childhood, evolving into a dedicated artistic practice. Fusing magical realism with Afro-surrealism to create a rich fictional world, he works primarily with oil and acrylics, occasionally designing surreal sculptures and 3D masks.",
+      "His work stands as an art of sanctuary and deliberate slowness in a world consumed by hyper-acceleration and endless production. Rooted in an anti-capitalist ethos and a deep reverence for global indigenous ways of being, he paints Black figures to remind us of a fundamental truth: we are not separate from nature—we belong to it. Through character art and portraiture, his practice centers human existence detached from the demands of modern efficiency and constant performance.",
+      "His pieces often explore themes of lost innocence, otherworldliness, and the longing to escape the constraints of modern life. By depicting figures in states of quiet solitude, rest, and ancestral presence, these visual spaces actively reject the mandate to constantly produce and consume.",
+      "Ultimately, his paintings serve as gentle acts of resistance. They invite us to step outside the artificial urgency of modern society, reclaim our natural pace, and restore our sacred sense of belonging to the earth.",
+    ],
+    image: image1,
+    alt: "Edah wearing a handmade clay mask with large yellow eyes and a green hoodie",
+    imagePosition: "right" as const,
+    cutout: true, // white-background photo
+  },
+  {
+    title: "artist statement",
+    lead: "I paint dream-like pictures of Black people in fantasy worlds, usually surrounded by nature.",
+    paragraphs: [
+      "My art explores a big question: Can we keep the special magic we have—our creativity, imagination, our rich culture, and the feeling that anything is possible—even if keeping it feels outdated?",
+      "I use imaginary characters and places to show deep inner feelings, turning thoughts you can't touch into a world you can step right into. Ultimately, I want my paintings to leave you with a familiar feeling that you can't quite put into words.",
+    ],
+    image: image2,
+    alt: "Side view of the same mask worn with a beanie and a cowrie shell necklace against a teal wall",
+    imagePosition: "left" as const,
+  },
+];
+---
+
+<Layout title="Bio / Artist Statement">
+  <section class="content mt-20 items-center px-6 pb-20 md:px-10">
+    <h1 class="sr-only">About Edah</h1>
+
+    {
+      bio_items.map((bio_item) => (
+        <>
+          <BioTemplate {...bio_item} />
+          <hr class="my-6 w-full border-neutral-300" />
+        </>
+      ))
+    }
+
+    <div class="flex flex-col items-center gap-6 py-16 text-center">
+      <h2 class="text-3xl tracking-widest text-[#6b5252] md:text-4xl">
+        take a piece of this world home
+      </h2>
+      <div class="flex flex-wrap justify-center gap-4">
+        <a
+          href="/shop"
+          class="rounded-full bg-primary px-8 py-3 font-semibold text-white transition-opacity hover:opacity-90"
+        >
+          Browse the shop
+        </a>
+        <a
+          href="/commissions"
+          class="rounded-full border border-neutral-800 px-8 py-3 font-semibold transition-colors hover:bg-neutral-200"
+        >
+          Commission a piece
+        </a>
+      </div>
+    </div>
+  </section>
+</Layout>

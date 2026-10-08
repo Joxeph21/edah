@@ -1,23 +1,77 @@
+---
+import { BIO } from "@/constants";
+import Footer from "@/components/Layout/Footer.astro";
+import Header from "@/components/Layout/Header.astro";
+import SmoothScroll from "@/components/SmoothScroll.astro";
+import "@/styles/global.css";
+import { Font } from "astro:assets";
+
+import { ClientRouter, fade } from "astro:transitions";
+
+interface Props {
+  title?: string;
+  description?: string;
+  image?: string;
+}
+
+const suffix = "Edah Art";
+
+const {
+  title,
+  description = BIO.bio.slice(0, 350) + "...",
+  image = "/og-image.png",
+} = Astro.props;
+
+const canonicalURL = new URL(
+  Astro.url.pathname,
+  Astro.site ?? "https://edah.com",
+);
+const socialImageURL = new URL(image, Astro.url);
+
+const meta_title = title ? `${title} - ${suffix}` : suffix;
+---
+
 <!doctype html>
 <html lang="en">
-	<head>
-		<meta charset="utf-8" />
-		<meta name="viewport" content="width=device-width" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<link rel="icon" href="/favicon.ico" />
-		<meta name="generator" content={Astro.generator} />
-		<title>Astro Basics</title>
-	</head>
-	<body>
-		<slot />
-	</body>
-</html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width" />
+    <link rel="icon" href="/favicon.ico" />
+    <meta name="generator" content={Astro.generator} />
+    <Font cssVariable="--font-architects-daughter" preload />
+    <Font cssVariable="--font-biryani" preload />
 
-<style>
-	html,
-	body {
-		margin: 0;
-		width: 100%;
-		height: 100%;
-	}
-</style>
+    <!-- General Meta Tags -->
+    <title>{meta_title}</title>
+    <meta name="title" content={meta_title} />
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonicalURL} />
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content={canonicalURL} />
+    <meta property="og:title" content={meta_title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:image" content={socialImageURL} />
+
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image" />
+    <meta property="twitter:url" content={canonicalURL} />
+    <meta property="twitter:title" content={meta_title} />
+    <meta property="twitter:description" content={description} />
+    <meta property="twitter:image" content={socialImageURL} />
+
+    <ClientRouter />
+   
+  </head>
+  <body class="w-full relative bg-background min-h-screen h-full flex flex-col">
+    <SmoothScroll />
+    <Header />
+
+    <main class="w-full" transition:animate={fade({ duration: "0.3s" })}>
+      <slot />
+    </main>
+
+    <Footer />
+  </body>
+</html>

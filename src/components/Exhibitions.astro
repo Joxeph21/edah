@@ -1,0 +1,42 @@
+---
+// src/components/home/Exhibitions.astro
+interface Props {
+  label?: string;
+  names?: string[];
+}
+
+// PLACEHOLDERS: replace with real exhibitions, galleries or publications.
+// If you have none yet, leave this section out of the page.
+const {
+  label = "exhibited & featured",
+  names = ["Gallery name", "Exhibition name", "Publication name", "Festival name"],
+} = Astro.props;
+---
+
+<section
+  class="mx-auto w-full max-w-6xl px-6 py-12 md:px-10"
+  aria-label={label}
+  data-reveal-section
+>
+  <div class="flex flex-col items-center gap-6 border-y border-neutral-300 py-10">
+    <p class="text-xs uppercase tracking-[0.3em] text-neutral-500" data-reveal>
+      {label}
+    </p>
+    <ul class="flex flex-wrap items-center justify-center gap-x-12 gap-y-4">
+      {
+        names.map((name) => (
+          <li
+            class="font-architects-daughter text-xl tracking-widest text-neutral-600"
+            data-reveal
+          >
+            {name}
+          </li>
+        ))
+      }
+    </ul>
+  </div>
+</section>
+
+<script>
+  import "@/lib/reveal";
+</script>

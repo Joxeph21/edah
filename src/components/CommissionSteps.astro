@@ -1,0 +1,64 @@
+---
+// src/components/home/CommissionSteps.astro
+import SectionHeading from "./SectionHeading.astro";
+
+interface Props {
+  href?: string;
+  steps?: { title: string; text: string }[];
+}
+
+const {
+  href = "/commissions", // make sure this matches your page route
+  steps = [
+    {
+      title: "Share your idea",
+      text: "Tell me about the world, the subject and the size you have in mind. Rough notes and references are welcome.",
+    },
+    {
+      title: "We shape it together",
+      text: "I come back with a sketch, palette and timeline, and we refine them until it feels right, before any paint is laid.",
+    },
+    {
+      title: "Receive your piece",
+      text: "Your painting is made by hand, then packed and sent to you with care, ready to live on your wall.",
+    },
+  ],
+} = Astro.props;
+---
+
+<section
+  class="mx-auto w-full max-w-6xl px-6 py-20 md:px-10 md:py-28"
+  aria-labelledby="commissions-title"
+  data-reveal-section
+>
+  <SectionHeading eyebrow="made for you" title="how commissions work" id="commissions-title" />
+
+  <ol class="grid gap-6 md:grid-cols-3 md:gap-8">
+    {
+      steps.map((step, i) => (
+        <li class="relative rounded-2xl bg-neutral-100 p-8" data-reveal>
+          <span class="font-architects-daughter text-6xl leading-none text-[#6b5252]/40">
+            {String(i + 1).padStart(2, "0")}
+          </span>
+          <h3 class="mb-3 mt-6 font-architects-daughter text-2xl tracking-wider">
+            {step.title}
+          </h3>
+          <p class="text-base leading-8 tracking-wide text-neutral-700">{step.text}</p>
+        </li>
+      ))
+    }
+  </ol>
+
+  <div class="mt-12 flex justify-center" data-reveal>
+    <a
+      href={href}
+      class="rounded-full bg-primary px-8 py-3 font-semibold text-white transition-opacity hover:opacity-90"
+    >
+      Start a commission
+    </a>
+  </div>
+</section>
+
+<script>
+  import "@/lib/reveal";
+</script>

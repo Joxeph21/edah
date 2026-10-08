@@ -1,0 +1,134 @@
+---
+// src/components/MeetTheArtist.astro
+import { Image } from "astro:assets";
+import portrait from "@/assets/images/image-2.jpeg";
+
+const tags = [
+  "Lagos, Nigeria",
+  "Oil & acrylics",
+  "Sculptures & masks",
+  "Afro-surrealism",
+];
+---
+
+<section
+  id="meet-the-artist"
+  aria-labelledby="meet-the-artist-title"
+  class="mx-auto w-full max-w-6xl px-6 py-20 md:px-10 md:py-28"
+  data-meet-artist
+>
+  <div class="grid items-center gap-12 lg:grid-cols-[minmax(0,26rem)_minmax(0,1fr)] md:gap-20">
+    <!-- Portrait -->
+    <figure class="relative mx-auto w-full max-w-md md:max-xl lg:max-w-none" data-reveal>
+      <!-- Offset outline for depth -->
+      <div
+        class="absolute -bottom-4 -left-4 size-full rounded-3xl border border-[#6b5252]/30"
+        aria-hidden="true"
+      >
+      </div>
+      <div class="relative aspect-4/5 overflow-hidden rounded-3xl bg-neutral-200">
+        <Image
+          src={portrait}
+          alt="Edah wearing a handmade clay mask and a beanie, with a cowrie shell necklace, against a teal wall"
+          width={900}
+          class="h-full w-full object-cover object-center"
+        />
+      </div>
+    </figure>
+
+    <!-- Text -->
+    <div class="mx-auto w-full max-w-prose">
+      <p class="mb-3 text-xs uppercase tracking-[0.3em] text-neutral-500" data-reveal>
+        the person behind the work
+      </p>
+      <h2
+        id="meet-the-artist-title"
+        class="text-4xl tracking-widest text-[#6b5252] md:text-6xl"
+        data-reveal
+      >
+        meet Edah
+      </h2>
+      <span class="my-8 block h-px w-12 bg-[#6b5252]" data-reveal></span>
+
+      <p class="mb-5 text-xl font-medium leading-9 text-neutral-900" data-reveal>
+        Edah is a multidisciplinary fine artist based in Lagos, Nigeria.
+      </p>
+      <p class="text-base leading-8 tracking-wide text-neutral-700" data-reveal>
+        Fusing magical realism with Afro-surrealism, he creates a rich fictional
+        world of dream-like Black figures at rest among nature, an art of
+        sanctuary and deliberate slowness in a world consumed by endless
+        production.
+      </p>
+
+      <blockquote
+        class="mt-8 border-l-2 border-[#6b5252]/40 pl-5 text-base italic leading-8 tracking-wide text-neutral-600"
+        data-reveal
+      >
+        Can we keep the special magic we have&mdash;our creativity, imagination,
+        our rich culture&mdash;even if keeping it feels outdated?
+      </blockquote>
+
+      <ul class="mt-8 flex flex-wrap gap-2" aria-label="About the artist" data-reveal>
+        {
+          tags.map((tag) => (
+            <li class="rounded-full border border-neutral-300 px-4 py-1.5 text-xs tracking-wide text-neutral-700">
+              {tag}
+            </li>
+          ))
+        }
+      </ul>
+
+      <div class="mt-10 flex flex-wrap gap-4" data-reveal>
+        <a
+          href="/biography"
+          class="rounded-full bg-primary px-8 py-3 font-semibold text-white transition-opacity hover:opacity-90"
+        >
+          Read the full story
+        </a>
+        <a
+          href="/portfolio"
+          class="rounded-full border border-neutral-800 px-8 py-3 font-semibold transition-colors hover:bg-neutral-200"
+        >
+          View the portfolio
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+  import { animate, inView, stagger } from "motion";
+
+  function init() {
+    const reduceMotion = window.matchMedia(
+      "(prefers-reduced-motion: reduce)"
+    ).matches;
+
+    document
+      .querySelectorAll<HTMLElement>("[data-meet-artist]:not([data-bound])")
+      .forEach((section) => {
+        section.dataset.bound = "true";
+        if (reduceMotion) return;
+
+        const items = Array.from(
+          section.querySelectorAll<HTMLElement>("[data-reveal]")
+        );
+
+        const stop = inView(
+          section,
+          () => {
+            animate(
+              items,
+              { opacity: [0, 1], y: [24, 0] },
+              { duration: 0.6, delay: stagger(0.08), ease: "easeOut" }
+            );
+            stop();
+          },
+          { margin: "0px 0px -15% 0px" }
+        );
+      });
+  }
+
+  init();
+  document.addEventListener("astro:page-load", init);
+</script>

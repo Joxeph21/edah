@@ -1,0 +1,108 @@
+---
+import { Image } from "astro:assets";
+import logo from "@/assets/images/edah_footer.png";
+import { NAV_LINKS } from "@/constants";
+
+const exploreLinks = NAV_LINKS.flatMap((link) =>
+  "children" in link && link.children ? link.children : [link]
+);
+
+const EMAIL = "hello@example.com";
+const SOCIALS = [
+  { label: "Instagram", href: "https://instagram.com/your-handle" },
+  { label: "X / Twitter", href: "https://x.com/your-handle" },
+];
+
+const year = new Date().getFullYear();
+---
+
+<footer class="mt-auto w-full bg-primary text-white">
+  <div class="mx-auto w-full  px-6 pb-8 pt-16 md:px-10">
+    <div class="grid gap-12 md:grid-cols-[1.5fr_1fr_1fr]">
+      <!-- Brand -->
+      <div class="flex flex-col items-start gap-5">
+        <a href="/" class="inline-block">
+          <Image
+            src={logo}
+            alt="Edah.Artist, home"
+            width={229}
+            class="w-40"
+            loading="lazy"
+            decoding="async"
+          />
+        </a>
+        <p class="max-w-xs text-sm font-light leading-7 tracking-wide text-white/70">
+          Dream-like pictures of Black people in fantasy worlds, usually
+          surrounded by nature.
+        </p>
+      </div>
+
+      <!-- Explore -->
+      <nav aria-label="Footer">
+        <h2 class="mb-4 font-architects-daughter text-lg tracking-widest">
+          explore
+        </h2>
+        <ul class="flex flex-col gap-3 text-sm tracking-wide">
+          {
+            exploreLinks.map((link) => (
+              <li>
+              {  <a
+                  href={link.path}
+                  class="text-white/70 transition-colors hover:text-white hover:underline hover:underline-offset-4"
+                >
+                  {link.label}
+                </a>}
+              </li>
+            ))
+          }
+        </ul>
+      </nav>
+
+      <!-- Connect -->
+      <div>
+        <h2 class="mb-4 font-architects-daughter text-lg tracking-widest">
+          say hello
+        </h2>
+        <ul class="flex flex-col gap-3 text-sm tracking-wide">
+          <li>
+            <a
+              href={`mailto:${EMAIL}`}
+              class="text-white/70 transition-colors hover:text-white hover:underline hover:underline-offset-4"
+            >
+              {EMAIL}
+            </a>
+          </li>
+          {
+            SOCIALS.map((social) => (
+              <li>
+                <a
+                  href={social.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="text-white/70 transition-colors hover:text-white hover:underline hover:underline-offset-4"
+                >
+                  {social.label}
+                  <span class="sr-only"> (opens in a new tab)</span>
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+      </div>
+    </div>
+
+    <!-- Bottom bar -->
+    <div
+      class="mt-14 flex flex-col items-start justify-between gap-4 border-t border-white/15 pt-6 text-xs tracking-wide text-white/60 sm:flex-row sm:items-center"
+    >
+      <p>&copy; {year} Edah. All rights reserved.</p>
+      <a
+        href="#top"
+        class="transition-colors hover:text-white"
+        aria-label="Back to top"
+      >
+        Back to top &uarr;
+      </a>
+    </div>
+  </div>
+</footer>
