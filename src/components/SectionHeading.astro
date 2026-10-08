@@ -3,7 +3,7 @@
 interface Props {
   title: string;
   eyebrow?: string;
-  align?: "left" | "center";
+  align?: "left" | "center" | "right";
   id?: string;
 }
 const { title, eyebrow, align = "center", id } = Astro.props;
@@ -12,17 +12,28 @@ const { title, eyebrow, align = "center", id } = Astro.props;
 <header
   class:list={[
     "mb-12 flex flex-col gap-3",
-    align === "center" ? "items-center text-center" : "items-start text-left",
+    align === "center"
+      ? "items-center text-center"
+      : align === "right"
+        ? "items-end text-right"
+        : "items-start text-left",
   ]}
 >
   {
     eyebrow && (
-      <p class="text-xs uppercase tracking-[0.3em] text-neutral-500" data-reveal>
+      <p
+        class="text-xs uppercase tracking-[0.3em] text-neutral-500"
+        data-reveal
+      >
         {eyebrow}
       </p>
     )
   }
-  <h2 id={id} class="text-4xl tracking-widest text-[#6b5252] md:text-5xl" data-reveal>
+  <h2
+    id={id}
+    class="text-4xl tracking-widest text-[#6b5252] md:text-5xl"
+    data-reveal
+  >
     {title}
   </h2>
   <span class="block h-px w-12 bg-[#6b5252]" data-reveal></span>

@@ -1,7 +1,22 @@
 ---
+import SectionHeading from "@/components/SectionHeading.astro";
 import Layout from "@/layouts/Layout.astro";
+import drummer from "@/assets/images/drummer.webp";
+import { Image } from "astro:assets";
+import ContactForm from "@/components/ContactForm.astro";
 ---
 
 <Layout title="Contact">
-    <h1>Contact</h1>
+  <section
+    class="w-full py-10 pb-15 lg:pb-20 flex flex-col lg:flex-row justify-center items-center gap-20 lg:px-10 px-8"
+  >
+    <figure class="sm:max-w-[60%] w-full lg:w-[40%] rounded-lg aspect-square bg-gray-300 lg:sticky lg:top-30">
+      <Image src={drummer} class={"w-full pointer-events-none select-none object-center h-full object-cover rounded-lg"} alt="drummer boy image" />
+    </figure>
+
+    <aside class="w-full lg:w-1/2 ml-auto flex flex-col gap-10">
+      <SectionHeading align="right" title="get in touch" />
+      <ContactForm />
+    </aside>
+  </section>
 </Layout>

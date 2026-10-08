@@ -2,22 +2,20 @@
 import { Image } from "astro:assets";
 import logo from "@/assets/images/edah_footer.png";
 import { NAV_LINKS } from "@/constants";
+import { Socials } from "@/constants/socials";
 
 const exploreLinks = NAV_LINKS.flatMap((link) =>
-  "children" in link && link.children ? link.children : [link]
+  "children" in link && link.children ? link.children : [link],
 );
 
 const EMAIL = "hello@example.com";
-const SOCIALS = [
-  { label: "Instagram", href: "https://instagram.com/your-handle" },
-  { label: "X / Twitter", href: "https://x.com/your-handle" },
-];
+const SOCIALS = Socials;
 
 const year = new Date().getFullYear();
 ---
 
 <footer class="mt-auto w-full bg-primary text-white">
-  <div class="mx-auto w-full  px-6 pb-8 pt-16 md:px-10">
+  <div class="mx-auto w-full px-6 pb-8 pt-16 md:px-10">
     <div class="grid gap-12 md:grid-cols-[1.5fr_1fr_1fr]">
       <!-- Brand -->
       <div class="flex flex-col items-start gap-5">
@@ -31,7 +29,9 @@ const year = new Date().getFullYear();
             decoding="async"
           />
         </a>
-        <p class="max-w-xs text-sm font-light leading-7 tracking-wide text-white/70">
+        <p
+          class="max-w-xs text-sm font-light leading-7 tracking-wide text-white/70"
+        >
           Dream-like pictures of Black people in fantasy worlds, usually
           surrounded by nature.
         </p>
@@ -46,12 +46,14 @@ const year = new Date().getFullYear();
           {
             exploreLinks.map((link) => (
               <li>
-              {  <a
-                  href={link.path}
-                  class="text-white/70 transition-colors hover:text-white hover:underline hover:underline-offset-4"
-                >
-                  {link.label}
-                </a>}
+                {
+                  <a
+                    href={link.path}
+                    class="text-white/70 transition-colors hover:text-white hover:underline hover:underline-offset-4"
+                  >
+                    {link.label}
+                  </a>
+                }
               </li>
             ))
           }
@@ -76,7 +78,7 @@ const year = new Date().getFullYear();
             SOCIALS.map((social) => (
               <li>
                 <a
-                  href={social.href}
+                  href={social.link}
                   target="_blank"
                   rel="noopener noreferrer"
                   class="text-white/70 transition-colors hover:text-white hover:underline hover:underline-offset-4"

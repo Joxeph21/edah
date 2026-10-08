@@ -1,5 +1,6 @@
 ---
 import Layout from "@/layouts/Layout.astro";
+import drummer from "@/assets/images/drummer.webp";
 
 export const prerender = false;
 
@@ -12,22 +13,85 @@ const currentFilter: Filter = FILTERS.includes(raw as Filter)
   : "all";
 
 const products = [
-  { id: 1, title: "Morning Light", category: "paintings", price: "$1,200", image: "/placeholder.jpg" },
-  { id: 2, title: "Bronze Dream", category: "sculptures", price: "$3,500", image: "/placeholder.jpg" },
-  { id: 3, title: "Limited Edition Print #1", category: "prints", price: "$150", image: "/placeholder.jpg" },
-  { id: 4, title: "Ocean Depths", category: "paintings", price: "$2,800", image: "/placeholder.jpg" },
-  { id: 5, title: "Clay Figure", category: "sculptures", price: "$900", image: "/placeholder.jpg" },
-  { id: 6, title: "Art Print Series", category: "prints", price: "$200", image: "/placeholder.jpg" },
-  { id: 7, title: "Sunset Abstract", category: "paintings", price: "$1,800", image: "/placeholder.jpg" },
-  { id: 8, title: "Wood Carving", category: "sculptures", price: "$1,500", image: "/placeholder.jpg" },
-  { id: 9, title: "Signed Print", category: "prints", price: "$250", image: "/placeholder.jpg" },
+  {
+    id: 1,
+    title: "Morning Light",
+    category: "paintings",
+    price: "$1,200",
+    image: drummer.src,
+    sizes: ["18 × 24 in", "24 × 36 in"],
+  },
+  {
+    id: 2,
+    title: "Bronze Dream",
+    category: "sculptures",
+    price: "$3,500",
+    image: drummer.src,
+    sizes: ["12 in", "18 in"],
+  },
+  {
+    id: 3,
+    title: "Limited Edition Print #1",
+    category: "prints",
+    price: "$150",
+    image: drummer.src,
+    sizes: ["A4", "A3", "A2"],
+  },
+  {
+    id: 4,
+    title: "Ocean Depths",
+    category: "paintings",
+    price: "$2,800",
+    image: drummer.src,
+    sizes: ["24 × 36 in", "36 × 48 in"],
+  },
+  {
+    id: 5,
+    title: "Clay Figure",
+    category: "sculptures",
+    price: "$900",
+    image: drummer.src,
+    sizes: ["10 in"],
+  },
+  {
+    id: 6,
+    title: "Art Print Series",
+    category: "prints",
+    price: "$200",
+    image: drummer.src,
+    sizes: ["A4", "A3"],
+  },
+  {
+    id: 7,
+    title: "Sunset Abstract",
+    category: "paintings",
+    price: "$1,800",
+    image: drummer.src,
+    sizes: ["20 × 30 in", "30 × 40 in"],
+  },
+  {
+    id: 8,
+    title: "Wood Carving",
+    category: "sculptures",
+    price: "$1,500",
+    image: drummer.src,
+    sizes: ["14 in", "20 in"],
+  },
+  {
+    id: 9,
+    title: "Signed Print",
+    category: "prints",
+    price: "$250",
+    image: drummer.src,
+    sizes: ["A3", "A2"],
+  },
 ];
 
 const matches = (category: string) =>
   currentFilter === "all" || category === currentFilter;
 
 const activeClasses = "bg-primary text-white font-semibold";
-const idleClasses = "hover:bg-primary  hover:text-white bg-neutral-200";
+const idleClasses = "hover:bg-primary hover:text-white bg-neutral-200";
 const visibleCount = products.filter((p) => matches(p.category)).length;
 ---
 
@@ -67,14 +131,17 @@ const visibleCount = products.filter((p) => matches(p.category)).length;
           with you.
         </p>
 
-        <div class="w-full flex mx-auto my-5 lg:hidden items-center gap-2 overflow-x-auto">
-              {
+        <div
+          id="mobile-filter"
+          class="flex w-full items-center gap-2 overflow-x-auto my-5 pr-10 lg:hidden scrollbar-none [&::-webkit-scrollbar]:hidden mask-[linear-gradient(to_right,black_88%,transparent)]"
+        >
+          {
             FILTERS.map((filter) => (
               <a
                 href={`/shop?filter=${filter}`}
                 data-filter={filter}
                 class:list={[
-                  "w-fit text-sm mx-auto text-left px-4 py-2 rounded-lg transition-colors capitalize",
+                  "shrink-0 whitespace-nowrap text-sm px-4 py-2 rounded-lg transition-colors capitalize",
                   filter === currentFilter ? activeClasses : idleClasses,
                 ]}
               >
@@ -84,8 +151,11 @@ const visibleCount = products.filter((p) => matches(p.category)).length;
           }
         </div>
 
-        <div id="shop-grid" class="w-full mt-8 grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
-          {
+        <div
+          id="shop-grid"
+          class="w-full mt-8 grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3"
+        >
+          <!-- {
             products.map((product) => (
               <article
                 data-category={product.category}
@@ -106,18 +176,117 @@ const visibleCount = products.filter((p) => matches(p.category)).length;
                 </span>
               </article>
             ))
+          } -->
+
+          {
+            products.map((product) => (
+              <article
+                data-category={product.category}
+                class:list={[
+                  "group flex flex-col gap-4",
+                  { hidden: !matches(product.category) },
+                ]}
+              >
+                <div class="relative aspect-4/5 overflow-hidden rounded-xl bg-neutral-100">
+                  <img
+                    src={product.image}
+                    alt={product.title}
+                    loading="lazy"
+                    class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                  />
+                  <span class="absolute left-3 top-3 rounded-full bg-white/90 px-3 py-1 text-xs capitalize backdrop-blur">
+                    {product.category}
+                  </span>
+                </div>
+
+                <div class="flex flex-1 flex-col gap-3">
+                  <div class="flex items-start justify-between gap-4">
+                    <h3 class="font-architects-daughter text-lg leading-tight tracking-wider">
+                      {product.title}
+                    </h3>
+                    <span class="font-biryani font-medium whitespace-nowrap">
+                      {product.price}
+                    </span>
+                  </div>
+
+                  <ul class="flex flex-wrap gap-1.5">
+                    {product.sizes.map((size) => (
+                      <li class="rounded-md border border-neutral-300 px-2 py-0.5 text-xs text-neutral-600">
+                        {size}
+                      </li>
+                    ))}
+                  </ul>
+
+                  <button
+                    type="button"
+                    data-product-id={product.id}
+                    class="mt-auto w-full cursor-pointer rounded-lg border border-primary px-4 py-3 text-sm font-medium tracking-wider text-primary transition-colors hover:bg-primary hover:text-white active:scale-[0.98]"
+                  >
+                    Collect this artwork
+                  </button>
+                </div>
+              </article>
+            ))
           }
         </div>
 
-        <p
+        <div
           id="empty"
           class:list={[
-            "text-center py-12 text-neutral-500",
+            "text-center flex flex-col items-center gap-8 w-full py-12 text-neutral-500",
             { hidden: visibleCount > 0 },
           ]}
         >
-          No products found in this category.
-        </p>
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="20 -20 500 680"
+            class="mx-auto h-36 w-auto overflow-visible"
+            fill="none"
+            stroke="#222222"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            aria-hidden="true"
+          >
+            <g transform="translate(10, 0)">
+              <path
+                stroke-width="20"
+                d="M 172 360 L 52 575 C 42 592 50 618 72 626 L 102 636 C 122 642 144 630 152 612 L 232 390"
+              ></path>
+
+              <!-- Handle grip lines -->
+              <path stroke-width="12" d="M 52 588 C 72 600 102 612 122 618"
+              ></path>
+              <path stroke-width="12" d="M 64 566 C 82 578 112 590 130 596"
+              ></path>
+              <path stroke-width="12" d="M 76 544 C 94 554 122 566 138 572"
+              ></path>
+
+              <!-- Outer ring -->
+              <ellipse
+                cx="282"
+                cy="192"
+                rx="206"
+                ry="186"
+                stroke-width="22"
+                transform="rotate(-22 282 192)"></ellipse>
+              <ellipse
+                cx="282"
+                cy="192"
+                rx="166"
+                ry="148"
+                stroke-width="16"
+                transform="rotate(-22 282 192)"></ellipse>
+
+              <!-- Glare marks -->
+              <path stroke-width="16" d="M 180 185 C 160 110 205 60 255 48"
+              ></path>
+              <path stroke-width="14" d="M 162 226 C 158 212 160 200 166 195"
+              ></path>
+            </g>
+          </svg>
+
+          <p>This category looks empty...</p>
+        </div>
       </section>
     </div>
   </section>
@@ -127,23 +296,25 @@ const visibleCount = products.filter((p) => matches(p.category)).length;
   import { animate, stagger } from "motion";
 
   const ACTIVE = ["bg-primary", "text-white", "font-semibold"];
-  const IDLE = ["hover:bg-neutral-200"];
+  const IDLE = ["hover:bg-primary", "hover:text-white", "bg-neutral-200"];
 
   function init() {
     const links = document.querySelectorAll<HTMLAnchorElement>("[data-filter]");
     const items = Array.from(
-      document.querySelectorAll<HTMLElement>("#shop-grid [data-category]")
+      document.querySelectorAll<HTMLElement>("#shop-grid [data-category]"),
     );
     const empty = document.querySelector<HTMLElement>("#empty");
 
     if (!items.length || !empty) return;
 
-    let token = 0; // guards against overlapping animations on rapid clicks
+    let token = 0;
 
     async function applyFilter(filter: string) {
       const run = ++token;
 
-      // Sidebar active state
+      window.scrollTo({ top: 0, behavior: "smooth" });
+
+      // Sidebar + mobile active state
       links.forEach((link) => {
         const active = link.dataset.filter === filter;
         link.classList.remove(...(active ? IDLE : ACTIVE));
@@ -156,35 +327,27 @@ const visibleCount = products.filter((p) => matches(p.category)).length;
       history.replaceState({}, "", url);
 
       const show = items.filter(
-        (i) => filter === "all" || i.dataset.category === filter
+        (i) => filter === "all" || i.dataset.category === filter,
       );
       const leaving = items.filter(
-        (i) => !show.includes(i) && !i.classList.contains("hidden")
+        (i) => !show.includes(i) && !i.classList.contains("hidden"),
       );
       const entering = show.filter((i) => i.classList.contains("hidden"));
       const staying = show.filter((i) => !i.classList.contains("hidden"));
 
       // 1. Fade out items that are leaving
       if (leaving.length) {
-        await animate(
-          leaving,
-          { opacity: 0, scale: 0.9 },
-          { duration: 0.2 }
-        );
+        await animate(leaving, { opacity: 0, scale: 0.9 }, { duration: 0.2 });
         if (run !== token) return; // a newer click took over
       }
 
-      // 2. FLIP: record positions of items that stay, before layout changes
       const first = new Map(
-        staying.map((el) => [el, el.getBoundingClientRect()])
+        staying.map((el) => [el, el.getBoundingClientRect()]),
       );
-
-      // 3. Change the layout
       leaving.forEach((i) => i.classList.add("hidden"));
       entering.forEach((i) => i.classList.remove("hidden"));
       empty!.classList.toggle("hidden", show.length > 0);
 
-      // 4. FLIP: animate staying items from their old position to the new one
       staying.forEach((el) => {
         const before = first.get(el)!;
         const after = el.getBoundingClientRect();
@@ -194,7 +357,7 @@ const visibleCount = products.filter((p) => matches(p.category)).length;
         animate(
           el,
           { x: [dx, 0], y: [dy, 0], opacity: 1, scale: 1 },
-          { type: "spring", stiffness: 300, damping: 30 }
+          { type: "spring", stiffness: 300, damping: 30 },
         );
       });
 
@@ -203,7 +366,7 @@ const visibleCount = products.filter((p) => matches(p.category)).length;
         animate(
           entering,
           { opacity: [0, 1], scale: [0.9, 1], y: [20, 0] },
-          { duration: 0.35, delay: stagger(0.05), ease: "easeOut" }
+          { duration: 0.35, delay: stagger(0.05), ease: "easeOut" },
         );
       }
     }
@@ -217,5 +380,4 @@ const visibleCount = products.filter((p) => matches(p.category)).length;
   }
 
   init();
-
 </script>

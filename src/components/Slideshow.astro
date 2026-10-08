@@ -3,17 +3,17 @@
 import { Image } from "astro:assets";
 import type { ImageMetadata } from "astro";
 
-interface Slide {
-  src?: ImageMetadata; // leave empty to render a placeholder box
+export interface Slide {
+  src?: ImageMetadata;
   alt?: string;
   title?: string;
 }
 
 interface Props {
   slides?: Slide[];
-  interval?: number; // ms between autoplay steps
+  interval?: number;
   variant?: "cylinder" | "arc";
-  label?: string; // accessible name for the carousel
+  label?: string;
 }
 
 const {
@@ -27,7 +27,7 @@ const {
 ---
 
 <section
-id="top"
+  id="top"
   class="slider w-full"
   data-slider
   data-interval={interval}
@@ -48,15 +48,18 @@ id="top"
             role="group"
             aria-roledescription="slide"
             aria-label={`${i + 1} of ${slides.length}`}
-            class="slide absolute inset-0 m-auto overflow-hidden rounded-2xl bg-neutral-200 shadow-xl will-change-transform"
+            class="slide absolute cursor-grab active:cursor-grabbing inset-0 m-auto overflow-hidden rounded-2xl bg-neutral-200 shadow-xl will-change-transform"
           >
             {slide.src ? (
               <Image
                 src={slide.src}
                 alt={slide.alt ?? ""}
                 width={600}
+                densities={[1]}
+                format="webp"
                 draggable={false}
-                class="h-full w-full object-cover"
+                loading="eager"
+                class="h-full cursor-grab active:cursor-grabbing select-none w-full object-cover"
               />
             ) : (
               <div
@@ -85,7 +88,7 @@ id="top"
       type="button"
       data-prev
       aria-label="Previous slide"
-      class="grid size-10 place-items-center rounded-full border border-neutral-300 transition-colors hover:bg-neutral-200"
+      class="grid size-10 cursor-pointer place-items-center rounded-full border border-neutral-300 transition-colors hover:bg-neutral-200"
     >
       <svg
         xmlns="http://www.w3.org/2000/svg"
@@ -107,7 +110,7 @@ id="top"
             type="button"
             data-dot={i}
             aria-label={`Go to slide ${i + 1}`}
-            class="h-2 w-2 rounded-full bg-neutral-300 transition-all duration-300"
+            class="h-2 w-2 cursor-pointer rounded-full bg-neutral-300 transition-all duration-300"
           />
         ))
       }
@@ -117,7 +120,7 @@ id="top"
       type="button"
       data-next
       aria-label="Next slide"
-      class="grid size-10 place-items-center rounded-full border border-neutral-300 transition-colors hover:bg-neutral-200"
+      class="grid size-10 cursor-pointer place-items-center rounded-full border border-neutral-300 transition-colors hover:bg-neutral-200"
     >
       <svg
         xmlns="http://www.w3.org/2000/svg"
@@ -137,13 +140,15 @@ id="top"
       data-toggle
       aria-label="Pause autoplay"
       aria-pressed="false"
-      class="ml-2 grid size-10 place-items-center rounded-full border border-neutral-300 transition-colors hover:bg-neutral-200"
+      class="ml-2
+      hidden
+       size-10 place-items-center rounded-full transition-colors"
     >
       <svg
         data-icon-pause
         xmlns="http://www.w3.org/2000/svg"
         viewBox="0 0 24 24"
-        class="size-4"
+        class="size-4 hidden"
         fill="currentColor"
         aria-hidden="true"
       >
@@ -158,7 +163,8 @@ id="top"
         fill="currentColor"
         aria-hidden="true"
       >
-        <path d="M7 4.5v15a1 1 0 0 0 1.5.86l12-7.5a1 1 0 0 0 0-1.72l-12-7.5A1 1 0 0 0 7 4.5z"
+        <path
+          d="M7 4.5v15a1 1 0 0 0 1.5.86l12-7.5a1 1 0 0 0 0-1.72l-12-7.5A1 1 0 0 0 7 4.5z"
         ></path>
       </svg>
     </button>
@@ -207,10 +213,10 @@ id="top"
   function initSlider(root: HTMLElement) {
     const viewport = root.querySelector<HTMLElement>("[data-viewport]")!;
     const items = Array.from(
-      root.querySelectorAll<HTMLElement>("[data-slide]")
+      root.querySelectorAll<HTMLElement>("[data-slide]"),
     );
     const dots = Array.from(
-      root.querySelectorAll<HTMLButtonElement>("[data-dot]")
+      root.querySelectorAll<HTMLButtonElement>("[data-dot]"),
     );
     const prevBtn = root.querySelector<HTMLButtonElement>("[data-prev]")!;
     const nextBtn = root.querySelector<HTMLButtonElement>("[data-next]")!;
@@ -222,10 +228,11 @@ id="top"
     if (n < 2) return;
 
     const interval = Number(root.dataset.interval) || 3500;
-    const variant: Variant = root.dataset.variant === "arc" ? "arc" : "cylinder";
+    const variant: Variant =
+      root.dataset.variant === "arc" ? "arc" : "cylinder";
     const step = STEP[variant];
     const reduceMotion = window.matchMedia(
-      "(prefers-reduced-motion: reduce)"
+      "(prefers-reduced-motion: reduce)",
     ).matches;
 
     let R = 0; // radius of the curve, in px
@@ -292,7 +299,7 @@ id="top"
     }
 
     const canPlay = () =>
-      !reduceMotion && !hovered && !focused && !userPaused && !tabHidden;
+      !reduceMotion && !focused && !userPaused && !tabHidden;
 
     function schedule() {
       window.clearTimeout(timer);
@@ -372,7 +379,7 @@ id="top"
       toggleBtn.setAttribute("aria-pressed", String(userPaused));
       toggleBtn.setAttribute(
         "aria-label",
-        userPaused ? "Play autoplay" : "Pause autoplay"
+        userPaused ? "Play autoplay" : "Pause autoplay",
       );
       iconPause.classList.toggle("hidden", userPaused);
       iconPlay.classList.toggle("hidden", !userPaused);
@@ -410,18 +417,6 @@ id="top"
     });
     viewport.addEventListener("pointercancel", () => {
       dragging = false;
-    });
-
-    // --- Pause on hover / focus / hidden tab ---
-    root.addEventListener("pointerenter", (e) => {
-      if (e.pointerType !== "mouse") return;
-      hovered = true;
-      window.clearTimeout(timer);
-    });
-    root.addEventListener("pointerleave", (e) => {
-      if (e.pointerType !== "mouse") return;
-      hovered = false;
-      schedule();
     });
 
     root.addEventListener("focusin", (e) => {
@@ -472,4 +467,22 @@ id="top"
 
   init();
   document.addEventListener("astro:page-load", init);
+
+function protectImages() {
+    document.querySelectorAll<HTMLImageElement>("[data-slide] img").forEach((img) => {
+      img.addEventListener("contextmenu", (e) => e.preventDefault());
+      img.addEventListener("dragstart", (e) => e.preventDefault());
+      const style = img.style as CSSStyleDeclaration & {
+        touchCallout?: string;
+        webkitTouchCallout?: string;
+        webkitUserSelect?: string;
+      };
+      style.touchCallout = "none";
+      style.webkitTouchCallout = "none";
+      style.userSelect = "none";
+      style.webkitUserSelect = "none";
+    });
+  }
+  protectImages();
+  document.addEventListener("astro:page-load", protectImages);
 </script>

@@ -26,11 +26,17 @@ const columns =
   imagePosition === "left"
     ? "md:grid-cols-[minmax(0,26rem)_minmax(0,1fr)]"
     : "md:grid-cols-[minmax(0,1fr)_minmax(0,26rem)]";
+
+const articleAlign =
+  imagePosition === "left"
+    ? "mx-auto md:mx-0 md:justify-self-start"
+    : "mx-auto";
+const gap = imagePosition === "left" ? "md:gap-12" : "md:gap-20";
 const figureOrder = imagePosition === "left" ? "md:order-first" : "md:order-last";
 ---
 
-<div class={`grid w-full items-center gap-10 py-10 md:gap-20 md:py-16 ${columns}`}>
-  <article class="mx-auto w-full max-w-prose">
+<div class={`grid w-full items-center gap-10 py-10 md:gap-20 md:py-16 ${columns} ${gap}`}>
+  <article class={`mx-auto w-full max-w-prose ${articleAlign}`}>
     <h2 class="pb-6 text-4xl tracking-widest text-[#6b5252] md:text-5xl">
       {title}
     </h2>

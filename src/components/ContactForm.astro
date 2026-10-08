@@ -1,0 +1,84 @@
+---
+// src/components/ContactForm.astro
+interface Props {
+  action?: string;
+}
+const { action = "#" } = Astro.props;
+
+const inputClass =
+  "w-full rounded-lg border border-neutral-300 bg-transparent px-4 py-3 text-base outline-none transition placeholder:text-neutral-400 focus:border-black focus:ring-2 focus:ring-black/10";
+const labelClass = "mb-2 block text-sm font-medium";
+---
+
+<form action={action} method="POST" class="flex w-full flex-col gap-6">
+  <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+    <div>
+      <label for="firstName" class={labelClass}>First name</label>
+      <input
+        id="firstName"
+        name="firstName"
+        type="text"
+        autocomplete="given-name"
+        placeholder="John"
+        required
+        class={inputClass}
+      />
+    </div>
+    <div>
+      <label for="lastName" class={labelClass}>Last name</label>
+      <input
+        id="lastName"
+        name="lastName"
+        type="text"
+        autocomplete="family-name"
+        placeholder="Doe"
+        required
+        class={inputClass}
+      />
+    </div>
+  </div>
+
+  <div>
+    <label for="email" class={labelClass}>Email</label>
+    <input
+      id="email"
+      name="email"
+      type="email"
+      autocomplete="email"
+      placeholder="you@example.com"
+      required
+      class={inputClass}
+    />
+  </div>
+
+  <div>
+    <label for="subject" class={labelClass}>Subject</label>
+    <input
+      id="subject"
+      name="subject"
+      type="text"
+      placeholder="How can we help?"
+      required
+      class={inputClass}
+    />
+  </div>
+
+  <div>
+    <label for="message" class={labelClass}>Message</label>
+    <textarea
+      id="message"
+      name="message"
+      rows="6"
+      placeholder="Tell us a bit more..."
+      required
+      class={`${inputClass} resize-none`}
+    ></textarea>
+  </div>
+
+  <button
+    type="submit"
+    class="w-full font-architects-daughter cursor-pointer rounded-4xl bg-primary px-6 py-3 font-medium text-white transition hover:bg-neutral-800 active:scale-[0.98] sm:w-fit"
+  >
+   Let&apos;s Chat
+  </button>
+</form>

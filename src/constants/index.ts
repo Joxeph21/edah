@@ -21,7 +21,7 @@ export const NAV_LINKS = [
   },
   {
     label: "Commissions",
-    path: "/commisions",
+    path: "/commissions",
     type: "link",
   },
   {

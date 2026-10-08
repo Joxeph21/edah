@@ -1,7 +1,22 @@
 ---
 import Layout from "@/layouts/Layout.astro";
+
+const data_tags = ["paintings", "sculptures", "masks"];
 ---
 
 <Layout title="Portfolio">
-    <h1>Portfolio</h1>
+  <section
+    class="w-full py-10 pb-15 lg:pb-20 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-20 lg:px-10 px-8"
+  >
+    {
+      data_tags.map((tag) => (
+        <a
+          href={`portfolio/${tag}`}
+          class="flex-center text-center capitalize rounded-lg aspect-square bg-amber-600 text-2xl font-architects-daughter text-white"
+        >
+          {tag}
+        </a>
+      ))
+    }
+  </section>
 </Layout>

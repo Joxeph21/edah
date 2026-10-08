@@ -1,0 +1,83 @@
+---
+import Layout from "@/layouts/Layout.astro";
+---
+
+<Layout title="Page not found">
+  <section
+    class="content flex min-h-[70vh] w-full flex-col items-center justify-center gap-8 px-10 py-16 text-center"
+  >
+    <div class="flex items-center justify-center gap-2 sm:gap-4">
+      <span
+        class="font-architects-daughter text-8xl font-bold tracking-wider sm:text-9xl"
+      >
+        4
+      </span>
+
+      <!-- Empty frame standing in for the 0 -->
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 120 170"
+        class="h-28 w-auto sm:h-36"
+        fill="none"
+        stroke="#222222"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        aria-hidden="true"
+      >
+        <!-- hanging wire and nail -->
+        <path stroke-width="3" d="M30 52 L60 12 L90 52" />
+        <circle cx="60" cy="10" r="4" fill="#222222" />
+
+        <!-- frame -->
+        <rect x="14" y="52" width="92" height="108" rx="4" stroke-width="7" />
+        <rect
+          x="26"
+          y="64"
+          width="68"
+          height="84"
+          rx="2"
+          stroke-width="3"
+          stroke-dasharray="6 7"
+        />
+
+        <!-- question mark -->
+        <path
+          stroke-width="5"
+          d="M50 96 C50 84 72 84 72 98 C72 108 60 108 60 120"
+        />
+        <circle cx="60" cy="134" r="2.5" fill="#222222" />
+      </svg>
+
+      <span
+        class="font-architects-daughter text-8xl font-bold tracking-wider sm:text-9xl"
+      >
+        4
+      </span>
+    </div>
+
+    <div class="flex flex-col items-center gap-4">
+      <h1 class="text-3xl font-bold tracking-wider sm:text-4xl">
+        This piece has left the gallery
+      </h1>
+      <p class="max-w-xl font-light tracking-widest text-neutral-500">
+        The page you're looking for has been moved, sold, or never hung on
+        this wall. Let's get you back to the art.
+      </p>
+    </div>
+
+    <div class="flex flex-col gap-3 sm:flex-row">
+      <a
+        href="/shop"
+        class="cursor-pointer rounded-lg bg-primary px-8 py-3 text-sm font-medium tracking-wider text-white transition hover:opacity-90 active:scale-[0.98]"
+      >
+        Browse the shop
+      </a>
+      <a
+        href="/"
+        class="cursor-pointer rounded-lg border border-primary px-8 py-3 text-sm font-medium tracking-wider text-primary transition-colors hover:bg-primary hover:text-white active:scale-[0.98]"
+      >
+        Back to home
+      </a>
+    </div>
+  </section>
+</Layout>

@@ -6,19 +6,35 @@ import Slider from "./slider.astro";
 import FeaturedPieces from "./FeaturedPieces.astro";
 import Exhibitions from "./Exhibitions.astro";
 import QuoteBand from "./QuoteBand.astro";
+import { slides } from "@/constants/image-slides";
+import type { Slide } from "@/components/Slideshow.astro";
+import InstagramStrip from "./InstagramStrip.astro";
+import ShopByCategory from "./ShopByCategory.astro";
+import Newsletter from "./Newsletter.astro";
+import StudioProcess from "./StudioProcess.astro";
+import CommissionSteps from "./CommissionSteps.astro";
 ---
 
 <section class="content">
-  <Slideshow />
-   <!-- <Hero /> -->
+  <Slideshow slides={slides} />
+  <!-- <Hero /> -->
 
   <!-- <Slider /> -->
 
-
   <FeaturedPieces />
+
+  <!-- <ShopByCategory /> -->
 
   <MeetEdah />
 
   <Exhibitions />
-  <!-- <QuoteBand /> -->
+
+  <!-- <StudioProcess /> -->
+  <QuoteBand />
+
+  <CommissionSteps />
+
+  <Newsletter />
+
+  <InstagramStrip />
 </section>

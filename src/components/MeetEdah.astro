@@ -4,10 +4,10 @@ import { Image } from "astro:assets";
 import portrait from "@/assets/images/image-2.jpeg";
 
 const tags = [
-  "Lagos, Nigeria",
   "Oil & acrylics",
   "Sculptures & masks",
   "Afro-surrealism",
+  "Magical-realism"
 ];
 ---
 
@@ -17,16 +17,23 @@ const tags = [
   class="mx-auto w-full max-w-6xl px-6 py-20 md:px-10 md:py-28"
   data-meet-artist
 >
-  <div class="grid items-center gap-12 lg:grid-cols-[minmax(0,26rem)_minmax(0,1fr)] md:gap-20">
+  <div
+    class="grid items-center gap-12 lg:grid-cols-[minmax(0,26rem)_minmax(0,1fr)] md:gap-20"
+  >
     <!-- Portrait -->
-    <figure class="relative mx-auto w-full max-w-md md:max-xl lg:max-w-none" data-reveal>
+    <figure
+      class="relative mx-auto w-full max-w-md md:max-xl lg:max-w-none"
+      data-reveal
+    >
       <!-- Offset outline for depth -->
       <div
         class="absolute -bottom-4 -left-4 size-full rounded-3xl border border-[#6b5252]/30"
         aria-hidden="true"
       >
       </div>
-      <div class="relative aspect-4/5 overflow-hidden rounded-3xl bg-neutral-200">
+      <div
+        class="relative aspect-4/5 overflow-hidden rounded-3xl bg-neutral-200"
+      >
         <Image
           src={portrait}
           alt="Edah wearing a handmade clay mask and a beanie, with a cowrie shell necklace, against a teal wall"
@@ -38,7 +45,10 @@ const tags = [
 
     <!-- Text -->
     <div class="mx-auto w-full max-w-prose">
-      <p class="mb-3 text-xs uppercase tracking-[0.3em] text-neutral-500" data-reveal>
+      <p
+        class="mb-3 text-xs uppercase tracking-[0.3em] text-neutral-500"
+        data-reveal
+      >
         the person behind the work
       </p>
       <h2
@@ -50,25 +60,36 @@ const tags = [
       </h2>
       <span class="my-8 block h-px w-12 bg-[#6b5252]" data-reveal></span>
 
-      <p class="mb-5 text-xl font-medium leading-9 text-neutral-900" data-reveal>
-        Edah is a multidisciplinary fine artist based in Lagos, Nigeria.
+      <p
+        class="mb-5 text-xl font-medium leading-9 text-neutral-900"
+        data-reveal
+      >
+        Hi, I’m Edah… welcome to my world
       </p>
       <p class="text-base leading-8 tracking-wide text-neutral-700" data-reveal>
-        Fusing magical realism with Afro-surrealism, he creates a rich fictional
-        world of dream-like Black figures at rest among nature, an art of
-        sanctuary and deliberate slowness in a world consumed by endless
-        production.
+        I create surreal scenes featuring solitary Black characters, often in
+        natural environments, placed within dreamlike spaces. I'm drawn to the
+        things that makes our culture feel magical—our storytelling,
+        imagination, spirituality, creativity, and that deep-rooted feeling that
+        anything is possible. Using fantasy characters and imagined landscapes,
+        I aim to make internal feelings visible, turning something intangible
+        into a world you can step into. Sometimes my work is playful and light,
+        and sometimes there’s something a little more melancholic to it
       </p>
 
       <blockquote
         class="mt-8 border-l-2 border-[#6b5252]/40 pl-5 text-base italic leading-8 tracking-wide text-neutral-600"
         data-reveal
       >
-        Can we keep the special magic we have&mdash;our creativity, imagination,
-        our rich culture&mdash;even if keeping it feels outdated?
+        I hope my art gives you a place to escape to—leaving you with a familiar
+        feeling that you recognize, but can't quite put into words
       </blockquote>
 
-      <ul class="mt-8 flex flex-wrap gap-2" aria-label="About the artist" data-reveal>
+      <ul
+        class="mt-8 flex flex-wrap gap-2"
+        aria-label="About the artist"
+        data-reveal
+      >
         {
           tags.map((tag) => (
             <li class="rounded-full border border-neutral-300 px-4 py-1.5 text-xs tracking-wide text-neutral-700">
@@ -101,7 +122,7 @@ const tags = [
 
   function init() {
     const reduceMotion = window.matchMedia(
-      "(prefers-reduced-motion: reduce)"
+      "(prefers-reduced-motion: reduce)",
     ).matches;
 
     document
@@ -111,7 +132,7 @@ const tags = [
         if (reduceMotion) return;
 
         const items = Array.from(
-          section.querySelectorAll<HTMLElement>("[data-reveal]")
+          section.querySelectorAll<HTMLElement>("[data-reveal]"),
         );
 
         const stop = inView(
@@ -120,11 +141,11 @@ const tags = [
             animate(
               items,
               { opacity: [0, 1], y: [24, 0] },
-              { duration: 0.6, delay: stagger(0.08), ease: "easeOut" }
+              { duration: 0.6, delay: stagger(0.08), ease: "easeOut" },
             );
             stop();
           },
-          { margin: "0px 0px -15% 0px" }
+          { margin: "0px 0px -15% 0px" },
         );
       });
   }

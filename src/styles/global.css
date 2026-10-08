@@ -1,5 +1,9 @@
 @import "tailwindcss";
 
+html{
+  scroll-behavior: smooth;
+}
+
 @theme {
   --font-architects-daughter: "Architects Daughter", cursive;
   --font-biryani: "Biryani", sans-serif;
@@ -35,3 +39,7 @@ body {
 .content {
   @apply w-full flex flex-col gap-6 py-10
 }
+
+  .input-error {
+    @apply border-red-500 focus:ring-red-500 focus:border-red-500;
+  }

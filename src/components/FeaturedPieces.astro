@@ -43,7 +43,7 @@ const imageSrc = (img?: ImageMetadata | string) =>
       pieces.map((piece, i) => (
         <li class="group flex flex-col gap-3" data-reveal>
           <a href="/shop" class="block">
-            <div class="aspect-[4/5] overflow-hidden rounded-2xl bg-neutral-200">
+            <div class="aspect-4/5 overflow-hidden rounded-2xl bg-neutral-200">
               {piece.image ? (
                 typeof piece.image === "string" ? (
                   <img

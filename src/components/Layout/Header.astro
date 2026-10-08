@@ -1,14 +1,19 @@
 ---
 import Logo from "../../ui/Logo.astro";
 import Navbar from "./Navbar.astro";
-
-export const prerender = false;
 ---
 
 <header class="w-full z-10 bg-background sticky top-0 flex-between px-6 lg:px-10 py-10">
   <div class="flex items-center gap-3">
-    <button id="mobile-nav" class="cursor-pointer flex items-center justify-center lg:hidden" aria-label="Toggle menu" aria-expanded="false" aria-controls="mobile-menu">
-      <svg class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <button
+      id="mobile-nav"
+      type="button"
+      class="cursor-pointer flex items-center justify-center lg:hidden"
+      aria-label="Toggle menu"
+      aria-expanded="false"
+      aria-controls="mobile-menu"
+    >
+      <svg class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
         <line class="hamburger-line" x1="4" y1="6" x2="20" y2="6"></line>
         <line class="hamburger-line" x1="4" y1="12" x2="20" y2="12"></line>
         <line class="hamburger-line" x1="4" y1="18" x2="20" y2="18"></line>
@@ -16,14 +21,17 @@ export const prerender = false;
     </button>
     <Logo />
   </div>
+
   <Navbar />
+
   <div class="flex justify-end items-center gap-4 max-w-[20%] w-full">
-    <a href="/cart" class="cursor-pointer flex-center gap-px">
+    <a href="/cart" class="cursor-pointer flex-center gap-px" aria-label="Cart">
       <svg
         xmlns="http://www.w3.org/2000/svg"
         width="24px"
         height="24px"
         viewBox="0 0 24 24"
+        aria-hidden="true"
       >
         <path d="M0 0h24v24H0z" fill="none"></path>
         <g fill="none" stroke="currentColor">
@@ -45,8 +53,12 @@ export const prerender = false;
     </a>
   </div>
 
-  <!-- Mobile Menu -->
-  <div id="mobile-menu" class="lg:hidden h-[calc(100vh-100px)] mt-auto fixed inset-0 z-50 bg-background pt-20 px-6 opacity-0 pointer-events-none transition-opacity duration-300">
+
+  <div
+    id="mobile-menu"
+    inert
+    class="lg:hidden fixed inset-x-0 z-50 overflow-y-auto bg-background px-6 pt-8 opacity-0 pointer-events-none transition-opacity duration-300 top-(--header-bottom,6.5rem) h-[calc(100dvh-var(--header-bottom,6.5rem))]"
+  >
     <nav class="flex flex-col items-start gap-6">
       <a href="/shop" class="text-2xl font-architects-daughter tracking-wider hover:text-accent">Art Shop</a>
       <a href="/commisions" class="text-2xl font-architects-daughter tracking-wider hover:text-accent">Commissions</a>
@@ -58,82 +70,111 @@ export const prerender = false;
   </div>
 </header>
 
+<style>
+  /*
+    Each line must rotate around its OWN centre. SVG transforms default to
+    the top-left of the whole <svg>, which is why the X looked wrong.
+  */
+  .hamburger-line {
+    transform-box: fill-box;
+    transform-origin: center;
+    transition:
+      transform 0.3s ease-out,
+      opacity 0.2s ease-out;
+  }
+
+  /* Lines sit at y = 6 / 12 / 18, so the outer two travel 6 to reach the middle */
+  #mobile-nav[aria-expanded="true"] .hamburger-line:nth-child(1) {
+    transform: translateY(6px) rotate(45deg);
+  }
+  #mobile-nav[aria-expanded="true"] .hamburger-line:nth-child(2) {
+    opacity: 0;
+  }
+  #mobile-nav[aria-expanded="true"] .hamburger-line:nth-child(3) {
+    transform: translateY(-6px) rotate(-45deg);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .hamburger-line {
+      transition: none;
+    }
+  }
+</style>
+
 <script>
-  import { animate } from "motion";
   import { syncCartBadges } from "@/lib/cart";
 
+  // --- Cart badge ---
   syncCartBadges();
   window.addEventListener("storage", syncCartBadges);
   window.addEventListener("pageshow", syncCartBadges);
   document.addEventListener("astro:page-load", syncCartBadges);
 
-  // Mobile nav toggle
-  const toggleBtn = document.getElementById("mobile-nav") as HTMLButtonElement;
-  const mobileMenu = document.getElementById("mobile-menu") as HTMLDivElement;
-  const lines = toggleBtn?.querySelectorAll(".hamburger-line");
+  // --- Mobile menu ---
+  const isOpen = () =>
+    document.getElementById("mobile-nav")?.getAttribute("aria-expanded") ===
+    "true";
 
-  let isOpen = false;
-
-  function toggleMenu() {
-    if (!toggleBtn || !mobileMenu || !lines.length) return;
-
-    isOpen = !isOpen;
-    toggleBtn.setAttribute("aria-expanded", String(isOpen));
-
-    if (isOpen) {
-      mobileMenu.classList.remove("opacity-0", "pointer-events-none");
-      mobileMenu.classList.add("opacity-100", "pointer-events-auto");
-
-      // Animate hamburger to X
-      animate(
-        lines[0],
-        { y: [0, 9], rotate: [0, 45] },
-        { duration: 0.3, ease: "easeOut" }
-      );
-      animate(
-        lines[1],
-        { opacity: [1, 0] },
-        { duration: 0.2, ease: "easeOut" }
-      );
-      animate(
-        lines[2],
-        { y: [0, -9], rotate: [0, -45] },
-        { duration: 0.3, ease: "easeOut" }
-      );
-    } else {
-      mobileMenu.classList.add("opacity-0", "pointer-events-none");
-      mobileMenu.classList.remove("opacity-100", "pointer-events-auto");
-
-      // Animate X back to hamburger
-      animate(
-        lines[0],
-        { y: [9, 0], rotate: [45, 0] },
-        { duration: 0.3, ease: "easeOut" }
-      );
-      animate(
-        lines[1],
-        { opacity: [0, 1] },
-        { duration: 0.2, delay: 0.1, ease: "easeOut" }
-      );
-      animate(
-        lines[2],
-        { y: [-9, 0], rotate: [-45, 0] },
-        { duration: 0.3, ease: "easeOut" }
-      );
-    }
+  // Measure the header and expose it to CSS (used for the menu's top + height)
+  function updateMenuOffset() {
+    const header = document.getElementById("mobile-nav")?.closest("header");
+    if (!header) return;
+    // .bottom = distance from the viewport top to the header's bottom edge
+    const { bottom } = header.getBoundingClientRect();
+    document.documentElement.style.setProperty(
+      "--header-bottom",
+      `${Math.round(bottom)}px`
+    );
   }
 
-  toggleBtn?.addEventListener("click", toggleMenu);
+  function setMenu(open: boolean) {
+    const btn = document.getElementById("mobile-nav");
+    const menu = document.getElementById("mobile-menu");
+    if (!btn || !menu || isOpen() === open) return;
 
-  // Close menu when clicking a link
-  mobileMenu?.querySelectorAll("a").forEach((link) => {
-    link.addEventListener("click", () => {
-      if (isOpen) toggleMenu();
-    });
+    if (open) updateMenuOffset();
+
+    btn.setAttribute("aria-expanded", String(open));
+    menu.toggleAttribute("inert", !open); // keeps hidden links out of the tab order
+    menu.classList.toggle("opacity-0", !open);
+    menu.classList.toggle("pointer-events-none", !open);
+    menu.classList.toggle("opacity-100", open);
+    menu.classList.toggle("pointer-events-auto", open);
+    document.documentElement.classList.toggle("overflow-hidden", open);
+  }
+
+  // Delegated listeners: they keep working even if the header is re-rendered
+  document.addEventListener("click", (e) => {
+    const target = e.target as Element;
+    if (target.closest("#mobile-nav")) setMenu(!isOpen());
+    else if (target.closest("#mobile-menu a")) setMenu(false);
   });
 
-  // Close on escape
   document.addEventListener("keydown", (e) => {
-    if (e.key === "Escape" && isOpen) toggleMenu();
+    if (e.key === "Escape" && isOpen()) {
+      setMenu(false);
+      document.getElementById("mobile-nav")?.focus();
+    }
+  });
+
+  // Close if the window grows past the lg breakpoint
+  window
+    .matchMedia("(min-width: 1024px)")
+    .addEventListener("change", (e) => e.matches && setMenu(false));
+
+  // Keep the measurement correct when the header's height changes
+  const observed = new WeakSet<Element>();
+  function observeHeader() {
+    const header = document.getElementById("mobile-nav")?.closest("header");
+    if (!header || observed.has(header)) return;
+    observed.add(header);
+    new ResizeObserver(updateMenuOffset).observe(header);
+    updateMenuOffset();
+  }
+
+  observeHeader();
+  document.addEventListener("astro:page-load", () => {
+    observeHeader();
+    document.documentElement.classList.toggle("overflow-hidden", isOpen());
   });
 </script>

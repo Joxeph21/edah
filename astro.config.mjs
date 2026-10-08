@@ -21,6 +21,9 @@ export default defineConfig({
     },
   ],
   vite: {
+    server: {
+      host: true,
+    },
     plugins: [tailwindcss()],
     resolve: {
       alias: {

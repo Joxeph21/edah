@@ -64,11 +64,11 @@ const meta_title = title ? `${title} - ${suffix}` : suffix;
     <ClientRouter />
    
   </head>
-  <body class="w-full relative bg-background min-h-screen h-full flex flex-col">
+  <body id="top" class="w-full items-center  relative bg-background min-h-screen h-full flex flex-col">
     <SmoothScroll />
     <Header />
 
-    <main class="w-full" transition:animate={fade({ duration: "0.3s" })}>
+    <main class="w-full max-w-[1920px] mx-auto" transition:animate={fade({ duration: "0.3s" })}>
       <slot />
     </main>
 

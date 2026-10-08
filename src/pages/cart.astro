@@ -276,6 +276,7 @@ import Layout from "@/layouts/Layout.astro";
     const subtotalEl = document.querySelector<HTMLElement>("#subtotal");
     const totalEl = document.querySelector<HTMLElement>("#total");
     const receipt = document.querySelector<HTMLElement>("#receipt");
+    const receiptWrap = document.querySelector<HTMLElement>(".receipt-wrap");
     const receiptLines =
       document.querySelector<HTMLUListElement>("#receipt-lines");
     const receiptDate = document.querySelector<HTMLElement>("#receipt-date");
@@ -290,6 +291,7 @@ import Layout from "@/layouts/Layout.astro";
       !subtotalEl ||
       !totalEl ||
       !receipt ||
+      !receiptWrap ||
       !receiptLines ||
       !receiptDate
     )
@@ -360,6 +362,7 @@ import Layout from "@/layouts/Layout.astro";
       layout!.classList.toggle("hidden", isEmpty);
       emptyEl!.classList.toggle("hidden", !isEmpty);
       emptyEl!.classList.toggle("flex", isEmpty);
+      receiptWrap!.classList.toggle("hidden", isEmpty);
 
       list!.replaceChildren(...items.map(buildRow));
       receiptLines!.replaceChildren(...items.map(buildReceiptLine));

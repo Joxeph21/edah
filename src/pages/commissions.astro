@@ -1,0 +1,203 @@
+---
+import Layout from "@/layouts/Layout.astro";
+import { Image } from "astro:assets";
+import drummer from "@/assets/images/drummer.webp";
+
+const faqs = [
+  {
+    q: "who are commissions for?",
+    a: "Anyone who wants a one-of-a-kind piece: a portrait, a gift, or an artwork built around a personal story.",
+  },
+  {
+    q: "how does it work?",
+    a: "You join the waitlist, and when it's your turn I reach out to talk through your idea. Once we agree on the direction, I start the piece and share progress along the way.",
+  },
+  {
+    q: "what sizes do you offer?",
+    a: "Paintings come in a range of sizes, and sculptures are made to order. We'll choose what suits your space and budget during our first conversation.",
+  },
+  {
+    q: "how much does it cost?",
+    a: "Pricing depends on size, medium and complexity. I'll send a clear quote before any work begins.",
+  },
+  {
+    q: "how long does it take?",
+    a: "Most commissions take several weeks once started. I'll give you a realistic timeline when we begin.",
+  },
+  {
+    q: "do you ship worldwide?",
+    a: "Yes. Every piece is carefully packaged and insured, and shipping is quoted separately at checkout.",
+  },
+  {
+    q: "can I request changes?",
+    a: "Yes. You'll see early sketches and can give feedback before the final piece is made.",
+  },
+  {
+    q: "what if I'm not happy with it?",
+    a: "I'll work with you to make it right. Your approval at each stage is how we avoid surprises at the end.",
+  },
+];
+
+const half = Math.ceil(faqs.length / 2);
+const columns = [faqs.slice(0, half), faqs.slice(half)];
+
+const inputClass =
+  "w-full rounded-lg border border-neutral-300 bg-transparent px-4 py-3 text-sm tracking-wider outline-none transition placeholder:text-neutral-400 focus:border-primary focus:ring-2 focus:ring-primary/10";
+---
+
+<Layout title="Commissions">
+  <!-- Hero -->
+  <section class="content w-full px-10 pt-16 pb-10 text-center">
+    <h1
+      class="font-architects-daughter text-5xl font-bold tracking-wider sm:text-6xl"
+    >
+      commissions
+    </h1>
+    <p
+      class="font-architects-daughter mx-auto mt-5 max-w-3xl text-lg tracking-widest text-neutral-500 sm:text-xl"
+    >
+      "Some pieces can only be made for one person."
+    </p>
+  </section>
+
+  <!-- Intro -->
+  <section
+    class="content flex w-full flex-col items-center gap-12 px-10 py-10 lg:flex-row lg:gap-20"
+  >
+    <div
+      class="flex flex-col gap-6 text-center font-light tracking-widest lg:w-1/2"
+    >
+      <p>
+        A commission is an invitation to create something that exists nowhere
+        else. We'll work together on an artwork shaped by your story, your
+        symbols and the details that make it yours.
+      </p>
+      <p>
+        After an initial conversation, I'll develop the idea slowly and
+        intentionally, sharing the process with you as it comes to life.
+      </p>
+      <p>
+        Availability is limited and I work on a first come, first served basis.
+        Join the waitlist below and I'll reach out when you're next in line.
+      </p>
+    </div>
+
+    <figure
+      class="relative aspect-4/5 w-full max-w-sm overflow-hidden rounded-xl bg-neutral-100 lg:ml-auto lg:w-[40%]"
+    >
+      <Image
+        src={drummer}
+        alt="Commission example"
+        class="pointer-events-none h-full w-full select-none object-cover"
+      />
+    </figure>
+  </section>
+
+  <!-- Waitlist -->
+  <section
+    class="content flex w-full flex-col items-center gap-12 px-10 py-10 lg:flex-row lg:gap-20"
+  >
+    <figure
+      class="relative aspect-4/5 w-full max-w-sm overflow-hidden rounded-xl bg-neutral-100 lg:w-[35%]"
+    >
+      <Image
+        src={drummer}
+        alt="Commission example"
+        class="pointer-events-none h-full w-full select-none object-cover"
+      />
+    </figure>
+
+    <div class="flex w-full flex-col items-center gap-8 lg:flex-1">
+      <h2
+        class="font-architects-daughter text-4xl font-bold tracking-wider sm:text-5xl"
+      >
+        join the waitlist
+      </h2>
+
+      <form
+        action="#"
+        method="POST"
+        class="flex w-full max-w-lg flex-col gap-4"
+      >
+        <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <input
+            name="firstName"
+            type="text"
+            autocomplete="given-name"
+            placeholder="First name"
+            aria-label="First name"
+            required
+            class={inputClass}
+          />
+          <input
+            name="lastName"
+            type="text"
+            autocomplete="family-name"
+            placeholder="Last name"
+            aria-label="Last name"
+            required
+            class={inputClass}
+          />
+        </div>
+
+        <input
+          name="email"
+          type="email"
+          autocomplete="email"
+          placeholder="Email address"
+          aria-label="Email address"
+          required
+          class={inputClass}
+        />
+
+        <textarea
+          name="idea"
+          rows="4"
+          placeholder="Tell me a little about your idea (optional)"
+          aria-label="Your idea"
+          class={`${inputClass} resize-none`}></textarea>
+
+        <button
+          type="submit"
+          class="mx-auto w-fit cursor-pointer rounded-lg bg-primary px-10 py-3 text-sm font-medium tracking-wider text-white transition hover:opacity-90 active:scale-[0.98]"
+        >
+          join
+        </button>
+      </form>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section class="content w-full px-10 py-16">
+    <h2
+      class="font-architects-daughter mb-12 text-center text-4xl font-bold tracking-wider sm:text-5xl"
+    >
+      common questions &amp; answers
+    </h2>
+
+    <div class="grid grid-cols-1 gap-x-16 md:grid-cols-2">
+      {
+        columns.map((column) => (
+          <div class="border-b border-neutral-300">
+            {column.map((item) => (
+              <details class="group border-t border-neutral-300">
+                <summary class="flex cursor-pointer list-none items-center justify-between gap-4 py-6 tracking-widest [&::-webkit-details-marker]:hidden">
+                  <span>{item.q}</span>
+                  <span
+                    class="text-2xl font-light leading-none transition-transform duration-300 group-open:rotate-45"
+                    aria-hidden="true"
+                  >
+                    +
+                  </span>
+                </summary>
+                <p class="pb-6 pr-10 font-light leading-relaxed tracking-wider text-neutral-600">
+                  {item.a}
+                </p>
+              </details>
+            ))}
+          </div>
+        ))
+      }
+    </div>
+  </section>
+</Layout>
