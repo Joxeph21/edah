@@ -39,19 +39,32 @@ const { action = "" } = Astro.props;
       data-newsletter
       action={action}
       method="POST"
-      class="mx-auto mt-8 flex max-w-md flex-col gap-3 sm:flex-row"
+      novalidate
+      class="mx-auto mt-8 flex max-w-md flex-col gap-3 sm:flex-row sm:items-start"
       data-reveal
     >
-      <label for="newsletter-email" class="sr-only">Email address</label>
-      <input
-        id="newsletter-email"
-        name="email"
-        type="email"
-        required
-        autocomplete="email"
-        placeholder="you@example.com"
-        class="w-full flex-1 rounded-full border border-neutral-300 bg-white px-6 py-3 outline-none focus-visible:ring-2 focus-visible:ring-[#6b5252]/50"
-      />
+      <div class="w-full flex-1 text-left">
+        <label for="newsletter-email" class="sr-only">Email address</label>
+        <input
+          id="newsletter-email"
+          name="email"
+          type="email"
+          required
+          autocomplete="email"
+          placeholder="you@example.com"
+          aria-describedby="newsletter-email-error"
+          class="w-full rounded-full border border-neutral-300 bg-white px-6 py-3 outline-none focus-visible:ring-2 focus-visible:ring-[#6b5252]/50 aria-invalid:border-red-500 aria-invalid:focus-visible:ring-red-500/40"
+        />
+        <p
+          id="newsletter-email-error"
+          data-newsletter-error
+          aria-live="polite"
+          class="mt-1.5 px-6 text-sm tracking-wide text-red-600"
+          hidden
+        >
+        </p>
+      </div>
+
       <!-- Honeypot: real visitors never see or fill this -->
       <input
         type="text"
@@ -63,46 +76,81 @@ const { action = "" } = Astro.props;
       />
       <button
         type="submit"
-        class="rounded-full bg-primary px-8 py-3 font-semibold text-white transition-opacity hover:opacity-90 disabled:opacity-50"
+        class="rounded-full bg-primary px-8 py-3 font-semibold text-white transition-opacity enabled:hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
       >
         Subscribe
       </button>
     </form>
-
-    <p
-      data-newsletter-status
-      role="status"
-      aria-live="polite"
-      class="mt-4 min-h-6 text-sm tracking-wide"
-    >
-    </p>
   </div>
 </section>
 
 <script>
   import "@/lib/reveal";
-import { toast } from "@/lib/toast";
+  import { toast } from "@/lib/toast";
+  import { newsletterSchema } from "schemas/newsletterSchema";
 
   function init() {
     document
       .querySelectorAll<HTMLFormElement>("[data-newsletter]:not([data-bound])")
       .forEach((form) => {
         form.dataset.bound = "true";
-        const status = form
-          .closest("section")!
-          .querySelector<HTMLElement>("[data-newsletter-status]")!;
-        const button = form.querySelector<HTMLButtonElement>(
-          "button[type=submit]",
-        )!;
+
+        const input = form.querySelector<HTMLInputElement>("input[name=email]")!;
+        const errorEl = form.querySelector<HTMLElement>("[data-newsletter-error]")!;
+        const button = form.querySelector<HTMLButtonElement>("button[type=submit]")!;
+
+        let touched = false;
+        let sending = false;
+
+        function setError(message?: string) {
+          if (message) {
+            input.setAttribute("aria-invalid", "true");
+            errorEl.textContent = message;
+            errorEl.hidden = false;
+          } else {
+            input.removeAttribute("aria-invalid");
+            errorEl.textContent = "";
+            errorEl.hidden = true;
+          }
+        }
+
+        function validate(): boolean {
+          const result = newsletterSchema.shape.email.safeParse(input.value);
+          setError(result.success ? undefined : result.error.issues[0].message);
+          return result.success;
+        }
+
+        // Silent check: no message, just drives the button
+        function updateSubmitState() {
+          const valid = newsletterSchema.shape.email.safeParse(input.value).success;
+          button.disabled = sending || !valid;
+        }
+
+        // Validate when the user leaves the field, then live while typing
+        input.addEventListener("blur", () => {
+          touched = true;
+          validate();
+        });
+        input.addEventListener("input", () => {
+          if (touched) validate();
+          updateSubmitState();
+        });
+        input.addEventListener("change", updateSubmitState); // some autofill
 
         form.addEventListener("submit", async (e) => {
           e.preventDefault();
+
+          touched = true;
+          if (!validate()) {
+            input.focus();
+            return;
+          }
+
           const data = new FormData(form);
           if (data.get("website")) return; // honeypot tripped
 
-          button.disabled = true;
-          status.textContent = "";
-          status.className = "mt-4 min-h-6 text-sm tracking-wide";
+          sending = true;
+          updateSubmitState();
 
           try {
             if (form.getAttribute("action")) {
@@ -115,15 +163,21 @@ import { toast } from "@/lib/toast";
               toast.success("Thank you, you're on the list.");
             } else {
               console.warn("Newsletter: no `action` set, nothing was sent.");
-              toast.error("Something went wrong")
+              toast.error("Something went wrong");
             }
             form.reset();
+            touched = false;
+            setError();
           } catch {
             toast.error("Something went wrong. Please try again.");
           } finally {
-            button.disabled = false;
+            sending = false;
+            updateSubmitState();
           }
         });
+
+        updateSubmitState();
+        window.addEventListener("pageshow", updateSubmitState);
       });
   }
 

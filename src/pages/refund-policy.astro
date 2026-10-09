@@ -1,0 +1,162 @@
+---
+// src/pages/refund-policy.astro
+import LegalLayout from "@/layouts/LegalLayout.astro";
+
+import { LEGAL } from "@/data/legal";
+---
+
+<LegalLayout title="Refund & Returns Policy">
+  <div class="mb-10 rounded-2xl bg-neutral-100 p-6">
+    <p class="!mb-2 font-architects-daughter text-xl tracking-wider text-[#6b5252]">
+      the short version
+    </p>
+    <ul class="!mb-0">
+      <li>Original artworks and prints can be returned within {LEGAL.returnWindowDays} days of delivery, if they are unused and in their original condition.</li>
+      <li>Damaged or wrong item? Tell us within {LEGAL.damageReportHours} hours of delivery, with photos, and we will make it right.</li>
+      <li>Commissions are custom-made, so they follow their own rules (see below).</li>
+    </ul>
+  </div>
+
+  <p>
+    Every piece from {LEGAL.brand} is made by hand and packed with care, and we
+    want you to be happy with what arrives. This policy explains how returns,
+    refunds and cancellations work. It forms part of our <a href="/terms">Terms of Service</a>.
+  </p>
+
+  <h2>1. Cancelling an order</h2>
+  <p>
+    You can cancel an order for a full refund any time before it has shipped.
+    Email <a href={`mailto:${LEGAL.email}`}>{LEGAL.email}</a> with your order
+    number as soon as possible. Once an order has shipped, the return process
+    below applies instead.
+  </p>
+
+  <h2>2. Original artworks</h2>
+  <ul>
+    <li>
+      You may request a return within <strong>{LEGAL.returnWindowDays} days of
+      delivery</strong>, provided the artwork is in the same condition you
+      received it and in its original packaging.
+    </li>
+    <li>
+      Return shipping is paid by you, unless the piece arrived damaged or not
+      as described. We recommend a tracked and insured service, as you are
+      responsible for the item until it reaches us.
+    </li>
+    <li>
+      Original shipping charges are not refunded unless the return is due to
+      our error or damage in transit.
+    </li>
+    <li>Originals are one-of-a-kind, so we cannot offer exchanges.</li>
+  </ul>
+
+  <h2>3. Prints</h2>
+  <ul>
+    <li>
+      Prints can be returned within <strong>{LEGAL.returnWindowDays} days of
+      delivery</strong> if they are unmarked, uncreased and in their original
+      packaging. Return shipping is paid by you.
+    </li>
+    <li>
+      If a print arrives damaged, misprinted or is not the item you ordered, we
+      will send a replacement or refund you in full, including shipping.
+    </li>
+  </ul>
+
+  <h2>4. Commissions</h2>
+  <p>
+    Commissions are made to your brief, so they cannot be resold or reused and
+    are not eligible for change-of-mind returns.
+  </p>
+  <ul>
+    <li>
+      <strong>Before work begins:</strong> if you cancel before any work has
+      started, your deposit is refunded in full.
+    </li>
+    <li>
+      <strong>After work has begun:</strong> the {LEGAL.commissionDepositPercent}%
+      deposit covers time and materials already committed and is non-refundable.
+    </li>
+    <li>
+      <strong>After the sketch is approved:</strong> payments made are not
+      refundable, except where we are unable to deliver the work.
+    </li>
+    <li>
+      <strong>Finished piece:</strong> if it arrives damaged, or differs
+      significantly from the brief we agreed in writing, contact us and we will
+      repair, redo or refund as appropriate.
+    </li>
+  </ul>
+
+  <h2>5. Damaged, lost or incorrect items</h2>
+  <p>
+    If your order arrives damaged or is not what you ordered, please email <a href={`mailto:${LEGAL.email}`}>{LEGAL.email}</a> within <strong>{LEGAL.damageReportHours} hours of delivery</strong> with:
+  </p>
+  <ul>
+    <li>your order number;</li>
+    <li>clear photos of the item, the damage and all the packaging;</li>
+    <li>a short description of what happened.</li>
+  </ul>
+  <p>
+    Please keep the packaging, as we may need it to make a claim with the
+    carrier. We will offer a replacement, a repair or a full refund, including
+    the original shipping cost. If a parcel is lost in transit, we will work with
+    the carrier and either resend the item or refund you.
+  </p>
+
+  <h2>6. How to request a return</h2>
+  <ul>
+    <li>
+      Email <a href={`mailto:${LEGAL.email}`}>{LEGAL.email}</a> within the
+      return window with your order number and the reason for the return.
+    </li>
+    <li>We will reply with return instructions and the address to send the item to. Please do not send anything back before you hear from us.</li>
+    <li>Pack the artwork securely (poor packing is the most common cause of damage on the way back).</li>
+    <li>When the item reaches us, we will inspect it and confirm your refund.</li>
+  </ul>
+
+  <h2>7. Refunds</h2>
+  <ul>
+    <li>
+      Approved refunds are sent to your original payment method within
+      <strong>{LEGAL.refundProcessingDays} business days</strong> of us
+      receiving and inspecting the return (or approving your claim).
+    </li>
+    <li>
+      Your bank or card provider may need additional time to show the refund.
+      We refund the amount that was charged to you; exchange-rate differences or
+      fees applied by your bank are outside our control.
+    </li>
+    <li>
+      If a returned item arrives damaged or in a different condition from how
+      it was sent, we may refuse the return or reduce the refund to reflect
+      the loss in value.
+    </li>
+  </ul>
+
+  <h2>8. Items we cannot accept back</h2>
+  <ul>
+    <li>Custom commissions (except as described above).</li>
+    <li>Items damaged after delivery through misuse, framing, mounting or alteration.</li>
+    <li>Items returned after the return window, or without contacting us first.</li>
+  </ul>
+
+  <h2>9. Customs, duties and taxes</h2>
+  <p>
+    Import duties and taxes are the buyer's responsibility and are not
+    refundable, as they are collected by customs authorities and not by us. If
+    you refuse a parcel or fail to collect it from customs, the return shipping
+    and any fees charged to us may be deducted from your refund.
+  </p>
+
+  <h2>10. Your legal rights</h2>
+  <p>
+    This policy does not affect your statutory rights as a consumer, including
+    the mandatory consumer rights of the country where you live.
+  </p>
+
+  <h2>11. Contact</h2>
+  <p>
+    Questions about an order or this policy? Email <a href={`mailto:${LEGAL.email}`}>{LEGAL.email}</a>.
+  </p>
+</LegalLayout>

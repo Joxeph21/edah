@@ -1,84 +1,197 @@
 ---
-// src/components/ContactForm.astro
 interface Props {
   action?: string;
 }
 const { action = "#" } = Astro.props;
 
 const inputClass =
-  "w-full rounded-lg border border-neutral-300 bg-transparent px-4 py-3 text-base outline-none transition placeholder:text-neutral-400 focus:border-black focus:ring-2 focus:ring-black/10";
+  "w-full rounded-lg border border-neutral-300 bg-transparent px-4 py-3 text-base outline-none transition placeholder:text-neutral-400 focus:border-black focus:ring-2 focus:ring-black/10 aria-invalid:border-red-500 aria-invalid:focus:border-red-500 aria-invalid:focus:ring-red-500/20";
 const labelClass = "mb-2 block text-sm font-medium";
+const errorClass = "mt-1.5 text-sm text-red-600";
+
+interface FieldConfig {
+  name: "firstName" | "lastName" | "email" | "subject" | "message";
+  label: string;
+  type: "text" | "email" | "textarea";
+  placeholder: string;
+  autocomplete?: string;
+  full?: boolean;
+} 
+
+const fields: FieldConfig[] = [
+  { name: "firstName", label: "First name", type: "text", autocomplete: "given-name", placeholder: "John" },
+  { name: "lastName", label: "Last name", type: "text", autocomplete: "family-name", placeholder: "Doe" },
+  { name: "email", label: "Email", type: "email", autocomplete: "email", placeholder: "you@example.com", full: true },
+  { name: "subject", label: "Subject", type: "text", placeholder: "How can we help?", full: true },
+  { name: "message", label: "Message", type: "textarea", placeholder: "Tell us a bit more...", full: true },
+];
 ---
 
-<form action={action} method="POST" class="flex w-full flex-col gap-6">
+<form action={action} method="POST" class="flex w-full flex-col gap-6" data-contact-form novalidate>
   <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
-    <div>
-      <label for="firstName" class={labelClass}>First name</label>
-      <input
-        id="firstName"
-        name="firstName"
-        type="text"
-        autocomplete="given-name"
-        placeholder="John"
-        required
-        class={inputClass}
-      />
-    </div>
-    <div>
-      <label for="lastName" class={labelClass}>Last name</label>
-      <input
-        id="lastName"
-        name="lastName"
-        type="text"
-        autocomplete="family-name"
-        placeholder="Doe"
-        required
-        class={inputClass}
-      />
-    </div>
+    {fields.map((f) => (
+      <div class={f.full ? "sm:col-span-2" : ""}>
+        <label for={f.name} class={labelClass}>{f.label}</label>
+        {f.type === "textarea" ? (
+          <textarea
+            id={f.name}
+            name={f.name}
+            rows="6"
+            placeholder={f.placeholder}
+            required
+            data-field
+            aria-describedby={`${f.name}-error`}
+            class={`${inputClass} resize-none`}
+          ></textarea>
+        ) : (
+          <input
+            id={f.name}
+            name={f.name}
+            type={f.type }
+            autocomplete={f.autocomplete}
+            placeholder={f.placeholder}
+            required
+            data-field
+            aria-describedby={`${f.name}-error`}
+            class={inputClass}
+          />
+        )}
+        <p id={`${f.name}-error`} class={errorClass} aria-live="polite" hidden></p>
+      </div>
+    ))}
   </div>
 
-  <div>
-    <label for="email" class={labelClass}>Email</label>
-    <input
-      id="email"
-      name="email"
-      type="email"
-      autocomplete="email"
-      placeholder="you@example.com"
-      required
-      class={inputClass}
-    />
-  </div>
-
-  <div>
-    <label for="subject" class={labelClass}>Subject</label>
-    <input
-      id="subject"
-      name="subject"
-      type="text"
-      placeholder="How can we help?"
-      required
-      class={inputClass}
-    />
-  </div>
-
-  <div>
-    <label for="message" class={labelClass}>Message</label>
-    <textarea
-      id="message"
-      name="message"
-      rows="6"
-      placeholder="Tell us a bit more..."
-      required
-      class={`${inputClass} resize-none`}
-    ></textarea>
-  </div>
-
-  <button
-    type="submit"
-    class="w-full font-architects-daughter cursor-pointer rounded-4xl bg-primary px-6 py-3 font-medium text-white transition hover:bg-neutral-800 active:scale-[0.98] sm:w-fit"
-  >
-   Let&apos;s Chat
-  </button>
+<button
+  type="submit"
+  data-submit
+  class="w-full font-architects-daughter cursor-pointer rounded-4xl bg-primary px-6 py-3 font-medium text-white transition enabled:hover:bg-neutral-800 enabled:active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-70 sm:w-fit"
+>
+  Let&apos;s Chat
+</button>
 </form>
+
+
+<script>
+  import { contactSchema } from "schemas/contactSchema";
+
+  type Field = HTMLInputElement | HTMLTextAreaElement;
+  type FieldName = keyof typeof contactSchema.shape;
+
+  const form = document.querySelector<HTMLFormElement>("[data-contact-form]");
+  const submitBtn = document.querySelector<HTMLButtonElement>("[data-submit]");
+
+  if (form && submitBtn) {
+    const fields = Array.from(form.querySelectorAll<Field>("[data-field]"));
+    const touched = new Set<string>();
+
+    function validateField(el: Field): boolean {
+      const result = contactSchema.shape[el.name as FieldName].safeParse(el.value);
+      const errorEl = form!.querySelector<HTMLElement>(`#${el.name}-error`)!;
+
+      if (result.success) {
+        el.removeAttribute("aria-invalid");
+        errorEl.textContent = "";
+        errorEl.hidden = true;
+      } else {
+        el.setAttribute("aria-invalid", "true");
+        errorEl.textContent = result.error.issues[0].message;
+        errorEl.hidden = false;
+      }
+      return result.success;
+    }
+
+    // Silent check: no error messages, just drives the button
+    function updateSubmitState() {
+      const data = Object.fromEntries(new FormData(form!));
+      submitBtn!.disabled = !contactSchema.safeParse(data).success;
+    }
+
+    for (const el of fields) {
+      el.addEventListener("blur", () => {
+        touched.add(el.name);
+        validateField(el);
+      });
+      el.addEventListener("input", () => {
+        if (touched.has(el.name)) validateField(el);
+        updateSubmitState();
+      });
+      // Catches some autofill implementations
+      el.addEventListener("change", updateSubmitState);
+    }
+
+    form.addEventListener("submit", (e) => {
+      let firstInvalid: Field | null = null;
+
+      for (const el of fields) {
+        touched.add(el.name);
+        if (!validateField(el) && !firstInvalid) firstInvalid = el;
+      }
+
+      if (firstInvalid) {
+        e.preventDefault();
+        firstInvalid.focus();
+      }
+    });
+
+    // Initial state, and when the browser restores values on back/forward
+    updateSubmitState();
+    window.addEventListener("pageshow", updateSubmitState);
+  }
+</script>
+
+<!-- <script>
+import  { contactSchema } from "schemas/contactSchema";
+
+
+  type Field = HTMLInputElement | HTMLTextAreaElement;
+  type FieldName = keyof typeof contactSchema.shape;
+
+  const form = document.querySelector<HTMLFormElement>("[data-contact-form]");
+
+  if (form) {
+    const fields = Array.from(form.querySelectorAll<Field>("[data-field]"));
+    const touched = new Set<string>();
+
+    function validateField(el: Field): boolean {
+      const result = contactSchema.shape[el.name as FieldName].safeParse(el.value);
+      const errorEl = form!.querySelector<HTMLElement>(`#${el.name}-error`)!;
+
+      if (result.success) {
+        el.removeAttribute("aria-invalid");
+        errorEl.textContent = "";
+        errorEl.hidden = true;
+      } else {
+        el.setAttribute("aria-invalid", "true");
+        errorEl.textContent = result.error.issues[0].message;
+        errorEl.hidden = false;
+      }
+      return result.success;
+    }
+
+    for (const el of fields) {
+      // Validate once the user leaves the field...
+      el.addEventListener("blur", () => {
+        touched.add(el.name);
+        validateField(el);
+      });
+      // ...then live as they type, so errors clear immediately when fixed
+      el.addEventListener("input", () => {
+        if (touched.has(el.name)) validateField(el);
+      });
+    }
+
+    form.addEventListener("submit", (e) => {
+      let firstInvalid: Field | null = null;
+
+      for (const el of fields) {
+        touched.add(el.name);
+        if (!validateField(el) && !firstInvalid) firstInvalid = el;
+      }
+
+      if (firstInvalid) {
+        e.preventDefault();
+        firstInvalid.focus();
+      }
+    });
+  }
+</script> -->

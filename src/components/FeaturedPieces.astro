@@ -24,7 +24,7 @@ const imageSrc = (img?: ImageMetadata | string) =>
 >
   <SectionHeading title="featured pieces" id="featured-title" />
 
-  <ul class="grid grid-cols-2 gap-5 lg:grid-cols-4 lg:gap-6">
+  <ul class="grid sm:grid-cols-2 gap-5 lg:grid-cols-4 lg:gap-6">
     {
       pieces.map((piece, i) => {
         const summary = cardSummary(piece, "");

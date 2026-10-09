@@ -1,0 +1,180 @@
+---
+// src/pages/privacy.astro
+import LegalLayout from "@/layouts/LegalLayout.astro";
+import { LEGAL } from "@/data/legal";
+---
+
+<LegalLayout title="Privacy Policy">
+  <p>
+    This Privacy Policy explains how <strong>{LEGAL.owner}</strong> ("we", "us"), trading as <strong>{LEGAL.brand}</strong>, collects, uses and protects your personal data when you visit <strong>{LEGAL.siteUrl}</strong> (the "Website"), buy from us, commission work or contact us.
+    We handle personal data in line with the Nigeria Data Protection Act 2023
+    (NDPA) and, where it applies to you, other data protection laws such as the
+    GDPR.
+  </p>
+
+  <h2>1. Who is responsible for your data</h2>
+  <p>
+   <strong>{LEGAL.owner}</strong> is the data controller. You can reach us at <a href={`mailto:${LEGAL.email}`}>{LEGAL.email}</a>
+  </p>
+
+  <h2>2. What we collect</h2>
+  <ul>
+    <li>
+      <strong>Orders and checkout:</strong> your name, email address, phone
+      number, delivery and billing addresses, and what you ordered.
+    </li>
+    <li>
+      <strong>Payments:</strong> handled by {LEGAL.paymentProvider}. We receive
+      confirmation of payment, but we do not see or store your full card details.
+    </li>
+    <li>
+      <strong>Enquiries and commissions:</strong> your name, email address,
+      message, and any reference images or details you choose to send.
+    </li>
+    <li>
+      <strong>Newsletter:</strong> your email address, if you subscribe.
+    </li>
+    <li>
+      <strong>Your cart:</strong> items you add to your cart are saved in your
+      own browser (local storage) on your device. They are not sent to us until
+      you check out.
+    </li>
+    <li>
+      <strong>Technical data:</strong> IP address, browser and device type, and
+      pages visited, collected through server logs and {LEGAL.analytics}.
+    </li>
+  </ul>
+
+  <h2>3. How and why we use it</h2>
+  <div class="mb-6 overflow-x-auto">
+    <table>
+      <thead>
+        <tr class="border-b border-neutral-300">
+          <th>Purpose</th>
+          <th>Data</th>
+          <th>Lawful basis</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Process, ship and support your orders</td>
+          <td>Contact, delivery and order details</td>
+          <td>Performing a contract with you</td>
+        </tr>
+        <tr>
+          <td>Handle commission enquiries and requests</td>
+          <td>Contact details, messages, references</td>
+          <td>Steps at your request before a contract; contract</td>
+        </tr>
+        <tr>
+          <td>Send the newsletter and updates</td>
+          <td>Email address</td>
+          <td>Your consent (withdraw any time)</td>
+        </tr>
+        <tr>
+          <td>Keep records and meet tax and legal duties</td>
+          <td>Order and payment records</td>
+          <td>Legal obligation</td>
+        </tr>
+        <tr>
+          <td>Secure and improve the Website, prevent fraud</td>
+          <td>Technical data</td>
+          <td>Our legitimate interests</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h2>4. Who we share it with</h2>
+  <p>We do not sell your personal data. We share it only with providers that help us run the business, and only what they need:</p>
+  <ul>
+    <li>{LEGAL.paymentProvider}, to process payments;</li>
+    <li>{LEGAL.courier}, and other couriers, to deliver your order;</li>
+    <li>{LEGAL.emailProvider}, to send emails and the newsletter;</li>
+    <li>{LEGAL.hostingProvider}, to host the Website;</li>
+    <li>professional advisers, and authorities where the law requires it.</li>
+  </ul>
+  <p>
+    <strong>Instagram:</strong> our Website can show recent posts from our
+    Instagram account. When those images load, they come from Instagram's
+    servers, so Instagram may receive your IP address and device information.
+    Links to Instagram take you to a site governed by Instagram's own policies.
+  </p>
+
+  <h2>5. Cookies and local storage</h2>
+  <p>
+    We use your browser's local storage to remember your cart, which is
+    essential for the shop to work. {LEGAL.analytics} may be used to understand
+    how the Website is used; where it sets non-essential cookies, we will ask
+    for your consent first. You can clear local storage and cookies at any time
+    in your browser settings (this will empty your cart).
+  </p>
+
+  <h2>6. Transfers outside Nigeria</h2>
+  <p>
+    Some of the providers above process data outside Nigeria. When your data is
+    transferred abroad, we take steps to make sure it remains protected in line
+    with the NDPA, for example by using providers that offer appropriate
+    safeguards.
+  </p>
+
+  <h2>7. How long we keep it</h2>
+  <ul>
+    <li>Order and payment records: {LEGAL.retentionYears} years, for tax and accounting.</li>
+    <li>Enquiries and commission messages: up to 12 months after the conversation ends, or longer if a commission is ongoing.</li>
+    <li>Newsletter: until you unsubscribe.</li>
+    <li>Technical logs: for a short period, as set by our hosting provider.</li>
+  </ul>
+
+  <h2>8. How we protect it</h2>
+  <p>
+    We use reasonable technical and organisational measures, such as encrypted
+    connections (HTTPS) and limited access, to protect your data. No online
+    service is completely secure, so we cannot guarantee absolute security. If a
+    breach affects your rights, we will notify you and the regulator where the
+    law requires.
+  </p>
+
+  <h2>9. Your rights</h2>
+  <p>Under the NDPA, you have the right to:</p>
+  <ul>
+    <li>be informed about how your data is used;</li>
+    <li>access the personal data we hold about you;</li>
+    <li>have inaccurate data corrected;</li>
+    <li>ask us to delete your data, or restrict how we use it, in certain circumstances;</li>
+    <li>object to processing, including for direct marketing;</li>
+    <li>receive your data in a portable format;</li>
+    <li>withdraw consent at any time (this does not affect past processing);</li>
+    <li>not be subject to decisions based solely on automated processing that significantly affect you.</li>
+  </ul>
+  <p>
+    To use any of these rights, email <a href={`mailto:${LEGAL.email}`}>{LEGAL.email}</a>.
+    We may need to verify your identity first, and we will respond without
+    undue delay, normally within 30 days. You can unsubscribe from the
+    newsletter at any time using the link in any email.
+  </p>
+  <p>
+    If you are unhappy with how we handle your data, please contact us first. You
+    also have the right to complain to the Nigeria Data Protection Commission
+    (NDPC), or to your local data protection authority if you live elsewhere.
+  </p>
+
+  <h2>10. Children</h2>
+  <p>
+    The Website is not directed at children under 18, and we do not knowingly
+    collect their personal data. If you believe a child has given us their
+    information, please contact us and we will delete it.
+  </p>
+
+  <h2>11. Changes to this policy</h2>
+  <p>
+    We may update this policy as the Website or the law changes. The "Last
+    updated" date at the top shows the latest version. If we make significant
+    changes, we will take reasonable steps to let you know.
+  </p>
+
+  <h2>12. Contact</h2>
+  <p>
+    Questions about privacy? Email <a href={`mailto:${LEGAL.email}`}>{LEGAL.email}</a>.
+  </p>
+</LegalLayout>

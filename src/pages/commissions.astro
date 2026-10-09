@@ -1,7 +1,11 @@
 ---
 import Layout from "@/layouts/Layout.astro";
 import { Image } from "astro:assets";
-// Swap each of these for a real example of that type of work.
+import {
+  FILE_ACCEPT,
+  MAX_FILES,
+  MAX_FILE_SIZE,
+} from "schemas/commissionSchema";
 
 import maskImg from "@/assets/images/mask.webp";
 import muralImg from "@/assets/images/mural.webp";
@@ -93,8 +97,9 @@ const half = Math.ceil(faqs.length / 2);
 const columns = [faqs.slice(0, half), faqs.slice(half)];
 
 const inputClass =
-  "w-full rounded-lg border border-neutral-300 bg-white px-4 py-3 text-sm tracking-wider outline-none transition placeholder:text-neutral-400 focus:border-primary focus:ring-2 focus:ring-primary/10";
+  "w-full rounded-lg border border-neutral-300 bg-white px-4 py-3 text-sm tracking-wider outline-none transition placeholder:text-neutral-400 focus:border-primary focus:ring-2 focus:ring-primary/10 aria-invalid:border-red-500 aria-invalid:focus:border-red-500 aria-invalid:focus:ring-red-500/20";
 const labelClass = "mb-2 block text-sm font-medium tracking-wider";
+const errorClass = "mt-1.5 text-sm tracking-wider text-red-600";
 ---
 
 <Layout title="Commissions">
@@ -205,9 +210,11 @@ const labelClass = "mb-2 block text-sm font-medium tracking-wider";
         action="#"
         method="POST"
         enctype="multipart/form-data"
+        novalidate
+        data-commission-form
         class="flex flex-col gap-8 rounded-2xl bg-neutral-100 p-6 sm:p-10"
       >
-        <fieldset>
+        <fieldset id="type" aria-describedby="type-error">
           <legend class={labelClass}>What would you like made?</legend>
           <div class="flex flex-wrap gap-2">
             {
@@ -226,7 +233,21 @@ const labelClass = "mb-2 block text-sm font-medium tracking-wider";
                 </label>
               ))
             }
+            <label class="cursor-pointer">
+              <input
+                type="radio"
+                name="type"
+                value={"other"}
+                class="peer sr-only"
+              />
+              <span
+                class="block rounded-lg border border-neutral-300 bg-white px-4 py-2 text-sm capitalize tracking-wider transition-colors hover:border-primary peer-checked:border-primary peer-checked:bg-primary peer-checked:text-white peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-primary"
+              >
+                Other
+              </span>
+            </label>
           </div>
+          <p id="type-error" class={errorClass} aria-live="polite" hidden></p>
         </fieldset>
 
         <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
@@ -238,8 +259,10 @@ const labelClass = "mb-2 block text-sm font-medium tracking-wider";
               type="text"
               autocomplete="name"
               required
+              aria-describedby="name-error"
               class={inputClass}
             />
+            <p id="name-error" class={errorClass} aria-live="polite" hidden></p>
           </div>
           <div>
             <label for="email" class={labelClass}>Email</label>
@@ -249,8 +272,11 @@ const labelClass = "mb-2 block text-sm font-medium tracking-wider";
               type="email"
               autocomplete="email"
               required
+              aria-describedby="email-error"
               class={inputClass}
             />
+            <p id="email-error" class={errorClass} aria-live="polite" hidden>
+            </p>
           </div>
         </div>
 
@@ -261,34 +287,57 @@ const labelClass = "mb-2 block text-sm font-medium tracking-wider";
             name="about"
             rows="6"
             required
+            aria-describedby="about-error"
             placeholder="Describe the idea, the story or feeling behind it, colours, materials, anything that matters to you."
             class={`${inputClass} resize-none`}></textarea>
+          <p id="about-error" class={errorClass} aria-live="polite" hidden></p>
         </div>
 
         <div>
           <span class={labelClass}>Inspiration (optional)</span>
-          <input
-            id="inspiration"
-            name="inspiration"
-            type="file"
-            accept="image/*"
-            multiple
-            class="peer sr-only"
-          />
-          <label
-            for="inspiration"
-            class="flex cursor-pointer flex-col items-center gap-1 rounded-lg border-2 border-dashed border-neutral-300 bg-white px-4 py-8 text-center transition-colors hover:border-primary peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-primary"
-          >
-            <span class="text-sm font-medium tracking-wider">
-              Add inspiration photos
-            </span>
-            <span
-              id="file-list"
-              class="text-xs tracking-wider text-neutral-500"
+
+          <div class="flex flex-wrap gap-3">
+            <input
+              id="inspiration"
+              name="inspiration"
+              type="file"
+              accept={FILE_ACCEPT}
+              multiple
+              aria-describedby="file-hint inspiration-error"
+              class="peer sr-only"
+            />
+
+            <!-- Preview cards are rendered here by the script -->
+            <ul id="file-previews" role="list" class="contents"></ul>
+
+            <!-- The "+" card, hidden by the script once the max is reached -->
+            <label
+              id="file-add"
+              for="inspiration"
+              class="flex h-28 w-28 cursor-pointer flex-col items-center justify-center gap-1 rounded-lg border-2 border-dashed border-neutral-300 bg-white text-neutral-500 transition-colors hover:border-primary hover:text-primary peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-primary peer-aria-invalid:border-red-500"
             >
-              Click to choose images, or describe your idea above instead
-            </span>
-          </label>
+              <span class="text-3xl font-light leading-none" aria-hidden="true"
+                >+</span
+              >
+              <span class="text-xs tracking-wider">Add files</span>
+            </label>
+          </div>
+
+          <p
+            id="file-hint"
+            class="mt-3 text-xs tracking-wider text-neutral-500"
+          >
+            Images, PDF, Word or text files. Up to {MAX_FILES} files, {
+              MAX_FILE_SIZE / 1024 / 1024
+            }MB each.
+          </p>
+          <p
+            id="inspiration-error"
+            class={errorClass}
+            aria-live="polite"
+            hidden
+          >
+          </p>
         </div>
 
         <div>
@@ -300,13 +349,17 @@ const labelClass = "mb-2 block text-sm font-medium tracking-wider";
             name="details"
             type="text"
             placeholder="e.g. 3m wall in Lagos, needed by March"
+            aria-describedby="details-error"
             class={inputClass}
           />
+          <p id="details-error" class={errorClass} aria-live="polite" hidden>
+          </p>
         </div>
 
         <button
           type="submit"
-          class="w-full cursor-pointer rounded-lg bg-primary px-10 py-3 font-medium tracking-wider text-white transition hover:opacity-90 active:scale-[0.98] sm:w-fit"
+          data-submit
+          class="w-full cursor-pointer rounded-lg bg-primary px-10 py-3 font-medium tracking-wider text-white transition enabled:hover:opacity-90 enabled:active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60 sm:w-fit"
         >
           send request
         </button>
@@ -350,25 +403,280 @@ const labelClass = "mb-2 block text-sm font-medium tracking-wider";
 </Layout>
 
 <script>
-  // Clicking a type card preselects it in the form
-  document.querySelectorAll<HTMLElement>("[data-pick]").forEach((card) => {
-    card.addEventListener("click", () => {
-      const radio = document.querySelector<HTMLInputElement>(
-        `input[name="type"][value="${card.dataset.pick}"]`,
-      );
-      if (radio) radio.checked = true;
-    });
-  });
+  import {
+    commissionSchema,
+    isAcceptedFile,
+    MAX_FILES,
+    MAX_FILE_SIZE,
+  } from "schemas/commissionSchema";
 
-  // Show chosen file names in the upload box
-  const input = document.querySelector<HTMLInputElement>("#inspiration");
-  const list = document.querySelector<HTMLElement>("#file-list");
-  input?.addEventListener("change", () => {
-    if (!list) return;
-    list.textContent = input.files?.length
-      ? Array.from(input.files)
-          .map((f) => f.name)
-          .join(", ")
-      : "Click to choose images, or describe your idea above instead";
-  });
+  type FieldName = keyof typeof commissionSchema.shape;
+
+  const MAX_MB = MAX_FILE_SIZE / 1024 / 1024;
+  const DOC_ICON = `<svg xmlns="http://www.w3.org/2000/svg" class="size-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z" /></svg>`;
+
+  const form = document.querySelector<HTMLFormElement>(
+    "[data-commission-form]",
+  );
+  const submitBtn = document.querySelector<HTMLButtonElement>("[data-submit]");
+  const fileInput = document.querySelector<HTMLInputElement>("#inspiration");
+  const previews = document.querySelector<HTMLElement>("#file-previews");
+  const addTile = document.querySelector<HTMLElement>("#file-add");
+
+  if (form && submitBtn && fileInput && previews && addTile) {
+    init(form, submitBtn, fileInput, previews, addTile);
+  }
+
+  function init(
+    form: HTMLFormElement,
+    submitBtn: HTMLButtonElement,
+    fileInput: HTMLInputElement,
+    previews: HTMLElement,
+    addTile: HTMLElement,
+  ) {
+    const names = Object.keys(commissionSchema.shape) as FieldName[];
+    const isField = (n: string): n is FieldName =>
+      (names as string[]).includes(n);
+    const touched = new Set<FieldName>();
+
+    // Source of truth for uploads; the input's FileList is kept in sync with it
+    const files: File[] = [];
+    const previewUrls = new Map<File, string>();
+    const fileKey = (f: File) => `${f.name}:${f.size}:${f.lastModified}`;
+
+    // ---------- Validation ----------
+
+    // Radios and files don't map cleanly to FormData, so read each value explicitly
+    function getValue(name: FieldName): unknown {
+      if (name === "type") {
+        return form.querySelector<HTMLInputElement>(
+          'input[name="type"]:checked',
+        )?.value;
+      }
+      if (name === "inspiration") return [...files];
+      return form.querySelector<HTMLInputElement | HTMLTextAreaElement>(
+        `#${name}`,
+      )!.value;
+    }
+
+    function getAllValues() {
+      return Object.fromEntries(names.map((n) => [n, getValue(n)]));
+    }
+
+    function setError(name: FieldName, message?: string) {
+      const target = form.querySelector<HTMLElement>(`#${name}`)!;
+      const errorEl = form.querySelector<HTMLElement>(`#${name}-error`)!;
+      if (message) {
+        target.setAttribute("aria-invalid", "true");
+        errorEl.textContent = message;
+        errorEl.hidden = false;
+      } else {
+        target.removeAttribute("aria-invalid");
+        errorEl.textContent = "";
+        errorEl.hidden = true;
+      }
+    }
+
+    function validateField(name: FieldName): boolean {
+      const result = commissionSchema.shape[name].safeParse(getValue(name));
+      setError(
+        name,
+        result.success ? undefined : result.error.issues[0].message,
+      );
+      return result.success;
+    }
+
+    // Silent check: no messages, just drives the button
+    function updateSubmitState() {
+      submitBtn.disabled = !commissionSchema.safeParse(getAllValues()).success;
+    }
+
+    function focusField(name: FieldName) {
+      const el =
+        name === "type"
+          ? form.querySelector<HTMLInputElement>('input[name="type"]')
+          : form.querySelector<HTMLElement>(`#${name}`);
+      el?.focus();
+    }
+
+    // ---------- File previews ----------
+
+    function previewUrl(file: File) {
+      let url = previewUrls.get(file);
+      if (!url) {
+        url = URL.createObjectURL(file);
+        previewUrls.set(file, url);
+      }
+      return url;
+    }
+
+    // Push our array back into the real input so the files get submitted
+    function syncInput() {
+      const dt = new DataTransfer();
+      files.forEach((f) => dt.items.add(f));
+      fileInput.files = dt.files;
+    }
+
+    function createCard(file: File): HTMLLIElement {
+      const li = document.createElement("li");
+      li.className =
+        "relative h-28 w-28 overflow-hidden rounded-lg border border-neutral-300 bg-white";
+      li.title = file.name;
+
+      if (file.type.startsWith("image/")) {
+        const img = document.createElement("img");
+        img.src = previewUrl(file);
+        img.alt = file.name;
+        img.className = "h-full w-full object-cover";
+        li.append(img);
+      } else {
+        const doc = document.createElement("div");
+        doc.className =
+          "flex h-full w-full flex-col items-center justify-center gap-1 px-2 text-neutral-500";
+        doc.innerHTML = DOC_ICON; // static markup, no user input
+
+        const ext = document.createElement("span");
+        ext.className = "text-[10px] font-medium uppercase tracking-wider";
+        ext.textContent = file.name.includes(".")
+          ? file.name.split(".").pop()!
+          : "file";
+
+        const name = document.createElement("span");
+        name.className =
+          "w-full truncate text-center text-[11px] tracking-wider";
+        name.textContent = file.name;
+
+        doc.append(ext, name);
+        li.append(doc);
+      }
+
+      const remove = document.createElement("button");
+      remove.type = "button";
+      remove.setAttribute("aria-label", `Remove ${file.name}`);
+      remove.className =
+        "absolute right-1 top-1 flex size-6 cursor-pointer items-center justify-center rounded-full bg-black/70 text-sm leading-none text-white transition hover:bg-black focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary";
+      remove.innerHTML = '<span aria-hidden="true">×</span>';
+      remove.addEventListener("click", () => removeFile(file));
+      li.append(remove);
+
+      return li;
+    }
+
+    function renderFiles() {
+      previews.replaceChildren(...files.map(createCard));
+
+      // Conditionally render the "+" card
+      const full = files.length >= MAX_FILES;
+      addTile.style.display = full ? "none" : "";
+      // Don't leave an invisible input in the tab order when full
+      // (never `disabled` it, since disabled inputs aren't submitted)
+      fileInput.tabIndex = full ? -1 : 0;
+    }
+
+    function addFiles(incoming: File[]) {
+      let error = "";
+
+      for (const file of incoming) {
+        if (files.some((f) => fileKey(f) === fileKey(file))) continue; // duplicate
+        if (!isAcceptedFile(file)) {
+          error ||= `"${file.name}" isn't a supported file type`;
+          continue;
+        }
+        if (file.size > MAX_FILE_SIZE) {
+          error ||= `"${file.name}" is over ${MAX_MB}MB`;
+          continue;
+        }
+        if (files.length >= MAX_FILES) {
+          error ||= `You can add up to ${MAX_FILES} files`;
+          continue;
+        }
+        files.push(file);
+      }
+
+      syncInput();
+      renderFiles();
+      touched.add("inspiration");
+      validateField("inspiration");
+      if (error) setError("inspiration", error); // show why a file was skipped
+      updateSubmitState();
+    }
+
+    function removeFile(file: File) {
+      files.splice(files.indexOf(file), 1);
+
+      const url = previewUrls.get(file);
+      if (url) URL.revokeObjectURL(url);
+      previewUrls.delete(file);
+
+      syncInput();
+      renderFiles();
+      touched.add("inspiration");
+      validateField("inspiration");
+      updateSubmitState();
+      fileInput.focus(); // the removed card's button is gone, so keep focus nearby
+    }
+
+    // ---------- Events ----------
+
+    // Text fields: validate on blur, then live while typing
+    form.addEventListener("focusout", (e) => {
+      const el = e.target as HTMLInputElement;
+      if (!isField(el.name) || el.type === "radio" || el.type === "file")
+        return;
+      touched.add(el.name);
+      validateField(el.name);
+    });
+
+    form.addEventListener("input", (e) => {
+      const el = e.target as HTMLInputElement;
+      if (!isField(el.name) || el.type === "file") return; // files handled on change
+      if (touched.has(el.name)) validateField(el.name);
+      updateSubmitState();
+    });
+
+    form.addEventListener("change", (e) => {
+      const el = e.target as HTMLInputElement;
+      if (!isField(el.name)) return;
+
+      if (el.type === "file") {
+        // The picker replaces the input's files, so merge the picks into our list.
+        // (If the dialog was cancelled, this is empty and syncInput restores the input.)
+        addFiles(Array.from(fileInput.files ?? []));
+        return;
+      }
+
+      if (el.type === "radio") touched.add(el.name);
+      if (touched.has(el.name)) validateField(el.name);
+      updateSubmitState();
+    });
+
+    form.addEventListener("submit", (e) => {
+      let firstInvalid: FieldName | null = null;
+      for (const name of names) {
+        touched.add(name);
+        if (!validateField(name) && !firstInvalid) firstInvalid = name;
+      }
+      if (firstInvalid) {
+        e.preventDefault();
+        focusField(firstInvalid);
+      }
+    });
+
+    // Clicking a type card preselects it in the form
+    document.querySelectorAll<HTMLElement>("[data-pick]").forEach((card) => {
+      card.addEventListener("click", () => {
+        const radio = form.querySelector<HTMLInputElement>(
+          `input[name="type"][value="${card.dataset.pick}"]`,
+        );
+        if (!radio) return;
+        radio.checked = true;
+        radio.dispatchEvent(new Event("change", { bubbles: true }));
+      });
+    });
+
+    // Initial state, and when the browser restores the page on back/forward
+    renderFiles();
+    updateSubmitState();
+    window.addEventListener("pageshow", updateSubmitState);
+  }
 </script>
