@@ -17,7 +17,6 @@ interface Props {
   pieces?: Piece[];
 }
 
-// Placeholder data that mirrors your shop page. Replace with real images.
 const {
   pieces = [
     { id: 1, title: "Morning Light", category: "paintings", price: 1200 },
@@ -36,7 +35,7 @@ const imageSrc = (img?: ImageMetadata | string) =>
   aria-labelledby="featured-title"
   data-reveal-section
 >
-  <SectionHeading eyebrow="fresh from the studio" title="featured pieces" id="featured-title" />
+  <SectionHeading  title="featured pieces" id="featured-title" />
 
   <ul class="grid grid-cols-2 gap-5 lg:grid-cols-4 lg:gap-6">
     {

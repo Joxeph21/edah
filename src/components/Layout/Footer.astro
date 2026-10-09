@@ -8,15 +8,30 @@ const exploreLinks = NAV_LINKS.flatMap((link) =>
   "children" in link && link.children ? link.children : [link],
 );
 
-const EMAIL = "hello@example.com";
+const EMAIL = "[EMAIL_ADDRESS]";
 const SOCIALS = Socials;
+
+const legalLinks = [
+  {
+    label: "Returns and Refund Policy",
+    path: "/return-policy",
+  },
+  {
+    label: "Terms of Service",
+    path: "/terms-of-service",
+  },
+  {
+    label: "Privacy Policy",
+    path: "/privacy-policy",
+  },
+];
 
 const year = new Date().getFullYear();
 ---
 
 <footer class="mt-auto w-full bg-primary text-white">
   <div class="mx-auto w-full px-6 pb-8 pt-16 md:px-10">
-    <div class="grid gap-12 md:grid-cols-[1.5fr_1fr_1fr]">
+    <div class="grid gap-12 md:grid-cols-[1.5fr_1fr_1fr_1fr]">
       <!-- Brand -->
       <div class="flex flex-col items-start gap-5">
         <a href="/" class="inline-block">
@@ -91,6 +106,29 @@ const year = new Date().getFullYear();
           }
         </ul>
       </div>
+
+      <!-- Legal -->
+      <nav aria-label="Footer">
+        <h2 class="mb-4 font-architects-daughter text-lg tracking-widest">
+          legal
+        </h2>
+        <ul class="flex flex-col gap-3 text-sm tracking-wide">
+          {
+            legalLinks.map((link) => (
+              <li>
+                {
+                  <a
+                    href={link.path}
+                    class="text-white/70 transition-colors hover:text-white hover:underline hover:underline-offset-4"
+                  >
+                    {link.label}
+                  </a>
+                }
+              </li>
+            ))
+          }
+        </ul>
+      </nav>
     </div>
 
     <!-- Bottom bar -->

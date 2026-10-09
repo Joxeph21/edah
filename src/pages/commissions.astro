@@ -1,40 +1,90 @@
 ---
 import Layout from "@/layouts/Layout.astro";
 import { Image } from "astro:assets";
-import drummer from "@/assets/images/drummer.webp";
+// Swap each of these for a real example of that type of work.
+import maskImg from "@/assets/images/drummer.webp";
+import muralImg from "@/assets/images/drummer.webp";
+import sculptureImg from "@/assets/images/drummer.webp";
+import coverImg from "@/assets/images/drummer.webp";
+
+const types = [
+  {
+    id: "mask",
+    title: "custom masks",
+    blurb: "Wearable pieces made around a character, story or theme.",
+    image: maskImg,
+  },
+  {
+    id: "mural",
+    title: "murals",
+    blurb: "Large-scale work painted directly onto your wall or space.",
+    image: muralImg,
+  },
+  {
+    id: "sculpture",
+    title: "sculptures",
+    blurb: "One-of-a-kind three-dimensional pieces made to your brief.",
+    image: sculptureImg,
+  },
+  {
+    id: "cover-art",
+    title: "cover art",
+    blurb: "Original artwork for albums, books, EPs and singles.",
+    image: coverImg,
+  },
+];
+
+const steps = [
+  {
+    title: "you tell me",
+    text: "Choose the type of piece, describe what it's about and share anything that inspires you.",
+  },
+  {
+    title: "we talk it through",
+    text: "I reply with questions, ideas and a clear quote and timeline before anything starts.",
+  },
+  {
+    title: "I make it",
+    text: "I work on your piece and share progress so you can give feedback along the way.",
+  },
+  {
+    title: "it's yours",
+    text: "Your finished piece is delivered, shipped or installed, depending on what it is.",
+  },
+];
 
 const faqs = [
   {
-    q: "who are commissions for?",
-    a: "Anyone who wants a one-of-a-kind piece: a portrait, a gift, or an artwork built around a personal story.",
+    q: "what can I commission?",
+    a: "Custom masks, murals, sculptures and cover art. If your idea sits somewhere in between, tell me and we'll see if it's a fit.",
   },
   {
-    q: "how does it work?",
-    a: "You join the waitlist, and when it's your turn I reach out to talk through your idea. Once we agree on the direction, I start the piece and share progress along the way.",
+    q: "do I need a finished idea?",
+    a: "No. A rough description, a mood or a few photos is enough to start. I'll help shape it from there.",
   },
   {
-    q: "what sizes do you offer?",
-    a: "Paintings come in a range of sizes, and sculptures are made to order. We'll choose what suits your space and budget during our first conversation.",
+    q: "how do I share inspiration?",
+    a: "Upload photos in the form, or just describe what you have in mind. You can send more images later by email.",
   },
   {
     q: "how much does it cost?",
-    a: "Pricing depends on size, medium and complexity. I'll send a clear quote before any work begins.",
+    a: "It depends on the type, size, materials and how detailed the piece is. You'll get a clear quote before I begin.",
   },
   {
     q: "how long does it take?",
-    a: "Most commissions take several weeks once started. I'll give you a realistic timeline when we begin.",
+    a: "A mask or cover art usually takes a few weeks. Sculptures and murals take longer. I'll give you a realistic schedule up front.",
+  },
+  {
+    q: "can you paint a mural in my city?",
+    a: "Murals can be done on location depending on travel and scheduling. Tell me where the wall is and I'll confirm what's possible.",
   },
   {
     q: "do you ship worldwide?",
-    a: "Yes. Every piece is carefully packaged and insured, and shipping is quoted separately at checkout.",
+    a: "Yes. Masks and sculptures are carefully packed and shipped, with shipping quoted separately.",
   },
   {
-    q: "can I request changes?",
-    a: "Yes. You'll see early sketches and can give feedback before the final piece is made.",
-  },
-  {
-    q: "what if I'm not happy with it?",
-    a: "I'll work with you to make it right. Your approval at each stage is how we avoid surprises at the end.",
+    q: "can I ask for changes?",
+    a: "Yes. You'll see progress along the way and can give feedback before the piece is finished.",
   },
 ];
 
@@ -42,126 +92,213 @@ const half = Math.ceil(faqs.length / 2);
 const columns = [faqs.slice(0, half), faqs.slice(half)];
 
 const inputClass =
-  "w-full rounded-lg border border-neutral-300 bg-transparent px-4 py-3 text-sm tracking-wider outline-none transition placeholder:text-neutral-400 focus:border-primary focus:ring-2 focus:ring-primary/10";
+  "w-full rounded-lg border border-neutral-300 bg-white px-4 py-3 text-sm tracking-wider outline-none transition placeholder:text-neutral-400 focus:border-primary focus:ring-2 focus:ring-primary/10";
+const labelClass = "mb-2 block text-sm font-medium tracking-wider";
 ---
 
 <Layout title="Commissions">
-  <!-- Hero -->
-  <section class="content w-full px-10 pt-16 pb-10 text-center">
-    <h1
-      class="font-architects-daughter text-5xl font-bold tracking-wider sm:text-6xl"
-    >
-      commissions
-    </h1>
-    <p
-      class="font-architects-daughter mx-auto mt-5 max-w-3xl text-lg tracking-widest text-neutral-500 sm:text-xl"
-    >
-      "Some pieces can only be made for one person."
-    </p>
-  </section>
-
-  <!-- Intro -->
-  <section
-    class="content flex w-full flex-col items-center gap-12 px-10 py-10 lg:flex-row lg:gap-20"
-  >
-    <div
-      class="flex flex-col gap-6 text-center font-light tracking-widest lg:w-1/2"
-    >
-      <p>
-        A commission is an invitation to create something that exists nowhere
-        else. We'll work together on an artwork shaped by your story, your
-        symbols and the details that make it yours.
+  <!-- Hero + commission types -->
+  <section class="content w-full px-10 pt-16 pb-10">
+    <div class="mx-auto flex max-w-3xl flex-col items-center gap-5 text-center">
+      <p class="font-architects-daughter text-lg tracking-widest text-neutral-500">
+        commissions
       </p>
-      <p>
-        After an initial conversation, I'll develop the idea slowly and
-        intentionally, sharing the process with you as it comes to life.
-      </p>
-      <p>
-        Availability is limited and I work on a first come, first served basis.
-        Join the waitlist below and I'll reach out when you're next in line.
+      <h1
+        class="font-architects-daughter text-3xl font-bold leading-tight tracking-wider sm:text-6xl"
+      >
+        made for you, from your idea
+      </h1>
+      <p class="font-light leading-relaxed tracking-widest text-neutral-600">
+        Tell me what you'd like to make, what it's about and what inspires you.
+        I'll turn it into a piece that exists nowhere else.
       </p>
     </div>
 
-    <figure
-      class="relative aspect-4/5 w-full max-w-sm overflow-hidden rounded-xl bg-neutral-100 lg:ml-auto lg:w-[40%]"
-    >
-      <Image
-        src={drummer}
-        alt="Commission example"
-        class="pointer-events-none h-full w-full select-none object-cover"
-      />
-    </figure>
+    <ul class="mt-14 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+      {
+        types.map((t) => (
+          <li>
+            <a
+              href="#request"
+              data-pick={t.id}
+              class="group flex flex-col gap-4"
+            >
+              <div class="aspect-4/5 overflow-hidden rounded-xl bg-neutral-100">
+                <Image
+                  src={t.image}
+                  alt={t.title}
+                  class="pointer-events-none h-full w-full select-none object-cover transition-transform duration-500 group-hover:scale-105"
+                />
+              </div>
+              <div>
+                <h2 class="font-architects-daughter text-xl font-bold tracking-wider">
+                  {t.title}
+                </h2>
+                <p class="mt-1 text-sm font-light leading-relaxed tracking-wider text-neutral-600">
+                  {t.blurb}
+                </p>
+                <span class="mt-3 inline-block text-sm tracking-wider text-primary underline-offset-4 group-hover:underline">
+                  start a request →
+                </span>
+              </div>
+            </a>
+          </li>
+        ))
+      }
+    </ul>
   </section>
 
-  <!-- Waitlist -->
-  <section
-    class="content flex w-full flex-col items-center gap-12 px-10 py-10 lg:flex-row lg:gap-20"
-  >
-    <figure
-      class="relative aspect-4/5 w-full max-w-sm overflow-hidden rounded-xl bg-neutral-100 lg:w-[35%]"
+  <!-- Process -->
+  <section class="content w-full px-10 py-16">
+    <h2
+      class="font-architects-daughter mb-12 text-center text-4xl font-bold tracking-wider sm:text-5xl"
     >
-      <Image
-        src={drummer}
-        alt="Commission example"
-        class="pointer-events-none h-full w-full select-none object-cover"
-      />
-    </figure>
+      how it works
+    </h2>
 
-    <div class="flex w-full flex-col items-center gap-8 lg:flex-1">
-      <h2
-        class="font-architects-daughter text-4xl font-bold tracking-wider sm:text-5xl"
-      >
-        join the waitlist
-      </h2>
+    <ol class="grid gap-10 md:grid-cols-4 md:gap-6">
+      {
+        steps.map((s, i) => (
+          <li class="border-t border-neutral-300 pt-6">
+            <span class="font-architects-daughter text-3xl text-primary">
+              {String(i + 1).padStart(2, "0")}
+            </span>
+            <h3 class="font-architects-daughter mt-2 text-xl font-bold tracking-wider">
+              {s.title}
+            </h3>
+            <p class="mt-2 font-light leading-relaxed tracking-wider text-neutral-600">
+              {s.text}
+            </p>
+          </li>
+        ))
+      }
+    </ol>
+  </section>
+
+  <!-- Request form -->
+  <section id="request" class="content w-full scroll-mt-8 px-10 py-16">
+    <div class="grid gap-12 lg:grid-cols-[1fr_1.4fr] lg:gap-20">
+      <div class="lg:sticky lg:top-32 lg:self-start">
+        <h2
+          class="font-architects-daughter text-4xl font-bold tracking-wider sm:text-5xl"
+        >
+          start a commission
+        </h2>
+        <p class="mt-5 font-light leading-relaxed tracking-widest text-neutral-600">
+          Share as much or as little as you like. A few lines about the idea
+          and some inspiration photos are plenty to get started.
+        </p>
+        <p class="mt-4 font-light leading-relaxed tracking-widest text-neutral-600">
+          I'll reply by email with questions and a quote. Nothing is booked
+          until you say yes.
+        </p>
+      </div>
 
       <form
         action="#"
         method="POST"
-        class="flex w-full max-w-lg flex-col gap-4"
+        enctype="multipart/form-data"
+        class="flex flex-col gap-8 rounded-2xl bg-neutral-100 p-6 sm:p-10"
       >
-        <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
-          <input
-            name="firstName"
-            type="text"
-            autocomplete="given-name"
-            placeholder="First name"
-            aria-label="First name"
+        <fieldset>
+          <legend class={labelClass}>What would you like made?</legend>
+          <div class="flex flex-wrap gap-2">
+            {
+              types.map((t, i) => (
+                <label class="cursor-pointer">
+                  <input
+                    type="radio"
+                    name="type"
+                    value={t.id}
+                    required={i === 0}
+                    class="peer sr-only"
+                  />
+                  <span class="block rounded-lg border border-neutral-300 bg-white px-4 py-2 text-sm capitalize tracking-wider transition-colors hover:border-primary peer-checked:border-primary peer-checked:bg-primary peer-checked:text-white peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-primary">
+                    {t.title}
+                  </span>
+                </label>
+              ))
+            }
+          </div>
+        </fieldset>
+
+        <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+          <div>
+            <label for="name" class={labelClass}>Name</label>
+            <input
+              id="name"
+              name="name"
+              type="text"
+              autocomplete="name"
+              required
+              class={inputClass}
+            />
+          </div>
+          <div>
+            <label for="email" class={labelClass}>Email</label>
+            <input
+              id="email"
+              name="email"
+              type="email"
+              autocomplete="email"
+              required
+              class={inputClass}
+            />
+          </div>
+        </div>
+
+        <div>
+          <label for="about" class={labelClass}>What is it about?</label>
+          <textarea
+            id="about"
+            name="about"
+            rows="6"
             required
-            class={inputClass}
+            placeholder="Describe the idea, the story or feeling behind it, colours, materials, anything that matters to you."
+            class={`${inputClass} resize-none`}></textarea>
+        </div>
+
+        <div>
+          <span class={labelClass}>Inspiration (optional)</span>
+          <input
+            id="inspiration"
+            name="inspiration"
+            type="file"
+            accept="image/*"
+            multiple
+            class="peer sr-only"
           />
+          <label
+            for="inspiration"
+            class="flex cursor-pointer flex-col items-center gap-1 rounded-lg border-2 border-dashed border-neutral-300 bg-white px-4 py-8 text-center transition-colors hover:border-primary peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-primary"
+          >
+            <span class="text-sm font-medium tracking-wider">
+              Add inspiration photos
+            </span>
+            <span id="file-list" class="text-xs tracking-wider text-neutral-500">
+              Click to choose images, or describe your idea above instead
+            </span>
+          </label>
+        </div>
+
+        <div>
+          <label for="details" class={labelClass}>
+            Size, location or deadline (optional)
+          </label>
           <input
-            name="lastName"
+            id="details"
+            name="details"
             type="text"
-            autocomplete="family-name"
-            placeholder="Last name"
-            aria-label="Last name"
-            required
+            placeholder="e.g. 3m wall in Lagos, needed by March"
             class={inputClass}
           />
         </div>
 
-        <input
-          name="email"
-          type="email"
-          autocomplete="email"
-          placeholder="Email address"
-          aria-label="Email address"
-          required
-          class={inputClass}
-        />
-
-        <textarea
-          name="idea"
-          rows="4"
-          placeholder="Tell me a little about your idea (optional)"
-          aria-label="Your idea"
-          class={`${inputClass} resize-none`}></textarea>
-
         <button
           type="submit"
-          class="mx-auto w-fit cursor-pointer rounded-lg bg-primary px-10 py-3 text-sm font-medium tracking-wider text-white transition hover:opacity-90 active:scale-[0.98]"
+          class="w-full cursor-pointer rounded-lg bg-primary px-10 py-3 font-medium tracking-wider text-white transition hover:opacity-90 active:scale-[0.98] sm:w-fit"
         >
-          join
+          send request
         </button>
       </form>
     </div>
@@ -172,16 +309,16 @@ const inputClass =
     <h2
       class="font-architects-daughter mb-12 text-center text-4xl font-bold tracking-wider sm:text-5xl"
     >
-      common questions &amp; answers
+      common questions
     </h2>
 
-    <div class="grid grid-cols-1 gap-x-16 md:grid-cols-2">
+    <div class="grid grid-cols-1 gap-x-16 md:grid-cols-2 md:items-start">
       {
         columns.map((column) => (
           <div class="border-b border-neutral-300">
             {column.map((item) => (
               <details class="group border-t border-neutral-300">
-                <summary class="flex cursor-pointer list-none items-center justify-between gap-4 py-6 tracking-widest [&::-webkit-details-marker]:hidden">
+                <summary class="flex cursor-pointer list-none items-center justify-between gap-4 py-6 tracking-widest focus-visible:outline-2 focus-visible:outline-primary [&::-webkit-details-marker]:hidden">
                   <span>{item.q}</span>
                   <span
                     class="text-2xl font-light leading-none transition-transform duration-300 group-open:rotate-45"
@@ -201,3 +338,27 @@ const inputClass =
     </div>
   </section>
 </Layout>
+
+<script>
+  // Clicking a type card preselects it in the form
+  document.querySelectorAll<HTMLElement>("[data-pick]").forEach((card) => {
+    card.addEventListener("click", () => {
+      const radio = document.querySelector<HTMLInputElement>(
+        `input[name="type"][value="${card.dataset.pick}"]`,
+      );
+      if (radio) radio.checked = true;
+    });
+  });
+
+  // Show chosen file names in the upload box
+  const input = document.querySelector<HTMLInputElement>("#inspiration");
+  const list = document.querySelector<HTMLElement>("#file-list");
+  input?.addEventListener("change", () => {
+    if (!list) return;
+    list.textContent = input.files?.length
+      ? Array.from(input.files)
+          .map((f) => f.name)
+          .join(", ")
+      : "Click to choose images, or describe your idea above instead";
+  });
+</script>

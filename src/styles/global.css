@@ -11,6 +11,7 @@ html{
   /* Color themes */
   --color-background: #f6f4f0;
   --color-primary: #222222;
+  /* --color-primary: #000; */
 }
 
 h1,
