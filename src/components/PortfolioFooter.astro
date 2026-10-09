@@ -1,0 +1,93 @@
+---
+const { pathname } = Astro.url;
+
+const getRoutes = (path: string) => {
+  switch (path) {
+    case "/portfolio/paintings":
+      return {
+        prev: null,
+        next: {
+          label: "Sculptures",
+          path: "/portfolio/sculptures",
+        },
+      };
+
+    case "/portfolio/sculptures":
+      return {
+        prev: {
+          label: "Paintings",
+          path: "/portfolio/paintings",
+        },
+        next: {
+          label: "Masks",
+          path: "/portfolio/masks",
+        },
+      };
+
+    case "/portfolio/masks":
+      return {
+        prev: {
+          label: "Sculptures",
+          path: "/portfolio/sculptures",
+        },
+        next: null,
+      };
+
+    default:
+      return {
+        next: null,
+        prev: null,
+      };
+  }
+};
+
+const { prev, next } = getRoutes(pathname);
+
+const linkClasses = `
+    rounded-lg px-8 py-2 flex-center w-fit gap-2 text-lg md:text-2xl tracking-widest transition-colors hover:underline font-architects-daughter
+    `;
+---
+
+<div class="w-full flex-between">
+  {
+    prev && (
+      <a class={linkClasses} href={prev.path}>
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="1em"
+          height="1em"
+          viewBox="0 0 12 12"
+        >
+          <path d="M0 0h12v12H0z" fill="none" />
+          <path
+            fill="currentColor"
+            d="M3.854 7.146a.5.5 0 0 1 .057.638l-.057.07a.5.5 0 0 1-.638.057l-.07-.057l-3-3a.5.5 0 0 1-.057-.638l.057-.07l3-3a.5.5 0 0 1 .765.638l-.057.07L1.706 4H5.5a6.5 6.5 0 0 1 6.5 6.5a.5.5 0 1 1-1 0a5.5 5.5 0 0 0-5.279-5.496L5.5 5H1.708z"
+          />
+        </svg>
+
+        {prev.label}
+      </a>
+    )
+  }
+  {
+    next && (
+      <a class={`ml-auto ${linkClasses}`} href={next.path}>
+        {next.label}
+
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="1em"
+          height="1em"
+          viewBox="0 0 12 12"
+        >
+          <path d="M0 0h12v12H0z" fill="none" />
+          <path
+            transform="translate(12 0) scale(-1 1)"
+            fill="currentColor"
+            d="M3.854 7.146a.5.5 0 0 1 .057.638l-.057.07a.5.5 0 0 1-.638.057l-.07-.057l-3-3a.5.5 0 0 1-.057-.638l.057-.07l3-3a.5.5 0 0 1 .765.638l-.057.07L1.706 4H5.5a6.5 6.5 0 0 1 6.5 6.5a.5.5 0 1 1-1 0a5.5 5.5 0 0 0-5.279-5.496L5.5 5H1.708z"
+          />
+        </svg>
+      </a>
+    )
+  }
+</div>

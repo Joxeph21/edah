@@ -1,0 +1,186 @@
+
+<div
+  id="toast-region"
+  transition:persist
+  aria-live="polite"
+  class="pointer-events-none fixed inset-x-4 top-4 z-100 flex flex-col items-end sm:inset-x-auto sm:right-6 sm:top-6"
+>
+</div>
+
+<template id="toast-template">
+  <div data-wrap class="w-full pb-3 sm:w-80">
+    <div
+      class="toast pointer-events-auto relative overflow-hidden rounded-2xl border border-neutral-200 bg-white"
+    >
+      <div class="flex items-start gap-3 p-4 pb-5">
+        <span
+          data-icon
+          class="grid size-9 shrink-0 place-items-center rounded-full"
+          aria-hidden="true"></span>
+
+        <div class="min-w-0 flex-1">
+          <p data-title class="font-architects-daughter text-base tracking-wider"></p>
+          <p data-message class="mt-0.5 text-sm leading-6 tracking-wide text-neutral-600"></p>
+          <a
+            data-action
+            class="mt-2 hidden text-sm font-semibold underline underline-offset-4 hover:opacity-70"
+          ></a>
+        </div>
+
+        <button
+          type="button"
+          data-close
+          aria-label="Dismiss notification"
+          class="-mr-1 -mt-1 rounded-full p-1.5 text-neutral-400 transition-colors hover:bg-neutral-100 hover:text-neutral-800"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="size-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M18 6 6 18M6 6l12 12"></path>
+          </svg>
+        </button>
+      </div>
+
+      <!-- time-remaining bar -->
+      <div class="absolute inset-x-0 bottom-0 h-1 bg-neutral-100">
+        <div data-progress class="h-full origin-left"></div>
+      </div>
+    </div>
+  </div>
+</template>
+
+<style is:global>
+  /* Per-type colours; they follow the site palette */
+  #toast-region .toast[data-type="success"] {
+    --accent: #15616d; /* the teal from your photography */
+    --tint: rgb(21 97 109 / 0.12);
+  }
+  #toast-region .toast[data-type="error"] {
+    --accent: #a4473a; /* muted brick, softer than pure red */
+    --tint: rgb(164 71 58 / 0.12);
+  }
+  #toast-region .toast[data-type="info"] {
+    --accent: #6b5252; /* your heading mauve */
+    --tint: rgb(107 82 82 / 0.12);
+  }
+
+  #toast-region .toast {
+    box-shadow: 0 14px 34px -14px rgb(107 82 82 / 0.4);
+  }
+  #toast-region [data-icon] {
+    background: var(--tint);
+    color: var(--accent);
+  }
+  #toast-region [data-progress] {
+    background: var(--accent);
+  }
+  #toast-region [data-action] {
+    color: var(--accent);
+  }
+</style>
+
+<script>
+  import { animate } from "motion";
+  import type { ToastType, ToastOptions } from "@/lib/toast";
+
+  const MAX_VISIBLE = 4;
+
+  const TITLES: Record<ToastType, string> = {
+    success: "all set",
+    error: "something went wrong",
+    info: "just so you know",
+  };
+
+  // Static, trusted SVG strings
+  const ICONS: Record<ToastType, string> = {
+    success:
+      '<svg viewBox="0 0 24 24" class="size-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>',
+    error:
+      '<svg viewBox="0 0 24 24" class="size-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16.5v.01"/></svg>',
+    info: '<svg viewBox="0 0 24 24" class="size-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 7.5v.01"/></svg>',
+  };
+
+  const prefersReducedMotion = () =>
+    window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  type Detail = { type: ToastType; message: string } & ToastOptions;
+
+  async function dismiss(wrap: HTMLElement) {
+    if (wrap.dataset.leaving) return;
+    wrap.dataset.leaving = "true";
+
+    const card = wrap.firstElementChild as HTMLElement;
+    const d = prefersReducedMotion() ? 0 : 1;
+
+    await animate(card, { opacity: 0, x: 40 }, { duration: 0.25 * d, ease: "easeIn" });
+
+    // Close the gap it leaves behind
+    wrap.style.overflow = "hidden";
+    await animate(
+      wrap,
+      { height: 0, paddingBottom: 0 },
+      { duration: 0.2 * d, ease: "easeOut" }
+    );
+    wrap.remove();
+  }
+
+  function show({ type, message, title, duration, action }: Detail) {
+    const region = document.getElementById("toast-region");
+    const tpl = document.getElementById("toast-template") as HTMLTemplateElement | null;
+    if (!region || !tpl) return;
+
+    // Keep the stack short: drop the oldest immediately
+    const existing = region.querySelectorAll<HTMLElement>("[data-wrap]:not([data-leaving])");
+    if (existing.length >= MAX_VISIBLE) existing[0].remove();
+
+    const wrap = tpl.content.firstElementChild!.cloneNode(true) as HTMLElement;
+    const card = wrap.querySelector<HTMLElement>(".toast")!;
+
+    card.dataset.type = type;
+    card.setAttribute("role", type === "error" ? "alert" : "status");
+
+    wrap.querySelector("[data-icon]")!.innerHTML = ICONS[type];
+    wrap.querySelector("[data-title]")!.textContent = title ?? TITLES[type];
+    wrap.querySelector("[data-message]")!.textContent = message;
+
+    const actionEl = wrap.querySelector<HTMLAnchorElement>("[data-action]")!;
+    if (action) {
+      actionEl.textContent = action.label;
+      actionEl.href = action.href;
+      actionEl.classList.remove("hidden");
+    }
+
+    card.style.opacity = "0"; 
+    region.appendChild(wrap);
+
+    // Enter
+    const d = prefersReducedMotion() ? 0 : 1;
+    animate(
+      card,
+      { opacity: [0, 1], x: [40, 0], scale: [0.96, 1] },
+      { duration: 0.35 * d, ease: [0.22, 1, 0.36, 1] as [number, number, number, number] }
+    );
+
+    // Countdown bar doubles as the auto-dismiss timer
+    const ms = duration ?? (type === "error" ? 3000 : 2000);
+    const timer = animate(
+      wrap.querySelector<HTMLElement>("[data-progress]")!,
+      { scaleX: [1, 0] },
+      { duration: ms / 1000, ease: "linear", onComplete: () => dismiss(wrap) }
+    );
+
+    // Pause while hovered or focused, so people can read it / click the action
+    const pause = () => timer.pause();
+    const resume = () => timer.play();
+    wrap.addEventListener("pointerenter", pause);
+    wrap.addEventListener("pointerleave", resume);
+    wrap.addEventListener("focusin", pause);
+    wrap.addEventListener("focusout", resume);
+
+    wrap
+      .querySelector("[data-close]")!
+      .addEventListener("click", () => dismiss(wrap));
+  }
+
+  document.addEventListener("toast:show", (e) =>
+    show((e as CustomEvent<Detail>).detail)
+  );
+</script>

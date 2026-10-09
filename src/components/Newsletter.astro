@@ -8,19 +8,31 @@ const { action = "" } = Astro.props;
 ---
 
 <section
-  class="mx-auto w-full max-w-6xl px-6  md:px-10 "
+  class="mx-auto w-full max-w-6xl px-6 md:px-10"
   aria-labelledby="newsletter-title"
   data-reveal-section
 >
   <div class="rounded-3xl bg-neutral-100 px-6 py-14 text-center md:px-16">
-    <p class="mb-3 text-xs uppercase tracking-[0.3em] text-neutral-500" data-reveal>
+    <p
+      class="mb-3 text-xs uppercase tracking-[0.3em] text-neutral-500"
+      data-reveal
+    >
       stay in the loop
     </p>
-    <h2 id="newsletter-title" class="text-4xl tracking-widest text-[#6b5252] md:text-5xl" data-reveal>
-     let’s be email buddies…
+    <h2
+      id="newsletter-title"
+      class="text-4xl tracking-widest text-[#6b5252] md:text-5xl"
+      data-reveal
+    >
+      let’s be email buddies…
     </h2>
-    <p class="mx-auto mt-5 max-w-xl text-base leading-8 tracking-wide text-neutral-700" data-reveal>
-     Get occasional studio updates and exclusive early access to new art releases by joining the Collector’s Club newsletter. No spam - just honest and heartfelt e-letters from one curious soul to another.
+    <p
+      class="mx-auto mt-5 max-w-xl text-base leading-8 tracking-wide text-neutral-700"
+      data-reveal
+    >
+      Get occasional studio updates and exclusive early access to new art
+      releases by joining the Collector’s Club newsletter. No spam - just honest
+      and heartfelt e-letters from one curious soul to another.
     </p>
 
     <form
@@ -41,7 +53,14 @@ const { action = "" } = Astro.props;
         class="w-full flex-1 rounded-full border border-neutral-300 bg-white px-6 py-3 outline-none focus-visible:ring-2 focus-visible:ring-[#6b5252]/50"
       />
       <!-- Honeypot: real visitors never see or fill this -->
-      <input type="text" name="website" tabindex="-1" autocomplete="off" class="hidden" aria-hidden="true" />
+      <input
+        type="text"
+        name="website"
+        tabindex="-1"
+        autocomplete="off"
+        class="hidden"
+        aria-hidden="true"
+      />
       <button
         type="submit"
         class="rounded-full bg-primary px-8 py-3 font-semibold text-white transition-opacity hover:opacity-90 disabled:opacity-50"
@@ -50,12 +69,19 @@ const { action = "" } = Astro.props;
       </button>
     </form>
 
-    <p data-newsletter-status role="status" aria-live="polite" class="mt-4 min-h-6 text-sm tracking-wide"></p>
+    <p
+      data-newsletter-status
+      role="status"
+      aria-live="polite"
+      class="mt-4 min-h-6 text-sm tracking-wide"
+    >
+    </p>
   </div>
 </section>
 
 <script>
   import "@/lib/reveal";
+import { toast } from "@/lib/toast";
 
   function init() {
     document
@@ -65,7 +91,9 @@ const { action = "" } = Astro.props;
         const status = form
           .closest("section")!
           .querySelector<HTMLElement>("[data-newsletter-status]")!;
-        const button = form.querySelector<HTMLButtonElement>("button[type=submit]")!;
+        const button = form.querySelector<HTMLButtonElement>(
+          "button[type=submit]",
+        )!;
 
         form.addEventListener("submit", async (e) => {
           e.preventDefault();
@@ -84,15 +112,14 @@ const { action = "" } = Astro.props;
                 headers: { Accept: "application/json" },
               });
               if (!res.ok) throw new Error(String(res.status));
+              toast.success("Thank you, you're on the list.");
             } else {
               console.warn("Newsletter: no `action` set, nothing was sent.");
+              toast.error("Something went wrong")
             }
             form.reset();
-            status.textContent = "Thank you, you're on the list.";
-            status.classList.add("text-neutral-700");
           } catch {
-            status.textContent = "Something went wrong. Please try again.";
-            status.classList.add("text-red-700");
+            toast.error("Something went wrong. Please try again.");
           } finally {
             button.disabled = false;
           }

@@ -3,95 +3,97 @@
 import { Image } from "astro:assets";
 import type { ImageMetadata } from "astro";
 import SectionHeading from "./SectionHeading.astro";
-import { formatPrice } from "@/lib/cart";
-
-interface Piece {
-  id: number; // match the ids used in your shop data
-  title: string;
-  category: string;
-  price: number;
-  image?: ImageMetadata | string; // imported asset, or a /public path
-}
+import ProductModal from "./ProductModal.astro";
+import { cardSummary, type Product } from "@/lib/shop";
+import { products } from "@/pages/shop.astro";
 
 interface Props {
-  pieces?: Piece[];
+  pieces?: Product[];
 }
 
-const {
-  pieces = [
-    { id: 1, title: "Morning Light", category: "paintings", price: 1200 },
-    { id: 4, title: "Ocean Depths", category: "paintings", price: 2800 },
-    { id: 7, title: "Sunset Abstract", category: "paintings", price: 1800 },
-    { id: 2, title: "Bronze Dream", category: "sculptures", price: 3500 },
-  ],
-} = Astro.props;
+const { pieces = products.slice(0, 4) } = Astro.props;
 
 const imageSrc = (img?: ImageMetadata | string) =>
   !img ? "" : typeof img === "string" ? img : img.src;
 ---
 
 <section
-  class="mx-auto w-full max-w-6xl px-6 py-20 md:px-10 md:py-28"
+  class="mx-auto w-full max-w-7xl px-6 py-20 md:px-10 md:py-28"
   aria-labelledby="featured-title"
   data-reveal-section
 >
-  <SectionHeading  title="featured pieces" id="featured-title" />
+  <SectionHeading title="featured pieces" id="featured-title" />
 
   <ul class="grid grid-cols-2 gap-5 lg:grid-cols-4 lg:gap-6">
     {
-      pieces.map((piece, i) => (
-        <li class="group flex flex-col gap-3" data-reveal>
-          <a href="/shop" class="block">
-            <div class="aspect-4/5 overflow-hidden rounded-2xl bg-neutral-200">
-              {piece.image ? (
-                typeof piece.image === "string" ? (
-                  <img
-                    src={piece.image}
-                    alt={piece.title}
-                    loading="lazy"
-                    class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
-                  />
+      pieces.map((piece, i) => {
+        const summary = cardSummary(piece, "");
+
+        return (
+          <li class="group flex flex-col gap-3" data-reveal>
+            <div class="relative aspect-4/5 overflow-hidden rounded-2xl bg-neutral-200">
+              <button
+                type="button"
+                data-open
+                data-product-id={piece.id}
+                aria-label={`View ${piece.title}`}
+                class="block h-full w-full cursor-pointer"
+              >
+                {piece.images[0] ? (
+                  typeof piece.images[0] === "string" ? (
+                    <img
+                      src={piece.images[0]}
+                      alt={piece.title}
+                      loading="lazy"
+                      class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                    />
+                  ) : (
+                    <Image
+                      src={piece.images[0]}
+                      alt={piece.title}
+                      width={600}
+                      class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                    />
+                  )
                 ) : (
-                  <Image
-                    src={piece.image}
-                    alt={piece.title}
-                    width={600}
-                    class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                  <div
+                    class="h-full w-full transition-transform duration-500 group-hover:scale-105"
+                    style={`background: hsl(${20 + i * 14} 22% ${80 - (i % 3) * 5}%)`}
                   />
-                )
-              ) : (
-                <div
-                  class="h-full w-full transition-transform duration-500 group-hover:scale-105"
-                  style={`background: hsl(${20 + i * 14} 22% ${80 - (i % 3) * 5}%)`}
-                />
-              )}
+                )}
+              </button>
+              <span
+                class="pointer-events-none absolute left-3 top-3 rounded-full bg-white/90 px-3 py-1 text-xs capitalize backdrop-blur"
+              >
+                {summary.badge}
+              </span>
             </div>
-          </a>
 
-          <div class="flex items-baseline justify-between gap-3">
-            <div class="min-w-0">
-              <h3 class="truncate font-architects-daughter text-lg tracking-wider">
-                {piece.title}
-              </h3>
-              <p class="text-xs capitalize text-neutral-500">{piece.category}</p>
+            <div class="flex items-baseline justify-between gap-3">
+              <div class="min-w-0">
+                <h3 class="truncate font-architects-daughter text-lg tracking-wider">
+                  {piece.title}
+                </h3>
+                <p class="text-xs capitalize text-neutral-500">
+                  {summary.badge}
+                </p>
+              </div>
+              <span class="font-biryani font-medium">
+                {summary.price}
+              </span>
             </div>
-            <span class="font-biryani font-medium">{formatPrice(piece.price)}</span>
-          </div>
 
-          <button
-            type="button"
-            data-add-to-cart
-            data-id={piece.id}
-            data-title={piece.title}
-            data-category={piece.category}
-            data-price={piece.price}
-            data-image={imageSrc(piece.image)}
-            class="rounded-full border border-neutral-800 px-4 py-2 text-sm font-semibold transition-colors hover:bg-neutral-200"
-          >
-            Add to cart
-          </button>
-        </li>
-      ))
+            <button
+              type="button"
+              data-open
+              data-product-id={piece.id}
+              class="w-full cursor-pointer rounded-full border border-primary px-4 py-2 text-sm font-semibold tracking-wider text-primary transition-colors hover:bg-primary hover:text-white active:scale-[0.98]"
+            >
+              Collect this artwork
+            </button>
+          </li>
+        );
+      })
     }
   </ul>
 
@@ -105,35 +107,8 @@ const imageSrc = (img?: ImageMetadata | string) =>
   </div>
 </section>
 
+<ProductModal products={pieces} />
+
 <script>
   import "@/lib/reveal";
-  import { addToCart } from "@/lib/cart";
-
-  function init() {
-    document
-      .querySelectorAll<HTMLButtonElement>("[data-add-to-cart]:not([data-bound])")
-      .forEach((btn) => {
-        btn.dataset.bound = "true";
-        btn.addEventListener("click", () => {
-          addToCart({
-            id: Number(btn.dataset.id),
-            title: btn.dataset.title ?? "",
-            category: btn.dataset.category ?? "",
-            price: Number(btn.dataset.price),
-            image: btn.dataset.image ?? "",
-          });
-
-          const original = btn.textContent;
-          btn.textContent = "Added ✓";
-          btn.disabled = true;
-          window.setTimeout(() => {
-            btn.textContent = original;
-            btn.disabled = false;
-          }, 1400);
-        });
-      });
-  }
-
-  init();
-  document.addEventListener("astro:page-load", init);
 </script>

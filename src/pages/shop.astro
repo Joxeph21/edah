@@ -1,6 +1,10 @@
 ---
 import Layout from "@/layouts/Layout.astro";
+import ProductModal from "@/components/ProductModal.astro";
 import drummer from "@/assets/images/drummer.webp";
+import mask from "@/assets/images/mask.webp";
+import alagbe from "@/assets/images/alagbe.webp";
+import { cardSummary, type Product } from "@/lib/shop";
 
 export const prerender = false;
 
@@ -12,87 +16,140 @@ const currentFilter: Filter = FILTERS.includes(raw as Filter)
   ? (raw as Filter)
   : "all";
 
-const products = [
+export const products: Product[] = [
   {
-    id: 1,
-    title: "Morning Light",
-    category: "paintings",
-    price: "$1,200",
-    image: drummer.src,
-    sizes: ["18 × 24 in", "24 × 36 in"],
+    id: 1, slug: "morning-light", title: "Morning Light",
+    description:
+      "Lorem ipsum dolor sit amet consectetur adipisicing elit. Corporis, itaque nulla voluptates natus laboriosam ex deleniti id excepturi doloribus mollitia neque tempora quibusdam molestiae deserunt illo voluptatem, nihil, similique et error perspiciatis? Est animi enim voluptatibus, reiciendis deserunt sit at? Deleniti officia fuga praesentium labore animi facilis commodi quia! Vero, quidem. Voluptatem quidem expedita cum ad libero ducimus tempore rerum natus aspernatur ratione? Dolores, accusamus ab, placeat optio et maiores praesentium quod tempore, similique velit nisi aliquam architecto. Illum ducimus eaque ullam ad quisquam molestiae quos. Laudantium quasi autem nesciunt nostrum totam temporibus, dolorem placeat. Odio provident labore debitis ipsa!",
+    images: [drummer.src, mask.src, alagbe.src],
+    categories: ["paintings", "prints"],
+    types: [
+      {
+        id: 1, label: "Original", description: "Oil on canvas", category: "paintings",
+        variants: [
+          { id: 1, sku: "MORNING-LIGHT-ORIGINAL-18-24-IN", label: "18 × 24 in", price: 120000, currency: "USD", stock: 1 },
+          { id: 2, sku: "MORNING-LIGHT-ORIGINAL-24-36-IN", label: "24 × 36 in", price: 120000, currency: "USD", stock: 1 },
+        ],
+      },
+      {
+        id: 10, label: "Print", description: "Giclée on cotton paper", category: "prints",
+        variants: [
+          { id: 19, sku: "MORNING-LIGHT-PRINT-A3", label: "A3", price: 15000, currency: "USD", stock: 25 },
+        ],
+      },
+    ],
   },
   {
-    id: 2,
-    title: "Bronze Dream",
-    category: "sculptures",
-    price: "$3,500",
-    image: drummer.src,
-    sizes: ["12 in", "18 in"],
+    id: 2, slug: "bronze-dream", title: "Bronze Dream",
+    description:
+      "A figure caught between waking and dreaming, cast in bronze and finished by hand.",
+    images: [drummer.src], categories: ["sculptures"],
+    types: [{
+      id: 2, label: "Original", description: "Cast bronze", category: "sculptures",
+      variants: [
+        { id: 3, sku: "BRONZE-DREAM-ORIGINAL-12-IN", label: "12 in", price: 350000, currency: "USD", stock: 1 },
+        { id: 4, sku: "BRONZE-DREAM-ORIGINAL-18-IN", label: "18 in", price: 350000, currency: "USD", stock: 1 },
+      ],
+    }],
   },
   {
-    id: 3,
-    title: "Limited Edition Print #1",
-    category: "prints",
-    price: "$150",
-    image: drummer.src,
-    sizes: ["A4", "A3", "A2"],
+    id: 3, slug: "limited-edition-print-1", title: "Limited Edition Print #1",
+    description:
+      "The first in a limited series, printed in a small run and numbered by hand.",
+    images: [drummer.src], categories: ["prints"],
+    types: [{
+      id: 3, label: "Print", description: "Giclée on cotton paper, numbered", category: "prints",
+      variants: [
+        { id: 5, sku: "LIMITED-EDITION-PRINT-1-PRINT-A4", label: "A4", price: 15000, currency: "USD", stock: 25 },
+        { id: 6, sku: "LIMITED-EDITION-PRINT-1-PRINT-A3", label: "A3", price: 15000, currency: "USD", stock: 25 },
+        { id: 7, sku: "LIMITED-EDITION-PRINT-1-PRINT-A2", label: "A2", price: 15000, currency: "USD", stock: 25 },
+      ],
+    }],
   },
   {
-    id: 4,
-    title: "Ocean Depths",
-    category: "paintings",
-    price: "$2,800",
-    image: drummer.src,
-    sizes: ["24 × 36 in", "36 × 48 in"],
+    id: 4, slug: "ocean-depths", title: "Ocean Depths",
+    description:
+      "Deep blues and slow movement, painted from the memory of standing at the water's edge.",
+    images: [drummer.src], categories: ["paintings"],
+    types: [{
+      id: 4, label: "Original", description: "Acrylic on canvas", category: "paintings",
+      variants: [
+        { id: 8, sku: "OCEAN-DEPTHS-ORIGINAL-24-36-IN", label: "24 × 36 in", price: 280000, currency: "USD", stock: 1 },
+        { id: 9, sku: "OCEAN-DEPTHS-ORIGINAL-36-48-IN", label: "36 × 48 in", price: 280000, currency: "USD", stock: 1 },
+      ],
+    }],
   },
   {
-    id: 5,
-    title: "Clay Figure",
-    category: "sculptures",
-    price: "$900",
-    image: drummer.src,
-    sizes: ["10 in"],
+    id: 5, slug: "clay-figure", title: "Clay Figure",
+    description:
+      "A small hand-built figure, shaped from clay and fired once. No two marks are the same.",
+    images: [drummer.src], categories: ["sculptures"],
+    types: [{
+      id: 5, label: "Original", description: "Hand-built stoneware", category: "sculptures",
+      variants: [
+        { id: 10, sku: "CLAY-FIGURE-ORIGINAL-10-IN", label: "10 in", price: 90000, currency: "USD", stock: 1 },
+      ],
+    }],
   },
   {
-    id: 6,
-    title: "Art Print Series",
-    category: "prints",
-    price: "$200",
-    image: drummer.src,
-    sizes: ["A4", "A3"],
+    id: 6, slug: "art-print-series", title: "Art Print Series",
+    description:
+      "A set of prints drawn from recent paintings, made to live on a shelf or a wall.",
+    images: [drummer.src], categories: ["prints"],
+    types: [{
+      id: 6, label: "Print", description: "Giclée on cotton paper", category: "prints",
+      variants: [
+        { id: 11, sku: "ART-PRINT-SERIES-PRINT-A4", label: "A4", price: 20000, currency: "USD", stock: 25 },
+        { id: 12, sku: "ART-PRINT-SERIES-PRINT-A3", label: "A3", price: 20000, currency: "USD", stock: 25 },
+      ],
+    }],
   },
   {
-    id: 7,
-    title: "Sunset Abstract",
-    category: "paintings",
-    price: "$1,800",
-    image: drummer.src,
-    sizes: ["20 × 30 in", "30 × 40 in"],
+    id: 7, slug: "sunset-abstract", title: "Sunset Abstract",
+    description:
+      "Warm colour layered until the edges dissolve, an abstract take on the last light of the day.",
+    images: [drummer.src], categories: ["paintings"],
+    types: [{
+      id: 7, label: "Original", description: "Oil on canvas", category: "paintings",
+      variants: [
+        { id: 13, sku: "SUNSET-ABSTRACT-ORIGINAL-20-30-IN", label: "20 × 30 in", price: 180000, currency: "USD", stock: 1 },
+        { id: 14, sku: "SUNSET-ABSTRACT-ORIGINAL-30-40-IN", label: "30 × 40 in", price: 180000, currency: "USD", stock: 1 },
+      ],
+    }],
   },
   {
-    id: 8,
-    title: "Wood Carving",
-    category: "sculptures",
-    price: "$1,500",
-    image: drummer.src,
-    sizes: ["14 in", "20 in"],
+    id: 8, slug: "wood-carving", title: "Wood Carving",
+    description:
+      "Carved from a single piece of wood, following the grain rather than fighting it.",
+    images: [drummer.src], categories: ["sculptures"],
+    types: [{
+      id: 8, label: "Original", description: "Hand-carved wood", category: "sculptures",
+      variants: [
+        { id: 15, sku: "WOOD-CARVING-ORIGINAL-14-IN", label: "14 in", price: 150000, currency: "USD", stock: 1 },
+        { id: 16, sku: "WOOD-CARVING-ORIGINAL-20-IN", label: "20 in", price: 150000, currency: "USD", stock: 1 },
+      ],
+    }],
   },
   {
-    id: 9,
-    title: "Signed Print",
-    category: "prints",
-    price: "$250",
-    image: drummer.src,
-    sizes: ["A3", "A2"],
+    id: 9, slug: "signed-print", title: "Signed Print",
+    description:
+      "A signed print of one of my favourite pieces, ready to frame.",
+    images: [drummer.src], categories: ["prints"],
+    types: [{
+      id: 9, label: "Print", description: "Giclée on cotton paper, signed", category: "prints",
+      variants: [
+        { id: 17, sku: "SIGNED-PRINT-PRINT-A3", label: "A3", price: 25000, currency: "USD", stock: 25 },
+        { id: 18, sku: "SIGNED-PRINT-PRINT-A2", label: "A2", price: 25000, currency: "USD", stock: 25 },
+      ],
+    }],
   },
 ];
-
-const matches = (category: string) =>
-  currentFilter === "all" || category === currentFilter;
+const inFilter = (p: Product) =>
+  currentFilter === "all" || p.categories.includes(currentFilter);
 
 const activeClasses = "bg-primary text-white font-semibold";
 const idleClasses = "hover:bg-primary hover:text-white bg-neutral-200";
-const visibleCount = products.filter((p) => matches(p.category)).length;
+const visibleCount = products.filter(inFilter).length;
 ---
 
 <Layout title="Shop">
@@ -121,7 +178,9 @@ const visibleCount = products.filter((p) => matches(p.category)).length;
       </aside>
 
       <section class="flex w-full flex-col items-center gap-6 flex-1">
-        <h2 class="text-6xl font-bold mb-5 tracking-wider text-center w-full">
+        <h2
+          class="text-3xl sm:text-6xl font-bold mb-5 tracking-wider text-center w-full"
+        >
           Shop the collection
         </h2>
         <p class="max-w-3xl tracking-widest font-light text-center">
@@ -130,6 +189,8 @@ const visibleCount = products.filter((p) => matches(p.category)).length;
           wander through these creations, hoping you find a piece that connects
           with you.
         </p>
+
+
 
         <div
           id="mobile-filter"
@@ -155,78 +216,68 @@ const visibleCount = products.filter((p) => matches(p.category)).length;
           id="shop-grid"
           class="w-full mt-8 grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3"
         >
-          <!-- {
-            products.map((product) => (
-              <article
-                data-category={product.category}
-                class:list={[
-                  "h-53 bg-neutral-100 rounded-xl p-4 flex flex-col gap-2 relative group",
-                  { hidden: !matches(product.category) },
-                ]}
-              >
-                <div class="absolute inset-0 bg-black/10 opacity-0 group-hover:opacity-100 transition-opacity rounded-xl" />
-                <div class="relative z-10 flex-1 flex flex-col justify-between">
-                  <h3 class="font-architects-daughter text-lg tracking-wider">
-                    {product.title}
-                  </h3>
-                  <span class="font-biryani font-medium">{product.price}</span>
-                </div>
-                <span class="text-xs text-neutral-500 capitalize">
-                  {product.category}
-                </span>
-              </article>
-            ))
-          } -->
-
           {
-            products.map((product) => (
-              <article
-                data-category={product.category}
-                class:list={[
-                  "group flex flex-col gap-4",
-                  { hidden: !matches(product.category) },
-                ]}
-              >
-                <div class="relative aspect-4/5 overflow-hidden rounded-xl bg-neutral-100">
-                  <img
-                    src={product.image}
-                    alt={product.title}
-                    loading="lazy"
-                    class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
-                  />
-                  <span class="absolute left-3 top-3 rounded-full bg-white/90 px-3 py-1 text-xs capitalize backdrop-blur">
-                    {product.category}
-                  </span>
-                </div>
+            products.map((product) => {
+              const summary = cardSummary(product, currentFilter);
 
-                <div class="flex flex-1 flex-col gap-3">
-                  <div class="flex items-start justify-between gap-4">
-                    <h3 class="font-architects-daughter text-lg leading-tight tracking-wider">
-                      {product.title}
-                    </h3>
-                    <span class="font-biryani font-medium whitespace-nowrap">
-                      From {product.price}
+              return (
+                <article
+                  data-product
+                  data-product-id={product.id}
+                  data-category={product.categories.join(" ")}
+                  class:list={[
+                    "group flex flex-col gap-4",
+                    { hidden: !inFilter(product) },
+                  ]}
+                >
+                  <div class="relative aspect-4/5 overflow-hidden rounded-xl bg-neutral-100">
+                    <button
+                      type="button"
+                      data-open
+                      data-product-id={product.id}
+                      aria-label={`View ${product.title}`}
+                      class="block h-full w-full cursor-pointer"
+                    >
+                      <img
+                        src={product.images[0] ?? "/placeholder.svg"}
+                        alt={product.title}
+                        loading="lazy"
+                        class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                      />
+                    </button>
+                    <span
+                      data-badge
+                      class="pointer-events-none absolute left-3 top-3 rounded-full bg-white/90 px-3 py-1 text-xs capitalize backdrop-blur"
+                    >
+                      {summary.badge}
                     </span>
                   </div>
 
-                  <ul class="flex flex-wrap gap-1.5">
-                    {product.sizes.map((size) => (
-                      <li class="rounded-md border border-neutral-300 px-2 py-0.5 text-xs text-neutral-600">
-                        {size}
-                      </li>
-                    ))}
-                  </ul>
+                  <div class="flex flex-1 flex-col gap-3">
+                    <div class="flex items-start justify-between gap-4">
+                      <h3 class="font-architects-daughter text-lg leading-tight tracking-wider">
+                        {product.title}
+                      </h3>
+                      <span
+                        data-price-display
+                        class="font-biryani font-medium whitespace-nowrap"
+                      >
+                        {summary.price}
+                      </span>
+                    </div>
 
-                  <button
-                    type="button"
-                    data-product-id={product.id}
-                    class="mt-auto w-full cursor-pointer rounded-lg border border-primary px-4 py-3 text-sm font-medium tracking-wider text-primary transition-colors hover:bg-primary hover:text-white active:scale-[0.98]"
-                  >
-                    Collect this artwork
-                  </button>
-                </div>
-              </article>
-            ))
+                    <button
+                      type="button"
+                      data-open
+                      data-product-id={product.id}
+                      class="mt-auto w-full cursor-pointer rounded-lg border border-primary px-4 py-3 text-sm font-medium tracking-wider text-primary transition-colors hover:bg-primary hover:text-white active:scale-[0.98]"
+                    >
+                      Collect this artwork
+                    </button>
+                  </div>
+                </article>
+              );
+            })
           }
         </div>
 
@@ -290,94 +341,287 @@ const visibleCount = products.filter((p) => matches(p.category)).length;
       </section>
     </div>
   </section>
+
+  <ProductModal products={products} />
 </Layout>
 
 <script>
-  import { animate, stagger } from "motion";
+  import { animate } from "motion";
+  import {
+    formatPrice,
+    stockLabel,
+    startType,
+    defaultVariant,
+    type Product,
+  } from "@/lib/shop";
+  import { addToCart, getQty, setQty, maxQtyFor, MAX_QTY } from "@/lib/cart";
 
-  const ACTIVE = ["bg-primary", "text-white", "font-semibold"];
-  const IDLE = ["hover:bg-primary", "hover:text-white", "bg-neutral-200"];
+  // State for whichever modal is on the page right now
+  let dialog: HTMLDialogElement | null = null;
+  let products: Product[] = [];
+  let product!: Product;
+  let typeId = 0;
+  let variantId: number | null = null;
+  let imageIndex = 0;
+  let closing = false;
 
-  function init() {
-    const links = document.querySelectorAll<HTMLAnchorElement>("[data-filter]");
-    const items = Array.from(
-      document.querySelectorAll<HTMLElement>("#shop-grid [data-category]"),
+  const $ = <T extends HTMLElement = HTMLElement>(id: string) =>
+    dialog!.querySelector<T>(`#pm-${id}`)!;
+
+  // Lenis (if present) is paused while the modal is open
+  const lenis = () => (window as any).lenis;
+
+  const esc = (s: string) =>
+    s.replace(
+      /[&<>"']/g,
+      (c) =>
+        ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[
+          c
+        ]!,
     );
-    const empty = document.querySelector<HTMLElement>("#empty");
 
-    if (!items.length || !empty) return;
+  const currentType = () => product.types.find((t) => t.id === typeId)!;
+  const currentVariant = () =>
+    currentType().variants.find((v) => v.id === variantId) ?? null;
 
-    let token = 0;
+  function render() {
+    const type = currentType();
+    const variant = currentVariant();
 
-    async function applyFilter(filter: string) {
-      const run = ++token;
+    // Gallery
+    const images = product.images.length ? product.images : ["/placeholder.svg"];
+    const img = $<HTMLImageElement>("image");
+    img.src = images[imageIndex];
+    img.alt = product.title;
 
-      window.scrollTo({ top: 0, behavior: "smooth" });
+    $("thumbs").innerHTML =
+      images.length > 1
+        ? images
+            .map(
+              (src, i) => `
+        <button type="button" data-thumb="${i}" aria-label="Show image ${i + 1}"
+          aria-current="${i === imageIndex}"
+          class="size-16 shrink-0 cursor-pointer overflow-hidden rounded-lg border-2 border-transparent opacity-70 transition hover:opacity-100 aria-[current=true]:border-primary aria-[current=true]:opacity-100">
+          <img src="${esc(src)}" alt="" class="h-full w-full object-cover" />
+        </button>`,
+            )
+            .join("")
+        : "";
 
-      // Sidebar + mobile active state
-      links.forEach((link) => {
-        const active = link.dataset.filter === filter;
-        link.classList.remove(...(active ? IDLE : ACTIVE));
-        link.classList.add(...(active ? ACTIVE : IDLE));
-      });
+    // Text
+    $("badge").textContent = type.category;
+    $("title").textContent = product.title;
+    $("desc").textContent = product.description ?? "";
+    $("desc").hidden = !product.description;
 
-      // Keep the URL shareable without navigating
-      const url = new URL(window.location.href);
-      url.searchParams.set("filter", filter);
-      history.replaceState({}, "", url);
+    // Type selector (only when there is a choice)
+    $("types-wrap").hidden = product.types.length < 2;
+    $("types").innerHTML = product.types
+      .map(
+        (t) => `
+      <button type="button" role="radio" data-type="${t.id}" aria-checked="${t.id === typeId}"
+        class="flex-1 cursor-pointer rounded-md px-3 py-2 text-sm tracking-wider transition aria-checked:bg-white aria-checked:font-semibold aria-checked:shadow-sm">
+        ${esc(t.label)}
+      </button>`,
+      )
+      .join("");
 
-      const show = items.filter(
-        (i) => filter === "all" || i.dataset.category === filter,
-      );
-      const leaving = items.filter(
-        (i) => !show.includes(i) && !i.classList.contains("hidden"),
-      );
-      const entering = show.filter((i) => i.classList.contains("hidden"));
-      const staying = show.filter((i) => !i.classList.contains("hidden"));
+    $("type-desc").textContent = type.description ?? "";
+    $("type-desc").hidden = !type.description;
 
-      // 1. Fade out items that are leaving
-      if (leaving.length) {
-        await animate(leaving, { opacity: 0, scale: 0.9 }, { duration: 0.2 });
-        if (run !== token) return; // a newer click took over
-      }
+    // Variant selector (only when there is a choice)
+    $("variants-wrap").hidden = type.variants.length < 2;
+    $("variants").innerHTML = type.variants
+      .map(
+        (v) => `
+      <li>
+        <button type="button" data-variant="${v.id}" aria-pressed="${v.id === variantId}"
+          ${v.stock === 0 ? "disabled" : ""}
+          class="cursor-pointer rounded-lg border border-neutral-300 px-4 py-2 text-sm tracking-wider transition hover:border-primary aria-pressed:border-primary aria-pressed:bg-primary aria-pressed:text-white disabled:cursor-not-allowed disabled:text-neutral-400 disabled:line-through disabled:hover:border-neutral-300">
+          ${esc(v.label)}
+        </button>
+      </li>`,
+      )
+      .join("");
 
-      const first = new Map(
-        staying.map((el) => [el, el.getBoundingClientRect()]),
-      );
-      leaving.forEach((i) => i.classList.add("hidden"));
-      entering.forEach((i) => i.classList.remove("hidden"));
-      empty!.classList.toggle("hidden", show.length > 0);
+    // Price and stock
+    const soldOut = !variant || variant.stock === 0;
+    $("price").textContent = variant
+      ? formatPrice(variant.price, variant.currency)
+      : "";
+    $("stock").textContent = variant ? stockLabel(variant.stock) : "";
+    $("stock").classList.toggle("text-red-600", soldOut);
 
-      staying.forEach((el) => {
-        const before = first.get(el)!;
-        const after = el.getBoundingClientRect();
-        const dx = before.left - after.left;
-        const dy = before.top - after.top;
+    // Add button, or a counter if this variant is already in the cart
+    const inCart = variant ? getQty(variant.id) : 0;
+    const add = $<HTMLButtonElement>("add");
 
-        animate(
-          el,
-          { x: [dx, 0], y: [dy, 0], opacity: 1, scale: 1 },
-          { type: "spring", stiffness: 300, damping: 30 },
-        );
-      });
+    add.hidden = inCart > 0;
+    add.disabled = soldOut;
+    add.textContent = soldOut ? "Sold out" : "Collect this artwork";
 
-      // 5. Animate new items in with a stagger
-      if (entering.length) {
-        animate(
-          entering,
-          { opacity: [0, 1], scale: [0.9, 1], y: [20, 0] },
-          { duration: 0.35, delay: stagger(0.05), ease: "easeOut" },
-        );
-      }
+    $("counter").hidden = inCart === 0;
+
+    if (variant && inCart > 0) {
+      const max = maxQtyFor(variant);
+      const atLimit = inCart >= max;
+
+      $("qty").textContent = String(inCart);
+      $<HTMLButtonElement>("qty-inc").disabled = atLimit;
+      $("qty-note").textContent = atLimit
+        ? variant.stock < MAX_QTY
+          ? "That's all that's available"
+          : `Maximum ${MAX_QTY} per order`
+        : "";
+    }
+  }
+
+  function open(productId: number) {
+    // No modal on this page, or it's already open
+    if (!dialog || dialog.open) return;
+
+    const p = products.find((x) => x.id === productId);
+    if (!p) return;
+
+    product = p;
+    imageIndex = 0;
+
+    // Open on the type that matches the shop's active filter
+    const filter = new URL(location.href).searchParams.get("filter") ?? "all";
+    const type = startType(p, filter);
+    typeId = type.id;
+    variantId = defaultVariant(type)?.id ?? null;
+
+    render();
+    dialog.showModal();
+    $("scroll").scrollTop = 0; // always start at the top
+    document.documentElement.classList.add("overflow-hidden");
+    lenis()?.stop(); // freeze the page behind the modal
+    animate(dialog, { opacity: [0, 1], y: [16, 0] }, { duration: 0.25 });
+  }
+
+  // Plays the closing animation, then actually closes the dialog
+  async function closeModal() {
+    const d = dialog;
+    if (closing || !d || !d.open) return;
+    closing = true;
+
+    d.dataset.closing = "true"; // fades the backdrop (see <style>)
+    await animate(
+      d,
+      { opacity: [1, 0], y: [0, 16] },
+      { duration: 0.2, ease: "easeIn" },
+    );
+
+    d.close();
+    delete d.dataset.closing;
+    closing = false;
+  }
+
+  // Finds this page's modal and wires it up (runs after every navigation)
+  function setup() {
+    const el = document.querySelector<HTMLDialogElement>("#product-modal");
+    const dataEl = document.querySelector("#shop-data");
+
+    if (!el || !dataEl) {
+      dialog = null;
+      return;
     }
 
-    links.forEach((link) => {
-      link.addEventListener("click", (e) => {
-        e.preventDefault();
-        applyFilter(link.dataset.filter!);
-      });
+    dialog = el;
+    products = JSON.parse(dataEl.textContent ?? "[]");
+    closing = false;
+
+    // Listeners are already attached to this element
+    if (el.dataset.ready) return;
+    el.dataset.ready = "true";
+
+    // Interactions inside the modal
+    el.addEventListener("click", (e) => {
+      const t = e.target as HTMLElement;
+
+      if (t === el || t.closest("[data-close]")) return closeModal();
+
+      const thumb = t.closest<HTMLElement>("[data-thumb]");
+      if (thumb) {
+        imageIndex = Number(thumb.dataset.thumb);
+        return render();
+      }
+
+      const typeBtn = t.closest<HTMLElement>("[data-type]");
+      if (typeBtn) {
+        typeId = Number(typeBtn.dataset.type);
+        variantId = defaultVariant(currentType())?.id ?? null;
+        return render();
+      }
+
+      const variantBtn = t.closest<HTMLButtonElement>("[data-variant]");
+      if (variantBtn && !variantBtn.disabled) {
+        variantId = Number(variantBtn.dataset.variant);
+        return render();
+      }
+
+      // First add: swaps the button for the counter
+      if (t.closest("#pm-add")) {
+        const type = currentType();
+        const variant = currentVariant();
+        if (!variant || variant.stock === 0) return;
+
+        addToCart({
+          variantId: variant.id,
+          sku: variant.sku,
+          productId: product.id,
+          title: product.title,
+          typeLabel: type.label,
+          variantLabel: variant.label,
+          category: type.category,
+          price: variant.price,
+          currency: variant.currency,
+          image: product.images[0] ?? "/placeholder.svg",
+          stock: variant.stock,
+        });
+        return render();
+      }
+
+      // Counter: + and − (going below 1 removes it and brings the button back)
+      const inc = t.closest<HTMLButtonElement>("[data-qty-inc]");
+      const dec = t.closest<HTMLButtonElement>("[data-qty-dec]");
+      if ((inc && !inc.disabled) || dec) {
+        const variant = currentVariant();
+        if (!variant) return;
+        setQty(variant.id, getQty(variant.id) + (inc ? 1 : -1));
+        return render();
+      }
+    });
+
+    // Esc: play the closing animation instead of snapping shut
+    el.addEventListener("cancel", (e) => {
+      e.preventDefault();
+      closeModal();
+    });
+
+    el.addEventListener("close", () => {
+      document.documentElement.classList.remove("overflow-hidden");
+      lenis()?.start();
     });
   }
 
-  init();
+  // Open from any [data-open] element (card image or button).
+  // Registered once; it always uses the modal that is on the page right now.
+  document.addEventListener("click", (e) => {
+    const trigger = (e.target as HTMLElement).closest<HTMLElement>("[data-open]");
+    if (trigger) open(Number(trigger.dataset.productId));
+  });
+
+  // The page is about to be replaced: never leave the scroll locked
+  document.addEventListener("astro:before-swap", () => {
+    if (dialog?.open) dialog.close();
+    document.documentElement.classList.remove("overflow-hidden");
+    lenis()?.start();
+    closing = false;
+    dialog = null;
+  });
+
+  setup();
+  document.addEventListener("astro:page-load", setup);
 </script>

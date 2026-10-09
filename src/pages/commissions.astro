@@ -2,10 +2,11 @@
 import Layout from "@/layouts/Layout.astro";
 import { Image } from "astro:assets";
 // Swap each of these for a real example of that type of work.
-import maskImg from "@/assets/images/drummer.webp";
-import muralImg from "@/assets/images/drummer.webp";
-import sculptureImg from "@/assets/images/drummer.webp";
-import coverImg from "@/assets/images/drummer.webp";
+
+import maskImg from "@/assets/images/mask.webp";
+import muralImg from "@/assets/images/mural.webp";
+import sculptureImg from "@/assets/images/sanctuary.webp";
+import coverImg from "@/assets/images/cover-art.webp";
 
 const types = [
   {
@@ -100,7 +101,9 @@ const labelClass = "mb-2 block text-sm font-medium tracking-wider";
   <!-- Hero + commission types -->
   <section class="content w-full px-10 pt-16 pb-10">
     <div class="mx-auto flex max-w-3xl flex-col items-center gap-5 text-center">
-      <p class="font-architects-daughter text-lg tracking-widest text-neutral-500">
+      <p
+        class="font-architects-daughter text-lg tracking-widest text-neutral-500"
+      >
         commissions
       </p>
       <h1
@@ -184,11 +187,15 @@ const labelClass = "mb-2 block text-sm font-medium tracking-wider";
         >
           start a commission
         </h2>
-        <p class="mt-5 font-light leading-relaxed tracking-widest text-neutral-600">
-          Share as much or as little as you like. A few lines about the idea
-          and some inspiration photos are plenty to get started.
+        <p
+          class="mt-5 font-light leading-relaxed tracking-widest text-neutral-600"
+        >
+          Share as much or as little as you like. A few lines about the idea and
+          some inspiration photos are plenty to get started.
         </p>
-        <p class="mt-4 font-light leading-relaxed tracking-widest text-neutral-600">
+        <p
+          class="mt-4 font-light leading-relaxed tracking-widest text-neutral-600"
+        >
           I'll reply by email with questions and a quote. Nothing is booked
           until you say yes.
         </p>
@@ -275,7 +282,10 @@ const labelClass = "mb-2 block text-sm font-medium tracking-wider";
             <span class="text-sm font-medium tracking-wider">
               Add inspiration photos
             </span>
-            <span id="file-list" class="text-xs tracking-wider text-neutral-500">
+            <span
+              id="file-list"
+              class="text-xs tracking-wider text-neutral-500"
+            >
               Click to choose images, or describe your idea above instead
             </span>
           </label>

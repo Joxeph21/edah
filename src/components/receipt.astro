@@ -1,0 +1,94 @@
+---
+interface Props {
+  shippingLabel?: string;
+}
+const { shippingLabel = "at checkout" } = Astro.props;
+---
+
+<div class="receipt-wrap">
+  <div
+    id="receipt"
+    class="receipt bg-white px-6 pb-12 pt-8 font-mono text-sm tabular-nums text-neutral-800"
+  >
+    <header class="text-center">
+      <p class="font-bold uppercase tracking-[0.3em]">Edah.Artist</p>
+      <p id="receipt-date" class="mt-3 text-xs text-neutral-500"></p>
+    </header>
+
+    <hr class="my-5 border-dashed border-neutral-400" />
+
+    <p class="mb-3 text-xs uppercase tracking-widest text-neutral-500">
+      Order summary
+    </p>
+    <ul id="receipt-lines" class="flex flex-col gap-2"></ul>
+
+    <hr class="my-5 border-dashed border-neutral-400" />
+
+    <dl class="flex flex-col gap-2">
+      <div class="flex justify-between">
+        <dt>Items</dt>
+        <dd id="summary-count"></dd>
+      </div>
+      <div class="flex justify-between">
+        <dt>Subtotal</dt>
+        <dd id="subtotal"></dd>
+      </div>
+      <div class="flex justify-between">
+        <dt>Shipping</dt>
+        <dd class="text-neutral-500">{shippingLabel}</dd>
+      </div>
+    </dl>
+
+    <div
+      class="mt-5 flex items-baseline justify-between border-t-4 border-double border-neutral-800 pt-4"
+    >
+      <span class="text-base font-bold uppercase tracking-widest">Total</span>
+      <span id="total" class="text-2xl font-bold"></span>
+    </div>
+
+    <div class="mt-8 flex flex-col items-center gap-2" aria-hidden="true">
+      <div class="barcode h-12 w-full"></div>
+      <p class="text-xs tracking-[0.3em] text-neutral-500">THANK YOU</p>
+    </div>
+  </div>
+</div>
+
+<style>
+  /* Soft shadow lives on the wrapper because mask would clip it on the paper */
+  .receipt-wrap {
+    filter: drop-shadow(0 6px 12px rgb(0 0 0 / 0.12));
+  }
+
+  /* Sawtooth torn edge along the bottom (teeth are 10px tall) */
+  .receipt {
+    -webkit-mask: conic-gradient(
+        from -45deg at bottom,
+        #0000,
+        #000 1deg 89deg,
+        #0000 90deg
+      )
+      50% / 20px 100%;
+    mask: conic-gradient(
+        from -45deg at bottom,
+        #0000,
+        #000 1deg 89deg,
+        #0000 90deg
+      )
+      50% / 20px 100%;
+  }
+
+  /* Decorative barcode */
+  .barcode {
+    background: repeating-linear-gradient(
+      90deg,
+      #1f1f1f 0 2px,
+      transparent 2px 4px,
+      #1f1f1f 4px 5px,
+      transparent 5px 8px,
+      #1f1f1f 8px 11px,
+      transparent 11px 13px,
+      #1f1f1f 13px 14px,
+      transparent 14px 18px
+    );
+  }
+</style>

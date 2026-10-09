@@ -1,7 +1,15 @@
 ---
 import Layout from "@/layouts/Layout.astro";
+import bgIMG from "@/assets/slides/slide-3.webp";
+import bgIMG2 from "@/assets/images/sanctuary.webp";
+import bgIMG3 from "@/assets/images/mask.webp";
+import { Image } from "astro:assets";
 
-const data_tags = ["paintings", "sculptures", "masks"];
+const data_tags = [
+  { label: "paintings", image: bgIMG },
+  { label: "sculptures", image: bgIMG2 },
+  { label: "masks", image: bgIMG3 },
+];
 ---
 
 <Layout title="Portfolio">
@@ -11,12 +19,27 @@ const data_tags = ["paintings", "sculptures", "masks"];
     {
       data_tags.map((tag) => (
         <a
-          href={`portfolio/${tag}`}
-          class="flex-center text-center capitalize rounded-lg aspect-square bg-amber-600 text-2xl font-architects-daughter text-white"
+          href={`portfolio/${tag.label}`}
+          class="flex-center relative text-center capitalize rounded-lg aspect-square tracking-wider group overflow-hidden md:text-4xl text-2xl  text-white"
         >
-          {tag}
+          <Image
+            class="w-full group-hover:scale-105 ease-in duration-200 transition-all absolute h-full object-center object-cover"
+            src={tag.image}
+            alt={tag.label}
+          />
+          <div class="absolute z-1 inset-0 w-full h-full bg-black/50" />
+          <span
+            class="relative
+         font-bold
+           [-webkit-text-stroke:1px_black] 
+           z-2"
+          >
+            {tag.label}
+          </span>
         </a>
       ))
     }
   </section>
 </Layout>
+
+<!--   [-webkit-text-stroke:2px_black]  -->

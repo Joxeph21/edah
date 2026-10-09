@@ -1,0 +1,242 @@
+---
+// src/pages/checkout.astro
+import Layout from "@/layouts/Layout.astro";
+import Receipt from "@/components/receipt.astro";
+
+const inputClass =
+  "w-full rounded-lg border border-neutral-300 bg-white px-4 py-3 text-sm tracking-wider outline-none transition placeholder:text-neutral-400 focus:border-primary focus:ring-2 focus:ring-primary/10";
+const labelClass = "mb-2 block text-sm font-medium tracking-wider";
+---
+
+<Layout title="Checkout">
+  <section class="content mt-20 px-6 pb-20 md:px-10 min-h-[calc(100vh-20rem)]">
+    <header class="mb-10 flex flex-col gap-2">
+      <h1 class="text-5xl tracking-widest text-[#6b5252] md:text-6xl">
+        checkout
+      </h1>
+      <p class="my-4 tracking-wide text-neutral-500">
+        Tell us where to send your artwork.
+      </p>
+    </header>
+
+    <!-- Checkout (shown once the cart has items) -->
+    <div id="checkout-layout" class="hidden">
+      <div class="items-start gap-10 lg:grid lg:grid-cols-[minmax(0,1fr)_24rem]">
+        <!-- Delivery form -->
+        <form action="#" method="POST" class="flex min-w-0 flex-col gap-10">
+          <fieldset class="flex flex-col gap-6">
+            <legend
+              class="font-architects-daughter mb-2 text-2xl tracking-wider"
+            >
+              contact
+            </legend>
+
+            <div>
+              <label for="name" class={labelClass}>Full name</label>
+              <input
+                id="name"
+                name="name"
+                type="text"
+                autocomplete="name"
+                required
+                class={inputClass}
+              />
+            </div>
+
+            <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+              <div>
+                <label for="email" class={labelClass}>Email</label>
+                <input
+                  id="email"
+                  name="email"
+                  type="email"
+                  autocomplete="email"
+                  required
+                  class={inputClass}
+                />
+              </div>
+              <div>
+                <label for="phone" class={labelClass}>Phone</label>
+                <input
+                  id="phone"
+                  name="phone"
+                  type="tel"
+                  autocomplete="tel"
+                  required
+                  class={inputClass}
+                />
+              </div>
+            </div>
+          </fieldset>
+
+          <fieldset class="flex flex-col gap-6">
+            <legend
+              class="font-architects-daughter mb-2 text-2xl tracking-wider"
+            >
+              delivery address
+            </legend>
+
+            <div>
+              <label for="line1" class={labelClass}>Address</label>
+              <input
+                id="line1"
+                name="line1"
+                type="text"
+                autocomplete="address-line1"
+                required
+                class={inputClass}
+              />
+            </div>
+
+            <div>
+              <label for="line2" class={labelClass}>
+                Apartment, landmark, etc. (optional)
+              </label>
+              <input
+                id="line2"
+                name="line2"
+                type="text"
+                autocomplete="address-line2"
+                class={inputClass}
+              />
+            </div>
+
+            <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+              <div>
+                <label for="city" class={labelClass}>City</label>
+                <input
+                  id="city"
+                  name="city"
+                  type="text"
+                  autocomplete="address-level2"
+                  required
+                  class={inputClass}
+                />
+              </div>
+              <div>
+                <label for="state" class={labelClass}>State / region</label>
+                <input
+                  id="state"
+                  name="state"
+                  type="text"
+                  autocomplete="address-level1"
+                  required
+                  class={inputClass}
+                />
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+              <div>
+                <label for="postalCode" class={labelClass}>
+                  Postal code (optional)
+                </label>
+                <input
+                  id="postalCode"
+                  name="postalCode"
+                  type="text"
+                  autocomplete="postal-code"
+                  class={inputClass}
+                />
+              </div>
+              <div>
+                <label for="country" class={labelClass}>Country</label>
+                <input
+                  id="country"
+                  name="country"
+                  type="text"
+                  autocomplete="country-name"
+                  required
+                  class={inputClass}
+                />
+              </div>
+            </div>
+
+            <div>
+              <label for="notes" class={labelClass}>
+                Delivery notes (optional)
+              </label>
+              <textarea
+                id="notes"
+                name="notes"
+                rows="3"
+                placeholder="Gate code, best time to call, anything we should know."
+                class={`${inputClass} resize-none`}></textarea>
+            </div>
+          </fieldset>
+
+          <div>
+            <button
+              type="submit"
+              class="w-full cursor-pointer rounded-full bg-primary px-6 py-3 font-semibold text-white transition-opacity hover:opacity-90 sm:w-fit sm:px-12"
+            >
+              Proceed to payment
+            </button>
+            <a
+              href="/cart"
+              class="mt-3 block text-sm tracking-wider text-neutral-600 underline underline-offset-4 transition-opacity hover:opacity-70 sm:mt-0 sm:ml-6 sm:inline-block"
+            >
+              Back to cart
+            </a>
+          </div>
+        </form>
+
+        <!-- Receipt -->
+        <aside
+          class="mx-auto mt-10 w-full max-w-md lg:sticky lg:top-40 lg:mx-0 lg:mt-0 lg:max-w-none lg:self-start"
+        >
+          <Receipt shippingLabel="to be confirmed" />
+        </aside>
+      </div>
+    </div>
+
+    <!-- Empty cart -->
+    <div id="checkout-empty" class="hidden">
+      <div
+        class="flex flex-col items-center gap-6 rounded-xl bg-neutral-100 px-6 py-20 text-center"
+      >
+        <h2 class="text-3xl tracking-widest text-[#6b5252]">
+          nothing to check out
+        </h2>
+        <p class="max-w-md tracking-wide text-neutral-600">
+          Your cart is empty. Add a piece you love and come back.
+        </p>
+        <a
+          href="/shop"
+          class="rounded-full bg-primary px-8 py-3 font-semibold text-white transition-opacity hover:opacity-90"
+        >
+          Browse the shop
+        </a>
+      </div>
+    </div>
+  </section>
+</Layout>
+
+<script>
+  import { getCart } from "@/lib/cart";
+  import { renderReceipt } from "@/lib/receipt";
+
+  function init() {
+    const layout = document.querySelector<HTMLElement>("#checkout-layout");
+    const emptyEl = document.querySelector<HTMLElement>("#checkout-empty");
+
+    if (!layout || !emptyEl) return;
+
+    // This DOM was already set up (init can be triggered twice on a page)
+    if (layout.dataset.ready) return;
+    layout.dataset.ready = "true";
+
+    const items = getCart();
+
+    if (!items.length) {
+      emptyEl.classList.remove("hidden");
+      return;
+    }
+
+    layout.classList.remove("hidden");
+    renderReceipt(items, true);
+  }
+
+  init();
+  document.addEventListener("astro:page-load", init);
+</script>

@@ -1,7 +1,114 @@
 ---
 import Layout from "@/layouts/Layout.astro";
+
+type Entry = { year: number; text: string };
+
+const sections: { id: string; title: string; entries: Entry[] }[] = [
+  {
+    id: "exhibitions",
+    title: "Exhibitions & Presentations",
+    entries: [
+      { year: 2025, text: "“The Currency Lab,” E-werk Freiburg, Germany." },
+      { year: 2024, text: "“Humanism,” Life in My City Art Festival (Top 100 Exhibition), IMT Enugu." },
+      { year: 2024, text: "“Light at the End of the Tunnel,” Vivid Exclusive Art Gallery / Artsy." },
+      { year: 2023, text: "Affordable Art Fair (Group Exhibition), Mydrim Gallery, Lagos." },
+      { year: 2023, text: "“Gelede Comes,” Group Exhibition, Yaba Art Museum, Lagos, Nigeria." },
+      { year: 2023, text: "“Visual Energy,” Group Exhibition, Shodex Art Gallery, Lagos, Nigeria." },
+      { year: 2023, text: "Total Energies Open House Exhibition: Sustainability, Total Energies, Lagos, Nigeria." },
+      { year: 2023, text: "“Fix It,” Group Exhibition by Thought Pyramid for Life in My City Art Festival (LIMCAF), Lagos, Nigeria." },
+      { year: 2023, text: "“Life, Art, and Nature,” Group Exhibition, Shodex Art Gallery, Lagos, Nigeria." },
+      { year: 2022, text: "Total Energies Open House Exhibition, Total Energies, Lagos, Nigeria." },
+    ],
+  },
+  {
+    id: "workshops",
+    title: "Workshops & Collaborations",
+    entries: [
+      { year: 2025, text: "Installation Team, “Archives and Memories,” Centre for Contemporary Art (CCA), Lagos." },
+      { year: 2024, text: "Installation Team, ARTMIABO International Art Festival (Sculptors Odyssey), Ebonylife Place (Victoria Hall), Victoria Island, Lagos." },
+      { year: 2023, text: "Annual Performance Art Intensive Workshop (“Body Culture”), Yaba Art Museum (YAM), School of Art, Design and Printing, Yaba College of Technology, Lagos." },
+      { year: 2023, text: "Participant, Installation Workshop with Peter Okotor, Yaba Art Museum (YAM), Yaba College of Technology, Lagos, Nigeria." },
+      { year: 2023, text: "Participant, “The Currency” (with Elom20ce, Musquiqui Chihying, Gregor Kasper, and Eva Kwame) for “The Oceans and The Interpreters,” organized by Centre for Contemporary Art, Lagos, Yaba Art Museum (YAM), Crews Culture Foundation, and Hong-Gah Museum, Taiwan." },
+      { year: 2023, text: "Installation Team, Yusuf Grillo Museum (YGM), Ikeja, Lagos, Nigeria." },
+      { year: 2023, text: "Installation Team, “Gelede Comes,” Yaba Art Museum (YAM), Yaba, Lagos, Nigeria." },
+      { year: 2023, text: "Participant, “The Resource Lab” Workshop with Sogbesan Oluwatoyin, Founder of Asa Heritage Foundation (AHFA) Africa." },
+      { year: 2023, text: "Installation Team, “The Oceans and The Interpreters,” Centre for Contemporary Art, Lagos, Yaba Art Museum (YAM), Crews Culture Foundation, and Hong-Gah Museum, Taiwan." },
+    ],
+  },
+  {
+    id: "awards",
+    title: "Awards & Honors",
+    entries: [
+      { year: 2022, text: "Kolade Oshinowo Award for Best Student in Life and General Drawing." },
+      { year: 2022, text: "Overall Best Student in ND General Art." },
+    ],
+  },
+];
+
+const languages = ["Yoruba", "English", "Mandarin"];
 ---
 
-<Layout title="CV / Resume">
-    <h1>CV / Resume</h1>
+<Layout title="Resume">
+  <section class="content w-full px-6 md:px-10 py-16">
+    <div class="mx-auto grid max-w-6xl gap-12 lg:grid-cols-[14rem_1fr] lg:gap-20">
+      <!-- Section index (desktop only), fills the left gutter like your reference -->
+      <aside class="hidden lg:block">
+        <nav
+          aria-label="Resume sections"
+          class="sticky top-40 flex flex-col gap-3 text-sm lowercase tracking-widest text-neutral-500"
+        >
+          {
+            sections.map((s) => (
+              <a href={`#${s.id}`} class="transition-colors hover:text-primary">
+                {s.title}
+              </a>
+            ))
+          }
+          <a href="#languages" class="transition-colors hover:text-primary">
+            languages spoken
+          </a>
+        </nav>
+      </aside>
+
+      <div class="max-w-3xl">
+        <h1
+          class="font-architects-daughter text-5xl font-bold tracking-wider text-primary sm:text-6xl"
+        >
+         CV / Resume
+        </h1>
+
+        {
+          sections.map((s) => (
+            <section id={s.id} class="mt-14 scroll-mt-32">
+              <h2 class="font-architects-daughter text-3xl lowercase tracking-wider text-primary sm:text-4xl">
+                {s.title}
+              </h2>
+
+              <ul class="mt-6 flex flex-col gap-4">
+                {s.entries.map((e, i) => (
+                  <li class="grid grid-cols-[3.5rem_1fr] gap-x-4 sm:grid-cols-[4.5rem_1fr]">
+                    <span class="font-medium tracking-wider">
+                      {i === 0 || s.entries[i - 1].year !== e.year ? e.year : ""}
+                    </span>
+                    <span class="font-light leading-relaxed tracking-wider text-neutral-700">
+                      {e.text}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          ))
+        }
+
+        <section id="languages" class="mt-14 scroll-mt-32">
+          <h2 class="font-architects-daughter text-3xl lowercase tracking-wider text-primary sm:text-4xl">
+            languages spoken
+          </h2>
+          <p class="mt-6 font-light tracking-wider text-neutral-700">
+            {languages.join(" · ")}
+          </p>
+        </section>
+      </div>
+    </div>
+  </section>
 </Layout>

@@ -1,0 +1,411 @@
+---
+import type { Product } from "@/lib/shop";
+
+interface Props {
+  products: Product[];
+}
+const { products } = Astro.props;
+
+// Escape "<" so product text can never close the script tag
+const json = JSON.stringify(products).replace(/</g, "\\u003c");
+---
+
+<script id="shop-data" type="application/json" is:inline set:html={json}></script>
+
+<dialog
+  id="product-modal"
+  data-lenis-prevent
+  aria-labelledby="pm-title"
+  class="m-auto max-h-[calc(100dvh-2rem)] w-[min(60rem,calc(100%-2rem))] overflow-hidden rounded-2xl bg-white p-0 text-neutral-900 open:flex open:flex-col relative backdrop:bg-black/50 backdrop:backdrop-blur-sm"
+>
+  <button
+    type="button"
+    data-close
+    aria-label="Close"
+    class="absolute right-3 top-3 z-10 grid size-10 cursor-pointer place-items-center rounded-full bg-white/60 text-2xl leading-none shadow transition hover:bg-white"
+  >
+    <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 1024 1024">
+      <path d="M0 0h1024v1024H0z" fill="none" />
+      <path fill="currentColor" fill-rule="evenodd" d="M799.855 166.312c.023.007.043.018.084.059l57.69 57.69c.041.041.052.06.059.084a.1.1 0 0 1 0 .069c-.007.023-.018.042-.059.083L569.926 512l287.703 287.703c.041.04.052.06.059.083a.12.12 0 0 1 0 .07c-.007.022-.018.042-.059.083l-57.69 57.69c-.041.041-.06.052-.084.059a.1.1 0 0 1-.069 0c-.023-.007-.042-.018-.083-.059L512 569.926L224.297 857.629c-.04.041-.06.052-.083.059a.12.12 0 0 1-.07 0c-.022-.007-.042-.018-.083-.059l-57.69-57.69c-.041-.041-.052-.06-.059-.084a.1.1 0 0 1 0-.069c.007-.023.018-.042.059-.083L454.073 512L166.371 224.297c-.041-.04-.052-.06-.059-.083a.12.12 0 0 1 0-.07c.007-.022.018-.042.059-.083l57.69-57.69c.041-.041.06-.052.084-.059a.1.1 0 0 1 .069 0c.023.007.042.018.083.059L512 454.073l287.703-287.702c.04-.041.06-.052.083-.059a.12.12 0 0 1 .07 0Z" />
+    </svg>
+  </button>
+
+  <div
+    id="pm-scroll"
+    class="min-h-0 max-h-[90vh] overflow-y-auto overscroll-contain"
+  >
+    <div class="grid md:grid-cols-2">
+      <!-- Gallery -->
+     <div class="bg-neutral-100 p-4">
+  <div class="flex flex-col gap-3 md:sticky md:top-4">
+    <div class="aspect-4/5 overflow-hidden rounded-xl bg-neutral-200">
+      <img id="pm-image" alt="" class="h-full w-full object-cover" />
+    </div>
+    <div id="pm-thumbs" class="flex gap-2 overflow-x-auto"></div>
+  </div>
+</div>
+
+      <!-- Details -->
+      <div class="flex flex-col gap-5 p-6 sm:p-8">
+        <span
+          id="pm-badge"
+          class="w-fit rounded-full bg-neutral-100 px-3 py-1 text-xs capitalize"
+        ></span>
+
+        <h2
+          id="pm-title"
+          class="font-architects-daughter text-3xl leading-tight tracking-wider"
+        >
+        </h2>
+
+        <p
+          id="pm-desc"
+          class="whitespace-pre-line font-light leading-relaxed tracking-wider text-neutral-600"
+        >
+        </p>
+
+        <div id="pm-types-wrap">
+          <p class="mb-2 text-sm font-medium tracking-wider">Format</p>
+          <div
+            id="pm-types"
+            role="radiogroup"
+            aria-label="Format"
+            class="flex gap-1 rounded-lg bg-neutral-200 p-1"
+          >
+          </div>
+        </div>
+
+        <p id="pm-type-desc" class="-mt-2 text-xs tracking-wider text-neutral-500">
+        </p>
+
+        <div id="pm-variants-wrap">
+          <p class="mb-2 text-sm font-medium tracking-wider">Option</p>
+          <ul id="pm-variants" class="flex flex-wrap gap-2"></ul>
+        </div>
+
+        <div class="mt-auto border-t border-neutral-200 pt-5">
+          <p id="pm-price" class="font-biryani text-2xl font-medium"></p>
+          <p id="pm-stock" class="mt-1 text-sm tracking-wider text-neutral-500"></p>
+        </div>
+
+        <!-- Not in the cart yet: the add button -->
+        <button
+          id="pm-add"
+          type="button"
+          class="w-full cursor-pointer rounded-lg bg-primary px-6 py-3 font-medium tracking-wider text-white transition hover:opacity-90 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50"
+        >
+          Collect this artwork
+        </button>
+
+        <!-- Already in the cart: a counter limited by stock -->
+        <div id="pm-counter" hidden>
+          <div class="flex items-center gap-4">
+            <div
+              class="inline-flex items-center rounded-full border border-neutral-300 bg-white"
+            >
+              <button
+                type="button"
+                data-qty-dec
+                aria-label="Decrease quantity"
+                class="h-11 w-11 cursor-pointer rounded-full text-xl transition-colors hover:bg-neutral-100"
+              >
+                −
+              </button>
+              <span
+                id="pm-qty"
+                aria-live="polite"
+                class="w-10 text-center font-medium"></span>
+              <button
+                id="pm-qty-inc"
+                type="button"
+                data-qty-inc
+                aria-label="Increase quantity"
+                class="h-11 w-11 cursor-pointer rounded-full text-xl transition-colors hover:bg-neutral-100 disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:bg-transparent"
+              >
+                +
+              </button>
+            </div>
+
+            <div class="min-w-0">
+              <p class="text-sm font-medium tracking-wider">In your cart</p>
+              <p id="pm-qty-note" class="text-xs tracking-wider text-neutral-500">
+              </p>
+            </div>
+          </div>
+
+          <a
+            href="/cart"
+            class="mt-3 inline-block text-sm tracking-wider text-primary underline underline-offset-4 transition-opacity hover:opacity-70"
+          >
+            View cart
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</dialog>
+
+<script>
+  import { animate } from "motion";
+  import {
+    formatPrice,
+    stockLabel,
+    startType,
+    defaultVariant,
+    type Product,
+  } from "@/lib/shop";
+  import { addToCart, getQty, setQty, maxQtyFor, MAX_QTY } from "@/lib/cart";
+
+  const dialog = document.querySelector<HTMLDialogElement>("#product-modal");
+  const dataEl = document.querySelector("#shop-data");
+
+  if (dialog && dataEl) {
+    const products: Product[] = JSON.parse(dataEl.textContent ?? "[]");
+    const $ = <T extends HTMLElement = HTMLElement>(id: string) =>
+      dialog.querySelector<T>(`#pm-${id}`)!;
+
+    // Lenis (if present) is paused while the modal is open
+    const lenis = () => (window as any).lenis;
+
+    const esc = (s: string) =>
+      s.replace(
+        /[&<>"']/g,
+        (c) =>
+          ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[
+            c
+          ]!,
+      );
+
+    let product!: Product;
+    let typeId = 0;
+    let variantId: number | null = null;
+    let imageIndex = 0;
+    let closing = false;
+
+    const currentType = () => product.types.find((t) => t.id === typeId)!;
+    const currentVariant = () =>
+      currentType().variants.find((v) => v.id === variantId) ?? null;
+
+    function render() {
+      const type = currentType();
+      const variant = currentVariant();
+
+      // Gallery
+      const images = product.images.length ? product.images : ["/placeholder.svg"];
+      const img = $<HTMLImageElement>("image");
+      img.src = images[imageIndex];
+      img.alt = product.title;
+
+      $("thumbs").innerHTML =
+        images.length > 1
+          ? images
+              .map(
+                (src, i) => `
+          <button type="button" data-thumb="${i}" aria-label="Show image ${i + 1}"
+            aria-current="${i === imageIndex}"
+            class="size-16 shrink-0 cursor-pointer overflow-hidden rounded-lg border-2 border-transparent opacity-70 transition hover:opacity-100 aria-[current=true]:border-primary aria-[current=true]:opacity-100">
+            <img src="${esc(src)}" alt="" class="h-full w-full object-cover" />
+          </button>`,
+              )
+              .join("")
+          : "";
+
+      // Text
+      $("badge").textContent = type.category;
+      $("title").textContent = product.title;
+      $("desc").textContent = product.description ?? "";
+      $("desc").hidden = !product.description;
+
+      // Type selector (only when there is a choice)
+      $("types-wrap").hidden = product.types.length < 2;
+      $("types").innerHTML = product.types
+        .map(
+          (t) => `
+        <button type="button" role="radio" data-type="${t.id}" aria-checked="${t.id === typeId}"
+          class="flex-1 cursor-pointer rounded-md px-3 py-2 text-sm tracking-wider transition aria-checked:bg-white aria-checked:font-semibold aria-checked:shadow-sm">
+          ${esc(t.label)}
+        </button>`,
+        )
+        .join("");
+
+      $("type-desc").textContent = type.description ?? "";
+      $("type-desc").hidden = !type.description;
+
+      // Variant selector (only when there is a choice)
+      $("variants-wrap").hidden = type.variants.length < 2;
+      $("variants").innerHTML = type.variants
+        .map(
+          (v) => `
+        <li>
+          <button type="button" data-variant="${v.id}" aria-pressed="${v.id === variantId}"
+            ${v.stock === 0 ? "disabled" : ""}
+            class="cursor-pointer rounded-lg border border-neutral-300 px-4 py-2 text-sm tracking-wider transition hover:border-primary aria-pressed:border-primary aria-pressed:bg-primary aria-pressed:text-white disabled:cursor-not-allowed disabled:text-neutral-400 disabled:line-through disabled:hover:border-neutral-300">
+            ${esc(v.label)}
+          </button>
+        </li>`,
+        )
+        .join("");
+
+      // Price and stock
+      const soldOut = !variant || variant.stock === 0;
+      $("price").textContent = variant
+        ? formatPrice(variant.price, variant.currency)
+        : "";
+      $("stock").textContent = variant ? stockLabel(variant.stock) : "";
+      $("stock").classList.toggle("text-red-600", soldOut);
+
+      // Add button, or a counter if this variant is already in the cart
+      const inCart = variant ? getQty(variant.id) : 0;
+      const add = $<HTMLButtonElement>("add");
+
+      add.hidden = inCart > 0;
+      add.disabled = soldOut;
+      add.textContent = soldOut ? "Sold out" : "Collect this artwork";
+
+      $("counter").hidden = inCart === 0;
+
+      if (variant && inCart > 0) {
+        const max = maxQtyFor(variant);
+        const atLimit = inCart >= max;
+
+        $("qty").textContent = String(inCart);
+        $<HTMLButtonElement>("qty-inc").disabled = atLimit;
+        $("qty-note").textContent = atLimit
+          ? variant.stock < MAX_QTY
+            ? "That's all that's available"
+            : `Maximum ${MAX_QTY} per order`
+          : "";
+      }
+    }
+
+    function open(productId: number) {
+      const p = products.find((x) => x.id === productId);
+      if (!p) return;
+
+      product = p;
+      imageIndex = 0;
+
+      // Open on the type that matches the shop's active filter
+      const filter = new URL(location.href).searchParams.get("filter") ?? "all";
+      const type = startType(p, filter);
+      typeId = type.id;
+      variantId = defaultVariant(type)?.id ?? null;
+
+      render();
+      dialog!.showModal();
+      $("scroll").scrollTop = 0; // always start at the top
+      document.documentElement.classList.add("overflow-hidden");
+      lenis()?.stop(); // freeze the page behind the modal
+      animate(dialog!, { opacity: [0, 1], y: [16, 0] }, { duration: 0.25 });
+    }
+
+    // Plays the closing animation, then actually closes the dialog
+    async function closeModal() {
+      if (closing || !dialog!.open) return;
+      closing = true;
+
+      dialog!.dataset.closing = "true"; // fades the backdrop (see <style>)
+      await animate(
+        dialog!,
+        { opacity: [1, 0], y: [0, 16] },
+        { duration: 0.2, ease: "easeIn" },
+      );
+
+      dialog!.close();
+      delete dialog!.dataset.closing;
+      closing = false;
+    }
+
+    // Open from any [data-open] element (card image or button)
+    document.addEventListener("click", (e) => {
+      const trigger = (e.target as HTMLElement).closest<HTMLElement>("[data-open]");
+      if (trigger) open(Number(trigger.dataset.productId));
+    });
+
+    // Interactions inside the modal
+    dialog.addEventListener("click", (e) => {
+      const t = e.target as HTMLElement;
+
+      if (t === dialog || t.closest("[data-close]")) return closeModal();
+
+      const thumb = t.closest<HTMLElement>("[data-thumb]");
+      if (thumb) {
+        imageIndex = Number(thumb.dataset.thumb);
+        return render();
+      }
+
+      const typeBtn = t.closest<HTMLElement>("[data-type]");
+      if (typeBtn) {
+        typeId = Number(typeBtn.dataset.type);
+        variantId = defaultVariant(currentType())?.id ?? null;
+        return render();
+      }
+
+      const variantBtn = t.closest<HTMLButtonElement>("[data-variant]");
+      if (variantBtn && !variantBtn.disabled) {
+        variantId = Number(variantBtn.dataset.variant);
+        return render();
+      }
+
+      // First add: swaps the button for the counter
+      if (t.closest("#pm-add")) {
+        const type = currentType();
+        const variant = currentVariant();
+        if (!variant || variant.stock === 0) return;
+
+        addToCart({
+          variantId: variant.id,
+          sku: variant.sku,
+          productId: product.id,
+          title: product.title,
+          typeLabel: type.label,
+          variantLabel: variant.label,
+          category: type.category,
+          price: variant.price,
+          currency: variant.currency,
+          image: product.images[0] ?? "/placeholder.svg",
+          stock: variant.stock,
+        });
+        return render();
+      }
+
+      // Counter: + and − (going below 1 removes it and brings the button back)
+      const inc = t.closest<HTMLButtonElement>("[data-qty-inc]");
+      const dec = t.closest<HTMLButtonElement>("[data-qty-dec]");
+      if ((inc && !inc.disabled) || dec) {
+        const variant = currentVariant();
+        if (!variant) return;
+        setQty(variant.id, getQty(variant.id) + (inc ? 1 : -1));
+        return render();
+      }
+    });
+
+    // Esc: play the closing animation instead of snapping shut
+    dialog.addEventListener("cancel", (e) => {
+      e.preventDefault();
+      closeModal();
+    });
+
+    dialog.addEventListener("close", () => {
+      document.documentElement.classList.remove("overflow-hidden");
+      lenis()?.start();
+    });
+  }
+</script>
+
+<style>
+  #product-modal::backdrop {
+    transition: opacity 0.2s ease;
+  }
+  #product-modal[data-closing]::backdrop {
+    opacity: 0;
+  }
+  #product-modal[open]::backdrop {
+    animation: backdrop-in 0.25s ease;
+  }
+  @keyframes backdrop-in {
+    from {
+      opacity: 0;
+    }
+  }
+</style>

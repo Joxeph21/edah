@@ -8,7 +8,6 @@ const exploreLinks = NAV_LINKS.flatMap((link) =>
   "children" in link && link.children ? link.children : [link],
 );
 
-const EMAIL = "[EMAIL_ADDRESS]";
 const SOCIALS = Socials;
 
 const legalLinks = [
@@ -81,14 +80,14 @@ const year = new Date().getFullYear();
           say hello
         </h2>
         <ul class="flex flex-col gap-3 text-sm tracking-wide">
-          <li>
+          <!-- <li>
             <a
               href={`mailto:${EMAIL}`}
               class="text-white/70 transition-colors hover:text-white hover:underline hover:underline-offset-4"
             >
               {EMAIL}
             </a>
-          </li>
+          </li> -->
           {
             SOCIALS.map((social) => (
               <li>

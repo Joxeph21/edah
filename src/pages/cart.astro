@@ -1,6 +1,7 @@
 ---
 // src/pages/cart.astro
 import Layout from "@/layouts/Layout.astro";
+import Receipt from "@/components/receipt.astro";
 ---
 
 <Layout title="Cart">
@@ -25,62 +26,7 @@ import Layout from "@/layouts/Layout.astro";
         class="mx-auto mt-10 w-full max-w-md sticky top-40 lg:mx-0 lg:mt-0 lg:max-w-none lg:self-start"
       >
         <div class="">
-          <div class="receipt-wrap ">
-            <div
-              id="receipt"
-              class="receipt bg-white px-6 pb-12 pt-8 font-mono text-sm tabular-nums text-neutral-800"
-            >
-              <header class="text-center">
-                <p class="font-bold uppercase tracking-[0.3em]">Edah.Artist</p>
-                <p id="receipt-date" class="mt-3 text-xs text-neutral-500"></p>
-              </header>
-
-              <hr class="my-5 border-dashed border-neutral-400" />
-
-              <p
-                class="mb-3 text-xs uppercase tracking-widest text-neutral-500"
-              >
-                Order summary
-              </p>
-              <ul id="receipt-lines" class="flex flex-col gap-2"></ul>
-
-              <hr class="my-5 border-dashed border-neutral-400" />
-
-              <dl class="flex flex-col gap-2">
-                <div class="flex justify-between">
-                  <dt>Items</dt>
-                  <dd id="summary-count"></dd>
-                </div>
-                <div class="flex justify-between">
-                  <dt>Subtotal</dt>
-                  <dd id="subtotal"></dd>
-                </div>
-                <div class="flex justify-between">
-                  <dt>Shipping</dt>
-                  <dd class="text-neutral-500">at checkout</dd>
-                </div>
-              </dl>
-
-              <div
-                class="mt-5 flex items-baseline justify-between border-t-4 border-double border-neutral-800 pt-4"
-              >
-                <span class="text-base font-bold uppercase tracking-widest">
-                  Total
-                </span>
-                <span id="total" class="text-2xl font-bold"></span>
-              </div>
-
-              <div
-                class="mt-8 flex flex-col items-center gap-2"
-                aria-hidden="true"
-              >
-                <div class="barcode h-12 w-full"></div>
-                <p class="text-xs tracking-[0.3em] text-neutral-500">
-                  THANK YOU
-                </p>
-              </div>
-            </div>
-          </div>
+          <Receipt />
 
           <a
             href="/checkout"
@@ -151,7 +97,7 @@ import Layout from "@/layouts/Layout.astro";
               class="font-architects-daughter text-lg tracking-wider sm:text-xl"
             >
             </h3>
-            <p data-category class="text-xs capitalize text-neutral-500"></p>
+            <p data-detail class="text-xs text-neutral-500"></p>
             <p data-unit class="mt-1 text-sm text-neutral-600"></p>
           </div>
 
@@ -159,7 +105,7 @@ import Layout from "@/layouts/Layout.astro";
             type="button"
             data-action="remove"
             aria-label="Remove item"
-            class="-mr-1 -mt-1 rounded-full p-2 text-neutral-500 transition-colors hover:bg-neutral-200 hover:text-neutral-900"
+            class="-mr-1 cursor-pointer -mt-1 rounded-full p-2 text-neutral-500 transition-colors hover:bg-neutral-200 hover:text-neutral-900"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -186,7 +132,7 @@ import Layout from "@/layouts/Layout.astro";
               type="button"
               data-action="dec"
               aria-label="Decrease quantity"
-              class="h-9 w-9 rounded-full text-lg transition-colors hover:bg-neutral-100 disabled:opacity-30 disabled:hover:bg-transparent"
+              class="h-9 w-9 cursor-pointer rounded-full text-lg transition-colors hover:bg-neutral-100 disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:bg-transparent"
             >
               −
             </button>
@@ -198,7 +144,7 @@ import Layout from "@/layouts/Layout.astro";
               type="button"
               data-action="inc"
               aria-label="Increase quantity"
-              class="h-9 w-9 rounded-full text-lg transition-colors hover:bg-neutral-100 disabled:opacity-30 disabled:hover:bg-transparent"
+              class="h-9 w-9 cursor-pointer rounded-full text-lg transition-colors hover:bg-neutral-100 disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:bg-transparent"
             >
               +
             </button>
@@ -211,58 +157,27 @@ import Layout from "@/layouts/Layout.astro";
   </template>
 </Layout>
 
-<style>
-  /* Soft shadow lives on the wrapper because mask would clip it on the paper */
-  .receipt-wrap {
-    filter: drop-shadow(0 6px 12px rgb(0 0 0 / 0.12));
-  }
 
-  /* Sawtooth torn edge along the bottom (teeth are 10px tall) */
-  .receipt {
-    -webkit-mask: conic-gradient(
-        from -45deg at bottom,
-        #0000,
-        #000 1deg 89deg,
-        #0000 90deg
-      )
-      50% / 20px 100%;
-    mask: conic-gradient(
-        from -45deg at bottom,
-        #0000,
-        #000 1deg 89deg,
-        #0000 90deg
-      )
-      50% / 20px 100%;
-  }
-
-  /* Decorative barcode */
-  .barcode {
-    background: repeating-linear-gradient(
-      90deg,
-      #1f1f1f 0 2px,
-      transparent 2px 4px,
-      #1f1f1f 4px 5px,
-      transparent 5px 8px,
-      #1f1f1f 8px 11px,
-      transparent 11px 13px,
-      #1f1f1f 13px 14px,
-      transparent 14px 18px
-    );
-  }
-</style>
 
 <script>
   import { animate, stagger } from "motion";
   import {
     getCart,
-    saveCart,
+    setQty,
+    removeFromCart,
     cartCount,
     cartSubtotal,
+    cartCurrency,
     formatPrice,
+    itemDetail,
+    maxQtyFor,
     syncCartBadges,
     MAX_QTY,
     type CartItem,
   } from "@/lib/cart";
+
+  // Re-renders whichever cart page is currently on screen
+  let renderCurrent: (() => void) | null = null;
 
   function init() {
     const list = document.querySelector<HTMLUListElement>("#cart-items");
@@ -297,37 +212,50 @@ import Layout from "@/layouts/Layout.astro";
     )
       return;
 
+    // This DOM was already set up (init can be triggered twice on a page)
+    if (list.dataset.ready) return;
+    list.dataset.ready = "true";
+
     const plural = (n: number) => `${n} ${n === 1 ? "item" : "items"}`;
 
     function buildRow(item: CartItem) {
       const row = tpl!.content.firstElementChild!.cloneNode(
         true,
       ) as HTMLElement;
-      row.dataset.id = String(item.id);
+      row.dataset.variantId = String(item.variantId);
 
       const img = row.querySelector<HTMLImageElement>("[data-image]")!;
       img.src = item.image;
       img.alt = item.title;
 
       row.querySelector("[data-title]")!.textContent = item.title;
-      row.querySelector("[data-category]")!.textContent = item.category;
+      row.querySelector("[data-detail]")!.textContent = itemDetail(item);
       row.querySelector("[data-unit]")!.textContent = `${formatPrice(
         item.price,
+        item.currency,
       )} each`;
       row.querySelector("[data-qty]")!.textContent = String(item.qty);
       row.querySelector("[data-line-total]")!.textContent = formatPrice(
         item.price * item.qty,
+        item.currency,
       );
 
+      const max = maxQtyFor(item);
+      const inc = row.querySelector<HTMLButtonElement>('[data-action="inc"]')!;
       row.querySelector<HTMLButtonElement>('[data-action="dec"]')!.disabled =
         item.qty <= 1;
-      row.querySelector<HTMLButtonElement>('[data-action="inc"]')!.disabled =
-        item.qty >= MAX_QTY;
+      inc.disabled = item.qty >= max;
+      inc.title =
+        item.qty >= max
+          ? item.stock < MAX_QTY
+            ? `Only ${item.stock} available`
+            : `Maximum ${MAX_QTY} per order`
+          : "";
 
       return row;
     }
 
-    // One receipt line: "2 x Title ........ $300"
+    // One receipt line: "2 x Title ........ $300.00"
     function buildReceiptLine(item: CartItem) {
       const li = document.createElement("li");
       li.className = "flex items-baseline gap-2";
@@ -335,13 +263,13 @@ import Layout from "@/layouts/Layout.astro";
       const name = document.createElement("span");
       name.className = "min-w-0 truncate";
       name.textContent = `${item.qty} x ${item.title}`;
-      name.title = item.title;
+      name.title = `${item.title} (${itemDetail(item)})`;
 
       const leader = document.createElement("span");
       leader.className = "flex-1 border-b border-dotted border-neutral-400";
 
       const price = document.createElement("span");
-      price.textContent = formatPrice(item.price * item.qty);
+      price.textContent = formatPrice(item.price * item.qty, item.currency);
 
       li.append(name, leader, price);
       return li;
@@ -368,7 +296,7 @@ import Layout from "@/layouts/Layout.astro";
       receiptLines!.replaceChildren(...items.map(buildReceiptLine));
 
       const count = cartCount(items);
-      const subtotal = formatPrice(cartSubtotal(items));
+      const subtotal = formatPrice(cartSubtotal(items), cartCurrency(items));
       countEl!.textContent = isEmpty ? "" : plural(count);
       summaryCount!.textContent = String(count);
       subtotalEl!.textContent = subtotal;
@@ -403,29 +331,32 @@ import Layout from "@/layouts/Layout.astro";
       );
       if (!btn || btn.disabled) return;
 
-      const row = btn.closest<HTMLElement>("[data-id]")!;
-      const id = Number(row.dataset.id);
-      const items = getCart();
-      const item = items.find((i) => i.id === id);
+      const row = btn.closest<HTMLElement>("[data-variant-id]")!;
+      const variantId = Number(row.dataset.variantId);
+      const item = getCart().find((i) => i.variantId === variantId);
       if (!item) return;
 
       if (btn.dataset.action === "remove") {
         await animate(row, { opacity: 0, x: -24 }, { duration: 0.2 });
-        saveCart(items.filter((i) => i.id !== id));
+        removeFromCart(variantId);
       } else {
-        const next = item.qty + (btn.dataset.action === "inc" ? 1 : -1);
-        item.qty = Math.min(MAX_QTY, Math.max(1, next));
-        saveCart(items);
+        setQty(variantId, item.qty + (btn.dataset.action === "inc" ? 1 : -1));
       }
 
       render();
     });
 
-    window.addEventListener("storage", () => render());
-
+    renderCurrent = () => render();
     render(true);
   }
 
-  init();
-</script>
+  // Cart changed in another tab
+  window.addEventListener("storage", () => renderCurrent?.());
 
+  document.addEventListener("astro:before-swap", () => {
+    renderCurrent = null;
+  });
+
+  init();
+  document.addEventListener("astro:page-load", init);
+</script>
