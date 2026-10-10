@@ -1,0 +1,243 @@
+---
+export const prerender = false;
+
+import Layout from "@/layouts/Layout.astro";
+import supabase from "@/lib/supabase";
+
+Astro.response.headers.set("Cache-Control", "no-store");
+
+const ref = Astro.url.searchParams.get("ref");
+
+const { data: order } = ref
+  ? await supabase
+      .from("orders")
+      .select("status, order_number")
+      .eq("public_ref", ref)
+      .maybeSingle()
+  : { data: null };
+
+if (!order) return Astro.rewrite("/404");
+
+const status = order.status as "paid" | "pending" | "expired";
+
+const copy = {
+  paid: {
+    heading: "thank you",
+    title: "your order is confirmed",
+    text: "Payment received. A confirmation email is on its way, and I'll be in touch about shipping soon.",
+  },
+  pending: {
+    heading: "one moment",
+    title: "confirming your payment",
+    text: "This usually takes a few seconds. You can keep this page open and it will update by itself.",
+  },
+  expired: {
+    heading: "checkout expired",
+    title: "this checkout has expired",
+    text: "No payment was taken. Your cart is still saved, so you can pick up where you left off.",
+  },
+}[status] ?? {
+  heading: "order status",
+  title: "something looks off",
+  text: "We couldn't read the state of this order. Please get in touch and we'll sort it out.",
+};
+---
+
+<Layout
+  title="Order status"
+  description="Check the status of your order with Edah."
+  type="website"
+  noIndex={true}
+  noFollow={true}
+>
+  <section class="content mt-20 min-h-[calc(100vh-20rem)] px-6 pb-20 md:px-10">
+    <header class="mb-10 flex flex-col gap-2">
+      <h1 class="text-5xl tracking-widest text-[#6b5252] md:text-6xl">
+        {copy.heading}
+      </h1>
+    </header>
+
+    <div
+      id="status-card"
+      data-status={status}
+      class="flex flex-col items-center gap-6 rounded-xl bg-neutral-100 px-6 py-20 text-center"
+    >
+      {
+        status === "paid" && (
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="48"
+            height="48"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="#6b5252"
+            stroke-width="1.25"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            aria-hidden="true"
+          >
+            <circle cx="12" cy="12" r="10" />
+            <path d="m8 12.5 2.8 2.8L16 9.5" />
+          </svg>
+        )
+      }
+      {
+        status === "pending" && (
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="48"
+            height="48"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="#6b5252"
+            stroke-width="1.25"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            class="animate-pulse"
+            aria-hidden="true"
+          >
+            <circle cx="12" cy="12" r="10" />
+            <path d="M12 7v5l3 2" />
+          </svg>
+        )
+      }
+      {
+        status === "expired" && (
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="48"
+            height="48"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="#6b5252"
+            stroke-width="1.25"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            aria-hidden="true"
+          >
+            <circle cx="9" cy="20" r="1.5" />
+            <circle cx="18" cy="20" r="1.5" />
+            <path d="M2 3h3l2.4 11.2a2 2 0 0 0 2 1.6h8.2a2 2 0 0 0 2-1.5L21 7H6" />
+          </svg>
+        )
+      }
+
+      <h2
+        id="status-title"
+        class="text-3xl tracking-widest text-[#6b5252]"
+        aria-live="polite"
+      >
+        {copy.title}
+      </h2>
+
+      <p
+        id="status-text"
+        class="max-w-md tracking-wide text-neutral-600"
+        aria-live="polite"
+      >
+        {copy.text}
+      </p>
+
+      <p class="font-architects-daughter text-lg tracking-wider">
+        order <span class="text-primary">{order.order_number}</span>
+      </p>
+
+      <div class="flex flex-col gap-3 sm:flex-row">
+        {
+          status === "expired" ? (
+            <a
+              href="/cart"
+              class="rounded-full bg-primary px-8 py-3 font-semibold text-white transition-opacity hover:opacity-90"
+            >
+              Back to cart
+            </a>
+          ) : (
+            <a
+              href="/shop"
+              class="rounded-full bg-primary px-8 py-3 font-semibold text-white transition-opacity hover:opacity-90"
+            >
+              Continue shopping
+            </a>
+          )
+        }
+        <a
+          href="/"
+          class="rounded-full px-8 py-3 text-center text-sm transition-colors hover:bg-neutral-200"
+        >
+          Back to home
+        </a>
+      </div>
+    </div>
+  </section>
+</Layout>
+
+<script>
+  import { animate } from "motion";
+  import { getCart, removeFromCart, syncCartBadges } from "@/lib/cart";
+
+  const POLL_MS = 2500;
+  const MAX_POLLS = 20;
+
+  function init() {
+    const card = document.querySelector<HTMLElement>("#status-card");
+    if (!card) return;
+
+    if (card.dataset.ready) return;
+    card.dataset.ready = "true";
+
+    animate(
+      card,
+      { opacity: [0, 1], y: [16, 0] },
+      { duration: 0.35, ease: "easeOut" },
+    );
+
+    const status = card.dataset.status;
+
+   
+    if (status === "paid") {
+      getCart().forEach((item) => removeFromCart(item.variantId));
+      syncCartBadges();
+      return;
+    }
+
+    if (status !== "pending") return;
+
+    // Wait for the webhook to mark the order paid
+    let polls = 0;
+    const timer = setInterval(async () => {
+      polls++;
+
+      try {
+        const res = await fetch(location.href, { cache: "no-store" });
+        const html = await res.text();
+        const next = new DOMParser()
+          .parseFromString(html, "text/html")
+          .querySelector<HTMLElement>("#status-card")?.dataset.status;
+
+        if (next && next !== "pending") {
+          clearInterval(timer);
+          location.reload();
+          return;
+        }
+      } catch {
+      }
+
+      if (polls >= MAX_POLLS) {
+        clearInterval(timer);
+        const title = document.querySelector("#status-title");
+        const text = document.querySelector("#status-text");
+        if (title) title.textContent = "still waiting on your bank";
+        if (text)
+          text.textContent =
+            "Your payment hasn't been confirmed yet. If you were charged, you'll get an email as soon as it goes through. You can safely close this page.";
+      }
+    }, POLL_MS);
+
+    document.addEventListener("astro:before-swap", () => clearInterval(timer), {
+      once: true,
+    });
+  }
+
+  init();
+  document.addEventListener("astro:page-load", init);
+</script>

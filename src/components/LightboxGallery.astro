@@ -1,0 +1,34 @@
+---
+import "photoswipe/style.css";
+interface Props {
+  class?: string;
+}
+
+const { class: className } = Astro.props;
+---
+
+<div data-lightbox class={className}>
+  <slot />
+</div>
+
+<script>
+  import PhotoSwipeLightbox from "photoswipe/lightbox";
+
+  function initLightboxes() {
+    document
+      .querySelectorAll<HTMLElement>("[data-lightbox]:not([data-lightbox-ready])")
+      .forEach((el) => {
+        el.dataset.lightboxReady = "true";
+
+        const lightbox = new PhotoSwipeLightbox({
+          gallery: el,
+          children: "a[data-pswp-width]",
+          pswpModule: () => import("photoswipe"),
+        });
+        lightbox.init();
+      });
+  }
+
+  initLightboxes();
+  document.addEventListener("astro:page-load", initLightboxes);
+</script>

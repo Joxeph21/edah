@@ -1,6 +1,6 @@
 import { formatPrice } from "./shop";
 
-export { formatPrice }; // one formatter for shop and cart (prices are in cents)
+export { formatPrice }; // one formatter for shop and cart (prices are in usd)
 
 export type CartItem = {
   variantId: number; // the cart's key: one line per variant
@@ -10,7 +10,7 @@ export type CartItem = {
   typeLabel: string; // "Original", "Print"
   variantLabel: string; // "A3", "24 × 36 in"
   category: string; // slug, e.g. "prints"
-  price: number; // minor units (cents), per unit
+  price: number; 
   currency: string;
   image: string;
   stock: number; // stock when added, caps the quantity
@@ -117,3 +117,6 @@ export function syncCartBadges() {
     .querySelectorAll<HTMLElement>("[data-cart-count]")
     .forEach((el) => (el.textContent = count));
 }
+
+
+

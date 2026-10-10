@@ -258,6 +258,8 @@ const labelClass = "mb-2 block text-sm font-medium tracking-wider";
   import { renderReceipt } from "@/lib/receipt";
   import countries from "@/data/countries.json";
   import { checkoutSchema, toE164 } from "schemas/checkoutSchema";
+  import { toast } from "@/lib/toast";
+  import type { CheckoutRequest } from "@/pages/api/checkout";
 
   type Field = HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement;
   type FieldName = keyof typeof checkoutSchema.shape;
@@ -332,7 +334,6 @@ const labelClass = "mb-2 block text-sm font-medium tracking-wider";
       return result.success;
     }
 
-    // Silent check: no messages, just drives the button
     function updateSubmitState() {
       const data = Object.fromEntries(new FormData(form!));
       submitBtn!.disabled = !checkoutSchema.safeParse(data).success;
@@ -343,7 +344,7 @@ const labelClass = "mb-2 block text-sm font-medium tracking-wider";
         touched.add(el.name);
         validateField(el);
       });
-      // "input" + "change" cover typing, select picks and most autofill
+    
       for (const evt of ["input", "change"]) {
         el.addEventListener(evt, () => {
           if (touched.has(el.name)) validateField(el);
@@ -362,16 +363,29 @@ const labelClass = "mb-2 block text-sm font-medium tracking-wider";
     select.addEventListener("change", sync);
     select.addEventListener("input", sync);
 
-    // Refresh / back-forward restores form values after load without events
+    // ---------- Submit state ----------
+
+    let submitting = false;
+    const submitLabel = submitBtn.textContent;
+
+    function setSubmitting(value: boolean) {
+      submitting = value;
+      submitBtn!.textContent = value ? "Redirecting to payment…" : submitLabel;
+      if (value) submitBtn!.disabled = true;
+      else updateSubmitState();
+    }
+
+    // Refresh / back-forward restores form values after load without events.
+    // Coming back from the payment page also lands here, so unlock the button.
     window.addEventListener("pageshow", () => {
       sync();
-      updateSubmitState();
+      if (submitting) setSubmitting(false);
+      else updateSubmitState();
     });
 
-    // ---------- Submit ----------
-
-    form.addEventListener("submit", (e) => {
-      e.preventDefault(); // remove once payment is wired up
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      if (submitting) return;
 
       let firstInvalid: Field | null = null;
       for (const el of fields) {
@@ -381,18 +395,54 @@ const labelClass = "mb-2 block text-sm font-medium tracking-wider";
       if (firstInvalid) return firstInvalid.focus();
 
       const formData = new FormData(form);
-      const country = findCountry(String(formData.get("country")));
+      const text = (key: string) => String(formData.get(key) ?? "").trim();
 
-      const data = {
-        ...Object.fromEntries(formData),
-        phone: toE164(String(formData.get("phone")))!, // normalized, e.g. +2348012345678
-        country: country?.name ?? "",
-        iso_code: country?.code ?? "",
-        shipping_fee: country ? Number(country.shipping_fee) : null,
-        items,
+      const countryCode = text("country"); // select value, e.g. "NG"
+      const countryName = findCountry(countryCode)?.name ?? "";
+
+      // The server recalculates prices and shipping, so only ids and quantities go up
+      const body: CheckoutRequest = {
+        items: items.map((i) => ({ variant_id: i.variantId, quantity: i.qty })),
+        customer: {
+          name: text("name"),
+          email: text("email"),
+          phone: toE164(text("phone")),
+        },
+        shipping_address: {
+          line1: text("line1"),
+          line2: text("line2") || null,
+          city: text("city"),
+          state: text("state"),
+          postal_code: text("postalCode") || null,
+          country: countryName, // "Nigeria"
+          country_code: countryCode, // "NG"
+        },
+        billing_address: null,
+        notes: text("notes") || null,
       };
 
-      console.log(data);
+      setSubmitting(true);
+
+      try {
+        const res = await fetch("/api/checkout", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(body),
+        });
+        const data = await res.json().catch(() => ({}));
+
+        if (!res.ok || !data.checkout_url) {
+          // Surfaces messages like "Not enough stock for ..."
+          toast.error(data.error ?? "Something went wrong. Please try again.");
+          return setSubmitting(false);
+        }
+
+       
+        window.location.assign(data.checkout_url);
+      } catch {
+        toast.error("Network error. Please try again.");
+        setSubmitting(false);
+      }
     });
 
     updateSubmitState();

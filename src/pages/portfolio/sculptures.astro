@@ -1,5 +1,27 @@
 ---
 import PortfolioLayout from "@/layouts/PortfolioLayout.astro";
+import supabase from "@/lib/supabase";
+import { Image } from "astro:assets";
+import { inferRemoteSize } from "astro:assets";
+import LightboxGallery from "@/components/LightboxGallery.astro";
+
+const { data, error } = await supabase
+  .from("artworks")
+  .select("*, artwork_types!inner(category!inner(label))")
+  .eq("artwork_types.category.label", "Sculptures")
+  .order("year_released", { ascending: true });
+
+const artworks = await Promise.all(
+  (data ?? []).map(async (artwork) => {
+    try {
+      const { width, height } = await inferRemoteSize(artwork.images[0]);
+      return { ...artwork, width, height, landscape: width / height > 1.1 };
+    } catch (e) {
+      console.error("inferRemoteSize failed:", artwork.images[0], e);
+      return { ...artwork, width: 4, height: 5, landscape: false };
+    }
+  }),
+);
 ---
 
 <PortfolioLayout
@@ -7,5 +29,38 @@ import PortfolioLayout from "@/layouts/PortfolioLayout.astro";
   description="Explore Edah's sculptures — hand-cast bronze, hand-built stoneware, and hand-carved wood. Each piece fuses magical realism with Afro-surrealism, exploring themes of otherworldliness and ancestral presence."
   tags={["sculptures", "bronze sculpture", "stoneware", "wood carving", "magical realism", "afro-surrealism", "fine art"]}
 >
-    <h1>Sculptures</h1>
+     <LightboxGallery
+    class="w-full grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 grid-flow-dense items-start"
+  >
+    {
+      artworks.map((artwork) => (
+        <figure
+          class:list={[
+            "w-full flex flex-col gap-2",
+            artwork.landscape && "sm:col-span-2",
+          ]}
+        >
+          <a
+            href={artwork.images[0]}
+            data-pswp-width={artwork.width}
+            data-pswp-height={artwork.height}
+            class="cursor-zoom-in"
+          >
+            <Image
+              src={artwork.images[0]}
+              alt={artwork.title}
+              width={artwork.width}
+              height={artwork.height}
+              format="webp"
+              loading="lazy"
+              class="w-full h-auto"
+            />
+          </a>
+          <figcaption>
+            &quot;{artwork.title}&quot; - {artwork.year_released}
+          </figcaption>
+        </figure>
+      ))
+    }
+  </LightboxGallery>
 </PortfolioLayout>
