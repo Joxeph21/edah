@@ -28,12 +28,17 @@ function buildLine(item: CartItem) {
   return li;
 }
 
-export function renderReceipt(items: CartItem[], animateIn = false) {
+export function renderReceipt(
+  items: CartItem[],
+  animateIn = false,
+  shippingFee?: number,
+) {
   const receipt = document.querySelector<HTMLElement>("#receipt");
   const lines = document.querySelector<HTMLUListElement>("#receipt-lines");
   const date = document.querySelector<HTMLElement>("#receipt-date");
   const count = document.querySelector<HTMLElement>("#summary-count");
   const subtotal = document.querySelector<HTMLElement>("#subtotal");
+  const shipping = document.querySelector<HTMLElement>("#shipping");
   const total = document.querySelector<HTMLElement>("#total");
 
   if (!receipt || !lines || !date || !count || !subtotal || !total) return;
@@ -48,10 +53,29 @@ export function renderReceipt(items: CartItem[], animateIn = false) {
 
   lines.replaceChildren(...items.map(buildLine));
 
-  const amount = formatPrice(cartSubtotal(items), cartCurrency(items));
+  const currency = cartCurrency(items);
+  const subtotalValue = cartSubtotal(items);
+  const hasShipping = shippingFee !== undefined;
+
   count.textContent = String(cartCount(items));
-  subtotal.textContent = amount;
-  total.textContent = amount;
+  subtotal.textContent = formatPrice(subtotalValue, currency);
+
+  // Shipping row: keeps the "to be confirmed" label until a country is picked
+    // Shipping row: "to be confirmed" until a country is picked, FREE when 0
+  if (shipping) {
+    if (!hasShipping) {
+      shipping.textContent = "to be confirmed";
+      shipping.classList.add("text-neutral-500");
+    } else if (shippingFee === 0) {
+      shipping.textContent = "FREE";
+      shipping.classList.remove("text-neutral-500");
+    } else {
+      shipping.textContent = formatPrice(shippingFee, currency);
+      shipping.classList.remove("text-neutral-500");
+    }
+  }
+
+  total.textContent = formatPrice(subtotalValue + (shippingFee ?? 0), currency);
 
   // The receipt "prints" downward
   if (animateIn) {

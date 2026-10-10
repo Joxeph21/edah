@@ -60,7 +60,9 @@ const { title, description, type = "website", noIndex = false, noFollow = false,
         See what&apos;s available in store</a
       >
     </nav>
-    <slot />
+    <section class="w-full flex flex-col min-h-52">
+      <slot />
+    </section>
     <PortfolioFooter />
   </section>
 </Layout>

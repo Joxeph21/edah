@@ -3,8 +3,10 @@
 import Layout from "@/layouts/Layout.astro";
 import Receipt from "@/components/receipt.astro";
 
+import countries from "@/data/countries.json";
+
 const inputClass =
-  "w-full rounded-lg border border-neutral-300 bg-white px-4 py-3 text-sm tracking-wider outline-none transition placeholder:text-neutral-400 focus:border-primary focus:ring-2 focus:ring-primary/10";
+  "w-full rounded-lg border border-neutral-300 bg-white px-4 py-3 text-sm tracking-wider outline-none transition placeholder:text-neutral-400 focus:border-primary focus:ring-2 focus:ring-primary/10 aria-invalid:border-red-500 aria-invalid:focus:border-red-500 aria-invalid:focus:ring-red-500/20";
 const labelClass = "mb-2 block text-sm font-medium tracking-wider";
 ---
 
@@ -28,9 +30,16 @@ const labelClass = "mb-2 block text-sm font-medium tracking-wider";
 
     <!-- Checkout (shown once the cart has items) -->
     <div id="checkout-layout" class="hidden">
-      <div class="items-start gap-10 lg:grid lg:grid-cols-[minmax(0,1fr)_24rem]">
+      <div
+        class="items-start gap-10 lg:grid lg:grid-cols-[minmax(0,1fr)_24rem]"
+      >
         <!-- Delivery form -->
-        <form action="#" method="POST" class="flex min-w-0 flex-col gap-10">
+        <form
+          id="checkout-form"
+          action="#"
+          method="POST"
+          class="flex min-w-0 flex-col gap-10"
+        >
           <fieldset class="flex flex-col gap-6">
             <legend
               class="font-architects-daughter mb-2 text-2xl tracking-wider"
@@ -63,7 +72,9 @@ const labelClass = "mb-2 block text-sm font-medium tracking-wider";
                 />
               </div>
               <div>
-                <label for="phone" class={labelClass}>Phone</label>
+                <label for="phone" class={labelClass}>
+                  Phone (include country code)
+                </label>
                 <input
                   id="phone"
                   name="phone"
@@ -110,6 +121,40 @@ const labelClass = "mb-2 block text-sm font-medium tracking-wider";
 
             <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
               <div>
+                <label for="country" class={labelClass}>Country</label>
+                <div class="relative">
+                  <select
+                    id="country"
+                    name="country"
+                    autocomplete="country"
+                    required
+                    class={`${inputClass} appearance-none pr-10 invalid:text-neutral-400`}
+                  >
+                    <option value="" disabled selected>
+                      Select a country
+                    </option>
+                    {
+                      countries.map((c) => (
+                        <option value={c.code} class="text-neutral-900">
+                          {c.name}
+                        </option>
+                      ))
+                    }
+                  </select>
+                  <svg
+                    class="pointer-events-none absolute top-1/2 right-4 h-4 w-4 -translate-y-1/2 text-neutral-500"
+                    viewBox="0 0 20 20"
+                    fill="currentColor"
+                    aria-hidden="true"
+                  >
+                    <path
+                      fill-rule="evenodd"
+                      d="M5.23 7.21a.75.75 0 0 1 1.06.02L10 11.17l3.71-3.94a.75.75 0 1 1 1.08 1.04l-4.25 4.5a.75.75 0 0 1-1.08 0l-4.25-4.5a.75.75 0 0 1 .02-1.06Z"
+                      clip-rule="evenodd"></path>
+                  </svg>
+                </div>
+              </div>
+              <div>
                 <label for="city" class={labelClass}>City</label>
                 <input
                   id="city"
@@ -120,6 +165,9 @@ const labelClass = "mb-2 block text-sm font-medium tracking-wider";
                   class={inputClass}
                 />
               </div>
+            </div>
+
+            <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
               <div>
                 <label for="state" class={labelClass}>State / region</label>
                 <input
@@ -131,9 +179,6 @@ const labelClass = "mb-2 block text-sm font-medium tracking-wider";
                   class={inputClass}
                 />
               </div>
-            </div>
-
-            <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
               <div>
                 <label for="postalCode" class={labelClass}>
                   Postal code (optional)
@@ -143,17 +188,6 @@ const labelClass = "mb-2 block text-sm font-medium tracking-wider";
                   name="postalCode"
                   type="text"
                   autocomplete="postal-code"
-                  class={inputClass}
-                />
-              </div>
-              <div>
-                <label for="country" class={labelClass}>Country</label>
-                <input
-                  id="country"
-                  name="country"
-                  type="text"
-                  autocomplete="country-name"
-                  required
                   class={inputClass}
                 />
               </div>
@@ -175,7 +209,7 @@ const labelClass = "mb-2 block text-sm font-medium tracking-wider";
           <div>
             <button
               type="submit"
-              class="w-full cursor-pointer rounded-full bg-primary px-6 py-3 font-semibold text-white transition-opacity hover:opacity-90 sm:w-fit sm:px-12"
+              class="w-full cursor-pointer rounded-full bg-primary px-6 py-3 font-semibold text-white transition enabled:hover:opacity-90 enabled:active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60 sm:w-fit sm:px-12"
             >
               Proceed to payment
             </button>
@@ -222,6 +256,18 @@ const labelClass = "mb-2 block text-sm font-medium tracking-wider";
 <script>
   import { getCart } from "@/lib/cart";
   import { renderReceipt } from "@/lib/receipt";
+  import countries from "@/data/countries.json";
+  import { checkoutSchema, toE164 } from "schemas/checkoutSchema";
+
+  type Field = HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement;
+  type FieldName = keyof typeof checkoutSchema.shape;
+
+  const findCountry = (code: string) => countries.find((c) => c.code === code);
+
+  const feeFor = (code: string) => {
+    const country = findCountry(code);
+    return country ? Number(country.shipping_fee) : undefined;
+  };
 
   function init() {
     const layout = document.querySelector<HTMLElement>("#checkout-layout");
@@ -240,8 +286,116 @@ const labelClass = "mb-2 block text-sm font-medium tracking-wider";
       return;
     }
 
+    const form = document.querySelector<HTMLFormElement>("#checkout-form");
+    const select = document.querySelector<HTMLSelectElement>("#country");
+    const submitBtn = form?.querySelector<HTMLButtonElement>(
+      'button[type="submit"]',
+    );
+    if (!form || !select || !submitBtn) return;
+
     layout.classList.remove("hidden");
-    renderReceipt(items, true);
+
+    // ---------- Validation ----------
+
+    const fields = Array.from(
+      form.querySelectorAll<Field>("input[name], select[name], textarea[name]"),
+    ).filter((el) => el.name in checkoutSchema.shape);
+    const touched = new Set<string>();
+
+    // Create an error slot under each field
+    for (const el of fields) {
+      const errorEl = document.createElement("p");
+      errorEl.id = `${el.name}-error`;
+      errorEl.className = "mt-1.5 text-sm tracking-wider text-red-600";
+      errorEl.setAttribute("aria-live", "polite");
+      errorEl.hidden = true;
+      // The select sits inside a relative wrapper (for the arrow icon), so go after it
+      (el.tagName === "SELECT" ? el.parentElement! : el).after(errorEl);
+      el.setAttribute("aria-describedby", errorEl.id);
+    }
+
+    function validateField(el: Field): boolean {
+      const result = checkoutSchema.shape[el.name as FieldName].safeParse(
+        el.value,
+      );
+      const errorEl = form!.querySelector<HTMLElement>(`#${el.name}-error`)!;
+
+      if (result.success) {
+        el.removeAttribute("aria-invalid");
+        errorEl.textContent = "";
+        errorEl.hidden = true;
+      } else {
+        el.setAttribute("aria-invalid", "true");
+        errorEl.textContent = result.error.issues[0].message;
+        errorEl.hidden = false;
+      }
+      return result.success;
+    }
+
+    // Silent check: no messages, just drives the button
+    function updateSubmitState() {
+      const data = Object.fromEntries(new FormData(form!));
+      submitBtn!.disabled = !checkoutSchema.safeParse(data).success;
+    }
+
+    for (const el of fields) {
+      el.addEventListener("blur", () => {
+        touched.add(el.name);
+        validateField(el);
+      });
+      // "input" + "change" cover typing, select picks and most autofill
+      for (const evt of ["input", "change"]) {
+        el.addEventListener(evt, () => {
+          if (touched.has(el.name)) validateField(el);
+          updateSubmitState();
+        });
+      }
+    }
+
+    // ---------- Receipt ----------
+
+    // Use whatever the browser restored/autofilled so the first render is correct
+    renderReceipt(items, true, feeFor(select.value));
+
+    // Re-sync the receipt from the select's current value (no animation)
+    const sync = () => renderReceipt(items, false, feeFor(select.value));
+    select.addEventListener("change", sync);
+    select.addEventListener("input", sync);
+
+    // Refresh / back-forward restores form values after load without events
+    window.addEventListener("pageshow", () => {
+      sync();
+      updateSubmitState();
+    });
+
+    // ---------- Submit ----------
+
+    form.addEventListener("submit", (e) => {
+      e.preventDefault(); // remove once payment is wired up
+
+      let firstInvalid: Field | null = null;
+      for (const el of fields) {
+        touched.add(el.name);
+        if (!validateField(el) && !firstInvalid) firstInvalid = el;
+      }
+      if (firstInvalid) return firstInvalid.focus();
+
+      const formData = new FormData(form);
+      const country = findCountry(String(formData.get("country")));
+
+      const data = {
+        ...Object.fromEntries(formData),
+        phone: toE164(String(formData.get("phone")))!, // normalized, e.g. +2348012345678
+        country: country?.name ?? "",
+        iso_code: country?.code ?? "",
+        shipping_fee: country ? Number(country.shipping_fee) : null,
+        items,
+      };
+
+      console.log(data);
+    });
+
+    updateSubmitState();
   }
 
   init();
