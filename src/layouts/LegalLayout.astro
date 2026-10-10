@@ -5,8 +5,11 @@ import { LEGAL } from "@/data/legal";
 
 interface Props {
   title: string;
+  description?: string;
+  noIndex?: boolean;
+  noFollow?: boolean;
 }
-const { title } = Astro.props;
+const { title, description, noIndex = false, noFollow = false } = Astro.props;
 
 const hasPlaceholders = Object.values(LEGAL).some(
   (v) => typeof v === "string" && v.includes("[")
@@ -20,7 +23,14 @@ const policies = [
 ].filter((p) => p.href !== path);
 ---
 
-<Layout title={title}>
+<Layout
+  title={title}
+  description={description}
+  type="website"
+  noIndex={noIndex}
+  noFollow={noFollow}
+  tags={["legal", "terms", "policy", "edah art"]}
+>
   <article class="mx-auto w-full max-w-3xl px-6 py-16 md:px-10 md:py-24">
     {
       import.meta.env.DEV && hasPlaceholders && (

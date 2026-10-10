@@ -1,9 +1,26 @@
 ---
 import PortfolioFooter from "@/components/PortfolioFooter.astro";
 import Layout from "@/layouts/Layout.astro";
+
+interface Props {
+  title?: string;
+  description?: string;
+  type?: "website" | "article" | "product";
+  noIndex?: boolean;
+  noFollow?: boolean;
+  tags?: string[];
+}
+const { title, description, type = "website", noIndex = false, noFollow = false, tags } = Astro.props;
 ---
 
-<Layout>
+<Layout
+  title={title}
+  description={description}
+  type={type}
+  noIndex={noIndex}
+  noFollow={noFollow}
+  tags={tags}
+>
   <section class="content gap-8 px-6 md:px-10">
     <nav class="flex-between">
       <a

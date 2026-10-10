@@ -1,20 +1,36 @@
 ---
 // src/components/home/FeaturedPieces.astro
 import { Image } from "astro:assets";
-import type { ImageMetadata } from "astro";
 import SectionHeading from "./SectionHeading.astro";
 import ProductModal from "./ProductModal.astro";
-import { cardSummary, type Product } from "@/lib/shop";
-import { products } from "@/pages/shop.astro";
+import {
+  PRODUCT_SELECT,
+  toProduct,
+  cardSummary,
+  type Product,
+} from "@/lib/shop";
+import supabase from "@/lib/supabase";
 
 interface Props {
   pieces?: Product[];
 }
 
-const { pieces = products.slice(0, 4) } = Astro.props;
+let { pieces } = Astro.props;
 
-const imageSrc = (img?: ImageMetadata | string) =>
-  !img ? "" : typeof img === "string" ? img : img.src;
+if (!pieces) {
+  const { data, error } = await supabase
+    .from("artworks")
+    .select(PRODUCT_SELECT)
+    .eq("is_published", true)
+    .eq("is_featured", true)
+    .order("created_at", { ascending: false })
+    .order("sort_order", { referencedTable: "artwork_types" })
+    .order("sort_order", { referencedTable: "artwork_types.artwork_variants" })
+    .limit(4);
+
+  if (error) console.error(`Failed to fetch Supabase data: ${error.message}`);
+  pieces = (data ?? []).map(toProduct);
+}
 ---
 
 <section
@@ -27,7 +43,7 @@ const imageSrc = (img?: ImageMetadata | string) =>
   <ul class="grid sm:grid-cols-2 gap-5 lg:grid-cols-4 lg:gap-6">
     {
       pieces.map((piece, i) => {
-        const summary = cardSummary(piece, "");
+        const summary = cardSummary(piece, "all");
 
         return (
           <li class="group flex flex-col gap-3" data-reveal>
@@ -40,21 +56,18 @@ const imageSrc = (img?: ImageMetadata | string) =>
                 class="block h-full w-full cursor-pointer"
               >
                 {piece.images[0] ? (
-                  typeof piece.images[0] === "string" ? (
-                    <img
-                      src={piece.images[0]}
-                      alt={piece.title}
-                      loading="lazy"
-                      class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
-                    />
-                  ) : (
-                    <Image
-                      src={piece.images[0]}
-                      alt={piece.title}
-                      width={600}
-                      class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
-                    />
-                  )
+                  <Image
+                    width={600}
+                    height={750}
+                    widths={[400, 600, 900]}
+                    sizes="(min-width: 1024px) 25vw, (min-width: 640px) 50vw, 100vw"
+                    quality={75}
+                    loading={i < 2 ? "eager" : "lazy"}
+                    fetchpriority={i === 0 ? "high" : "auto"}
+                    src={piece.images[0]}
+                    alt={piece.title}
+                    class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                  />
                 ) : (
                   <div
                     class="h-full w-full transition-transform duration-500 group-hover:scale-105"
@@ -62,11 +75,11 @@ const imageSrc = (img?: ImageMetadata | string) =>
                   />
                 )}
               </button>
-              <span
-                class="pointer-events-none absolute left-3 top-3 rounded-full bg-white/90 px-3 py-1 text-xs capitalize backdrop-blur"
-              >
-                {summary.badge}
-              </span>
+              {summary.badge && (
+                <span class="pointer-events-none absolute left-3 top-3 rounded-full bg-white/90 px-3 py-1 text-xs capitalize backdrop-blur">
+                  {summary.badge}
+                </span>
+              )}
             </div>
 
             <div class="flex items-baseline justify-between gap-3">
@@ -78,9 +91,7 @@ const imageSrc = (img?: ImageMetadata | string) =>
                   {summary.badge}
                 </p>
               </div>
-              <span class="font-biryani font-medium">
-                {summary.price}
-              </span>
+              <span class="font-biryani font-medium">{summary.price}</span>
             </div>
 
             <button

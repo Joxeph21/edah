@@ -72,7 +72,8 @@ const fields: FieldConfig[] = [
 
 
 <script>
-  import { contactSchema } from "schemas/contactSchema";
+  import { toast } from "@/lib/toast";
+import { contactSchema } from "schemas/contactSchema";
 
   type Field = HTMLInputElement | HTMLTextAreaElement;
   type FieldName = keyof typeof contactSchema.shape;
@@ -119,7 +120,7 @@ const fields: FieldConfig[] = [
       el.addEventListener("change", updateSubmitState);
     }
 
-    form.addEventListener("submit", (e) => {
+   form.addEventListener("submit", (e) => {
       let firstInvalid: Field | null = null;
 
       for (const el of fields) {
@@ -133,7 +134,40 @@ const fields: FieldConfig[] = [
       }
     });
 
-    // Initial state, and when the browser restores values on back/forward
+    form.addEventListener("submit", async (e) => {
+  e.preventDefault();
+
+  let firstInvalid: Field | null = null;
+  for (const el of fields) {
+    touched.add(el.name);
+    if (!validateField(el) && !firstInvalid) firstInvalid = el;
+  }
+  if (firstInvalid) return firstInvalid.focus();
+
+  submitBtn.disabled = true;
+
+  try {
+    const res = await fetch("/api/enquire", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(Object.fromEntries(new FormData(form))),
+    });
+    const data = await res.json();
+
+    if (res.ok) {
+      toast.success("Thanks! I'll be in touch soon.");
+      form.reset();
+      touched.clear();
+    } else {
+      toast.error(data.error ?? "Something went wrong.");
+    }
+  } catch {
+    toast.error("Network error. Please try again.");
+  } finally {
+    updateSubmitState();
+  }
+});
+
     updateSubmitState();
     window.addEventListener("pageshow", updateSubmitState);
   }

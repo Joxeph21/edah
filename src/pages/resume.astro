@@ -48,7 +48,15 @@ const sections: { id: string; title: string; entries: Entry[] }[] = [
 const languages = ["Yoruba", "English", "Mandarin"];
 ---
 
-<Layout title="Resume">
+<Layout
+  title="Resume"
+  description="View Edah's CV/Resume including exhibitions, workshops, collaborations, awards, and languages. Multidisciplinary fine artist based in Lagos with exhibitions in Germany, Nigeria, and Taiwan."
+  type="article"
+  section="About"
+  tags={["artist cv", "artist resume", "exhibitions", "awards", "workshops", "edah"]}
+  publishedTime="2024-01-01"
+  author="Edah"
+>
   <section class="content w-full px-6 md:px-10 py-16">
     <div class="mx-auto grid max-w-6xl gap-12 lg:grid-cols-[14rem_1fr] lg:gap-20">
       <!-- Section index (desktop only), fills the left gutter like your reference -->

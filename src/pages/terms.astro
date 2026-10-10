@@ -4,7 +4,12 @@ import LegalLayout from "@/layouts/LegalLayout.astro";
 import { LEGAL } from "@/data/legal";
 ---
 
-<LegalLayout title="Terms of Service">
+<LegalLayout
+  title="Terms of Service"
+  description="Terms of Service for Edah Art. Governs use of the website, purchases of artworks, prints, and commissions. Includes pricing, shipping, returns, commissions, intellectual property, and governing law."
+  noIndex={true}
+  noFollow={true}
+>
   <p>
     These Terms of Service ("Terms") govern your use of <strong>{LEGAL.siteUrl}</strong> (the "Website")
     and any purchase of artworks, prints or commissions from <strong>{LEGAL.brand}</strong>, operated by <strong>{LEGAL.owner}</strong> ("we", "us", "our"), based in {LEGAL.address}. By using the Website or placing an order, you agree to
@@ -28,10 +33,10 @@ import { LEGAL } from "@/data/legal";
 
   <h2>2. Artworks and product descriptions</h2>
   <p>
-    Our work is handmade. Colours may look different on your screen than in
+    My work is handmade. Colours may look different on your screen than in
     person, and small variations in texture, size and finish are part of the
-    character of each piece. We take care to describe and photograph each item
-    accurately, but we cannot guarantee that every detail will match your screen
+    character of each piece. I take care to describe and photograph each item
+    accurately, but I cannot guarantee that every detail will match your screen
     exactly. Original artworks are one-of-a-kind; prints may be produced in
     limited editions as described on the product page.
   </p>
@@ -44,28 +49,28 @@ import { LEGAL } from "@/data/legal";
       These are shown or calculated at checkout where possible.
     </li>
     <li>
-      Payments are processed securely by {LEGAL.paymentProvider}. We do not
+      Payments are processed securely by {LEGAL.paymentProvider}. I do not
       receive or store your full card details.
     </li>
     <li>
-      If we discover a pricing or listing error, we may correct it and contact
+      If I discover a pricing or listing error, I may correct it and contact
       you before proceeding; if you no longer wish to buy at the correct price,
-      we will cancel the order and refund you in full.
+      I will cancel the order and refund you in full.
     </li>
   </ul>
 
   <h2>4. Orders and availability</h2>
   <p>
-    Placing an order is an offer to buy. We accept it when we send an order
+    Placing an order is an offer to buy. I accept it when I send an order
     confirmation or dispatch the item. Because original works are one-of-a-kind,
-    if a piece is no longer available when your order is processed we will tell
+    if a piece is no longer available when your order is processed I will tell
     you promptly and refund you in full.
   </p>
 
   <h2>5. Shipping and delivery</h2>
   <ul>
     <li>
-      We ship using carriers such as {LEGAL.courier}. Delivery times are
+      I ship using carriers such as {LEGAL.courier}. Delivery times are
       estimates, not guarantees, and may be affected by customs, weather or
       carrier delays.
     </li>
@@ -82,7 +87,7 @@ import { LEGAL } from "@/data/legal";
 
   <h2>6. Returns and refunds</h2>
   <p>
-    Our <a href="/refund-policy">Refund &amp; Returns Policy</a> forms part of these
+    My <a href="/refund-policy">Refund &amp; Returns Policy</a> forms part of these
     Terms.
   </p>
 

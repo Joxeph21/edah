@@ -8,7 +8,7 @@
 </div>
 
 <template id="toast-template">
-  <div data-wrap class="w-full pb-3 sm:w-80">
+  <div data-wrap class="w-fit pb-3 ">
     <div
       class="toast pointer-events-auto relative overflow-hidden rounded-2xl border border-neutral-200 bg-white"
     >
@@ -160,7 +160,7 @@
     );
 
     // Countdown bar doubles as the auto-dismiss timer
-    const ms = duration ?? (type === "error" ? 3000 : 2000);
+    const ms = duration ?? (type === "error" ? 3000 : 3000);
     const timer = animate(
       wrap.querySelector<HTMLElement>("[data-progress]")!,
       { scaleX: [1, 0] },

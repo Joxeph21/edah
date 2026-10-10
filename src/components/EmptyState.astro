@@ -1,0 +1,53 @@
+---
+// src/components/EmptyState.astro
+interface Props {
+  title?: string;
+  description?: string;
+  action?: { label: string; href: string };
+  icon?: "cart" | "search" | "heart" | "box";
+}
+const { title = "Nothing here yet", description = "No featured pieces to show right now.", action = { label: "Browse the shop", href: "/shop" }, icon = "box" } = Astro.props;
+
+const icons = {
+  cart: (
+    <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#6b5252" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <circle cx="9" cy="20" r="1.5"></circle>
+      <circle cx="18" cy="20" r="1.5"></circle>
+      <path d="M2 3h3l2.4 11.2a2 2 0 0 0 2 1.6h8.2a2 2 0 0 0 2-1.5L21 7H6"></path>
+    </svg>
+  ),
+  search: (
+    <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#6b5252" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <circle cx="11" cy="11" r="8"></circle>
+      <path d="M21 21l-4.35-4.35"></path>
+    </svg>
+  ),
+  heart: (
+    <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#6b5252" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+    </svg>
+  ),
+  box: (
+    <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#6b5252" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
+      <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
+      <line x1="12" y1="22.08" x2="12" y2="12"></line>
+    </svg>
+  ),
+};
+---
+
+<div class="flex flex-col items-center gap-6 rounded-2xl bg-neutral-100 px-6 py-16 sm:py-20 text-center">
+  <div class="flex h-16 w-16 items-center justify-center rounded-full bg-neutral-200 text-neutral-400" aria-hidden="true">
+    {icons[icon]}
+  </div>
+  <div>
+    <h2 class="text-2xl font-bold tracking-widest text-[#6b5252]">{title}</h2>
+    <p class="mt-2 max-w-md text-neutral-600 tracking-wide">{description}</p>
+  </div>
+  {action && (
+    <a href={action.href} class="mt-4 rounded-full bg-primary px-8 py-3 font-semibold text-white transition-opacity hover:opacity-90">
+      {action.label}
+    </a>
+  )}
+</div>

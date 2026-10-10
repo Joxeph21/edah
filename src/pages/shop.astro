@@ -1,169 +1,68 @@
 ---
 import Layout from "@/layouts/Layout.astro";
 import ProductModal from "@/components/ProductModal.astro";
-import drummer from "@/assets/images/drummer.webp";
-import mask from "@/assets/images/mask.webp";
-import alagbe from "@/assets/images/alagbe.webp";
-import { cardSummary, type Product } from "@/lib/shop";
+import supabase from "@/lib/supabase";
+import { PRODUCT_SELECT, toProduct, cardSummary, catKey } from "@/lib/shop";
+import { Image } from "astro:assets";
 
 export const prerender = false;
 
-const FILTERS = ["all", "paintings", "sculptures", "prints", "merch"] as const;
-type Filter = (typeof FILTERS)[number];
+const [{ data: rows, error }, { data: cats }] = await Promise.all([
+  supabase
+    .from("artworks")
+    .select(PRODUCT_SELECT)
+    .eq("is_published", true)
+    .order("created_at", { ascending: false })
+    .order("sort_order", { referencedTable: "artwork_types" })
+    .order("sort_order", { referencedTable: "artwork_types.artwork_variants" }),
+  supabase.from("category").select("id, label").order("label"),
+]);
 
-const raw = Astro.url.searchParams.get("filter")?.toLowerCase();
-const currentFilter: Filter = FILTERS.includes(raw as Filter)
-  ? (raw as Filter)
-  : "all";
+if (error) console.error(`Failed to fetch Supabase data: ${error.message}`);
 
-export const products: Product[] = [
-  {
-    id: 1, slug: "morning-light", title: "Morning Light",
-    description:
-      "Lorem ipsum dolor sit amet consectetur adipisicing elit. Corporis, itaque nulla voluptates natus laboriosam ex deleniti id excepturi doloribus mollitia neque tempora quibusdam molestiae deserunt illo voluptatem, nihil, similique et error perspiciatis? Est animi enim voluptatibus, reiciendis deserunt sit at? Deleniti officia fuga praesentium labore animi facilis commodi quia! Vero, quidem. Voluptatem quidem expedita cum ad libero ducimus tempore rerum natus aspernatur ratione? Dolores, accusamus ab, placeat optio et maiores praesentium quod tempore, similique velit nisi aliquam architecto. Illum ducimus eaque ullam ad quisquam molestiae quos. Laudantium quasi autem nesciunt nostrum totam temporibus, dolorem placeat. Odio provident labore debitis ipsa!",
-    images: [drummer.src, mask.src, alagbe.src],
-    categories: ["paintings", "prints"],
-    types: [
-      {
-        id: 1, label: "Original", description: "Oil on canvas", category: "paintings",
-        variants: [
-          { id: 1, sku: "MORNING-LIGHT-ORIGINAL-18-24-IN", label: "18 × 24 in", price: 120000, currency: "USD", stock: 1 },
-          { id: 2, sku: "MORNING-LIGHT-ORIGINAL-24-36-IN", label: "24 × 36 in", price: 120000, currency: "USD", stock: 1 },
-        ],
-      },
-      {
-        id: 10, label: "Print", description: "Giclée on cotton paper", category: "prints",
-        variants: [
-          { id: 19, sku: "MORNING-LIGHT-PRINT-A3", label: "A3", price: 15000, currency: "USD", stock: 25 },
-        ],
-      },
-    ],
-  },
-  {
-    id: 2, slug: "bronze-dream", title: "Bronze Dream",
-    description:
-      "A figure caught between waking and dreaming, cast in bronze and finished by hand.",
-    images: [drummer.src], categories: ["sculptures"],
-    types: [{
-      id: 2, label: "Original", description: "Cast bronze", category: "sculptures",
-      variants: [
-        { id: 3, sku: "BRONZE-DREAM-ORIGINAL-12-IN", label: "12 in", price: 350000, currency: "USD", stock: 1 },
-        { id: 4, sku: "BRONZE-DREAM-ORIGINAL-18-IN", label: "18 in", price: 350000, currency: "USD", stock: 1 },
-      ],
-    }],
-  },
-  {
-    id: 3, slug: "limited-edition-print-1", title: "Limited Edition Print #1",
-    description:
-      "The first in a limited series, printed in a small run and numbered by hand.",
-    images: [drummer.src], categories: ["prints"],
-    types: [{
-      id: 3, label: "Print", description: "Giclée on cotton paper, numbered", category: "prints",
-      variants: [
-        { id: 5, sku: "LIMITED-EDITION-PRINT-1-PRINT-A4", label: "A4", price: 15000, currency: "USD", stock: 25 },
-        { id: 6, sku: "LIMITED-EDITION-PRINT-1-PRINT-A3", label: "A3", price: 15000, currency: "USD", stock: 25 },
-        { id: 7, sku: "LIMITED-EDITION-PRINT-1-PRINT-A2", label: "A2", price: 15000, currency: "USD", stock: 25 },
-      ],
-    }],
-  },
-  {
-    id: 4, slug: "ocean-depths", title: "Ocean Depths",
-    description:
-      "Deep blues and slow movement, painted from the memory of standing at the water's edge.",
-    images: [drummer.src], categories: ["paintings"],
-    types: [{
-      id: 4, label: "Original", description: "Acrylic on canvas", category: "paintings",
-      variants: [
-        { id: 8, sku: "OCEAN-DEPTHS-ORIGINAL-24-36-IN", label: "24 × 36 in", price: 280000, currency: "USD", stock: 1 },
-        { id: 9, sku: "OCEAN-DEPTHS-ORIGINAL-36-48-IN", label: "36 × 48 in", price: 280000, currency: "USD", stock: 1 },
-      ],
-    }],
-  },
-  {
-    id: 5, slug: "clay-figure", title: "Clay Figure",
-    description:
-      "A small hand-built figure, shaped from clay and fired once. No two marks are the same.",
-    images: [drummer.src], categories: ["sculptures"],
-    types: [{
-      id: 5, label: "Original", description: "Hand-built stoneware", category: "sculptures",
-      variants: [
-        { id: 10, sku: "CLAY-FIGURE-ORIGINAL-10-IN", label: "10 in", price: 90000, currency: "USD", stock: 1 },
-      ],
-    }],
-  },
-  {
-    id: 6, slug: "art-print-series", title: "Art Print Series",
-    description:
-      "A set of prints drawn from recent paintings, made to live on a shelf or a wall.",
-    images: [drummer.src], categories: ["prints"],
-    types: [{
-      id: 6, label: "Print", description: "Giclée on cotton paper", category: "prints",
-      variants: [
-        { id: 11, sku: "ART-PRINT-SERIES-PRINT-A4", label: "A4", price: 20000, currency: "USD", stock: 25 },
-        { id: 12, sku: "ART-PRINT-SERIES-PRINT-A3", label: "A3", price: 20000, currency: "USD", stock: 25 },
-      ],
-    }],
-  },
-  {
-    id: 7, slug: "sunset-abstract", title: "Sunset Abstract",
-    description:
-      "Warm colour layered until the edges dissolve, an abstract take on the last light of the day.",
-    images: [drummer.src], categories: ["paintings"],
-    types: [{
-      id: 7, label: "Original", description: "Oil on canvas", category: "paintings",
-      variants: [
-        { id: 13, sku: "SUNSET-ABSTRACT-ORIGINAL-20-30-IN", label: "20 × 30 in", price: 180000, currency: "USD", stock: 1 },
-        { id: 14, sku: "SUNSET-ABSTRACT-ORIGINAL-30-40-IN", label: "30 × 40 in", price: 180000, currency: "USD", stock: 1 },
-      ],
-    }],
-  },
-  {
-    id: 8, slug: "wood-carving", title: "Wood Carving",
-    description:
-      "Carved from a single piece of wood, following the grain rather than fighting it.",
-    images: [drummer.src], categories: ["sculptures"],
-    types: [{
-      id: 8, label: "Original", description: "Hand-carved wood", category: "sculptures",
-      variants: [
-        { id: 15, sku: "WOOD-CARVING-ORIGINAL-14-IN", label: "14 in", price: 150000, currency: "USD", stock: 1 },
-        { id: 16, sku: "WOOD-CARVING-ORIGINAL-20-IN", label: "20 in", price: 150000, currency: "USD", stock: 1 },
-      ],
-    }],
-  },
-  {
-    id: 9, slug: "signed-print", title: "Signed Print",
-    description:
-      "A signed print of one of my favourite pieces, ready to frame.",
-    images: [drummer.src], categories: ["prints"],
-    types: [{
-      id: 9, label: "Print", description: "Giclée on cotton paper, signed", category: "prints",
-      variants: [
-        { id: 17, sku: "SIGNED-PRINT-PRINT-A3", label: "A3", price: 25000, currency: "USD", stock: 25 },
-        { id: 18, sku: "SIGNED-PRINT-PRINT-A2", label: "A2", price: 25000, currency: "USD", stock: 25 },
-      ],
-    }],
-  },
-];
-const inFilter = (p: Product) =>
-  currentFilter === "all" || p.categories.includes(currentFilter);
+const products = (rows ?? []).map(toProduct);
+
+// Filter tabs come from the category table, so they always match your data
+const FILTERS = ["all", ...(cats ?? []).map((c) => c.label.toLowerCase())];
+
+const raw = Astro.url.searchParams.get("filter")?.toLowerCase() ?? "all";
+const currentFilter = FILTERS.includes(raw) ? raw : "all";
+
+const inFilter = (p: (typeof products)[number]) =>
+  currentFilter === "all" ||
+  p.categories.some((c) => catKey(c) === currentFilter);
 
 const activeClasses = "bg-primary text-white font-semibold";
 const idleClasses = "hover:bg-primary hover:text-white bg-neutral-200";
 const visibleCount = products.filter(inFilter).length;
 ---
 
-<Layout title="Shop">
+<Layout
+  title="Shop"
+  description="Collect original paintings, limited edition prints, sculptures, and signed artwork by Edah. Each piece is a portal into worlds of impossibilities and stories to get lost in. Secure checkout, worldwide shipping."
+  type="website"
+  tags={[
+    "art shop",
+    "buy art online",
+    "original paintings",
+    "limited edition prints",
+    "sculpture",
+    "signed artwork",
+  ]}
+>
   <section class="content relative w-full px-10 min-h-screen">
     <div class="flex items-start gap-6">
       <aside class="sticky lg:flex hidden w-60 top-40 self-start">
-        <div class="flex flex-col gap-4 h-96 bg-neutral-100 rounded-xl p-6">
+        <div
+          class="flex flex-col gap-4 h-fit w-full bg-neutral-100 rounded-xl p-6"
+        >
           <h3 class="font-architects-daughter text-xl tracking-wider mb-4">
             Categories
           </h3>
           {
             FILTERS.map((filter) => (
               <a
-                href={`/shop?filter=${filter}`}
+                href={`/shop?filter=${encodeURIComponent(filter)}`}
                 data-filter={filter}
                 class:list={[
                   "w-full text-left px-4 py-2 rounded-lg transition-colors capitalize",
@@ -190,8 +89,6 @@ const visibleCount = products.filter(inFilter).length;
           with you.
         </p>
 
-
-
         <div
           id="mobile-filter"
           class="flex w-full items-center gap-2 overflow-x-auto my-5 pr-10 lg:hidden scrollbar-none [&::-webkit-scrollbar]:hidden mask-[linear-gradient(to_right,black_88%,transparent)]"
@@ -199,7 +96,7 @@ const visibleCount = products.filter(inFilter).length;
           {
             FILTERS.map((filter) => (
               <a
-                href={`/shop?filter=${filter}`}
+                href={`/shop?filter=${encodeURIComponent(filter)}`}
                 data-filter={filter}
                 class:list={[
                   "shrink-0 whitespace-nowrap text-sm px-4 py-2 rounded-lg transition-colors capitalize",
@@ -217,14 +114,14 @@ const visibleCount = products.filter(inFilter).length;
           class="w-full mt-8 grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3"
         >
           {
-            products.map((product) => {
+            products.map((product, i) => {
               const summary = cardSummary(product, currentFilter);
 
               return (
                 <article
                   data-product
                   data-product-id={product.id}
-                  data-category={product.categories.join(" ")}
+                  data-category={product.categories.map(catKey).join(" ")}
                   class:list={[
                     "group flex flex-col gap-4",
                     { hidden: !inFilter(product) },
@@ -238,10 +135,16 @@ const visibleCount = products.filter(inFilter).length;
                       aria-label={`View ${product.title}`}
                       class="block h-full w-full cursor-pointer"
                     >
-                      <img
+                      <Image
                         src={product.images[0] ?? "/placeholder.svg"}
                         alt={product.title}
-                        loading="lazy"
+                        width={600}
+                        height={750}
+                        widths={[400, 600, 900]}
+                        sizes="(min-width: 1024px) 25vw, (min-width: 640px) 50vw, 100vw"
+                        quality={75}
+                        loading={i < 2 ? "eager" : "lazy"}
+                        fetchpriority={i === 0 ? "high" : "auto"}
                         class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
                       />
                     </button>
@@ -344,284 +247,3 @@ const visibleCount = products.filter(inFilter).length;
 
   <ProductModal products={products} />
 </Layout>
-
-<script>
-  import { animate } from "motion";
-  import {
-    formatPrice,
-    stockLabel,
-    startType,
-    defaultVariant,
-    type Product,
-  } from "@/lib/shop";
-  import { addToCart, getQty, setQty, maxQtyFor, MAX_QTY } from "@/lib/cart";
-
-  // State for whichever modal is on the page right now
-  let dialog: HTMLDialogElement | null = null;
-  let products: Product[] = [];
-  let product!: Product;
-  let typeId = 0;
-  let variantId: number | null = null;
-  let imageIndex = 0;
-  let closing = false;
-
-  const $ = <T extends HTMLElement = HTMLElement>(id: string) =>
-    dialog!.querySelector<T>(`#pm-${id}`)!;
-
-  // Lenis (if present) is paused while the modal is open
-  const lenis = () => (window as any).lenis;
-
-  const esc = (s: string) =>
-    s.replace(
-      /[&<>"']/g,
-      (c) =>
-        ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[
-          c
-        ]!,
-    );
-
-  const currentType = () => product.types.find((t) => t.id === typeId)!;
-  const currentVariant = () =>
-    currentType().variants.find((v) => v.id === variantId) ?? null;
-
-  function render() {
-    const type = currentType();
-    const variant = currentVariant();
-
-    // Gallery
-    const images = product.images.length ? product.images : ["/placeholder.svg"];
-    const img = $<HTMLImageElement>("image");
-    img.src = images[imageIndex];
-    img.alt = product.title;
-
-    $("thumbs").innerHTML =
-      images.length > 1
-        ? images
-            .map(
-              (src, i) => `
-        <button type="button" data-thumb="${i}" aria-label="Show image ${i + 1}"
-          aria-current="${i === imageIndex}"
-          class="size-16 shrink-0 cursor-pointer overflow-hidden rounded-lg border-2 border-transparent opacity-70 transition hover:opacity-100 aria-[current=true]:border-primary aria-[current=true]:opacity-100">
-          <img src="${esc(src)}" alt="" class="h-full w-full object-cover" />
-        </button>`,
-            )
-            .join("")
-        : "";
-
-    // Text
-    $("badge").textContent = type.category;
-    $("title").textContent = product.title;
-    $("desc").textContent = product.description ?? "";
-    $("desc").hidden = !product.description;
-
-    // Type selector (only when there is a choice)
-    $("types-wrap").hidden = product.types.length < 2;
-    $("types").innerHTML = product.types
-      .map(
-        (t) => `
-      <button type="button" role="radio" data-type="${t.id}" aria-checked="${t.id === typeId}"
-        class="flex-1 cursor-pointer rounded-md px-3 py-2 text-sm tracking-wider transition aria-checked:bg-white aria-checked:font-semibold aria-checked:shadow-sm">
-        ${esc(t.label)}
-      </button>`,
-      )
-      .join("");
-
-    $("type-desc").textContent = type.description ?? "";
-    $("type-desc").hidden = !type.description;
-
-    // Variant selector (only when there is a choice)
-    $("variants-wrap").hidden = type.variants.length < 2;
-    $("variants").innerHTML = type.variants
-      .map(
-        (v) => `
-      <li>
-        <button type="button" data-variant="${v.id}" aria-pressed="${v.id === variantId}"
-          ${v.stock === 0 ? "disabled" : ""}
-          class="cursor-pointer rounded-lg border border-neutral-300 px-4 py-2 text-sm tracking-wider transition hover:border-primary aria-pressed:border-primary aria-pressed:bg-primary aria-pressed:text-white disabled:cursor-not-allowed disabled:text-neutral-400 disabled:line-through disabled:hover:border-neutral-300">
-          ${esc(v.label)}
-        </button>
-      </li>`,
-      )
-      .join("");
-
-    // Price and stock
-    const soldOut = !variant || variant.stock === 0;
-    $("price").textContent = variant
-      ? formatPrice(variant.price, variant.currency)
-      : "";
-    $("stock").textContent = variant ? stockLabel(variant.stock) : "";
-    $("stock").classList.toggle("text-red-600", soldOut);
-
-    // Add button, or a counter if this variant is already in the cart
-    const inCart = variant ? getQty(variant.id) : 0;
-    const add = $<HTMLButtonElement>("add");
-
-    add.hidden = inCart > 0;
-    add.disabled = soldOut;
-    add.textContent = soldOut ? "Sold out" : "Collect this artwork";
-
-    $("counter").hidden = inCart === 0;
-
-    if (variant && inCart > 0) {
-      const max = maxQtyFor(variant);
-      const atLimit = inCart >= max;
-
-      $("qty").textContent = String(inCart);
-      $<HTMLButtonElement>("qty-inc").disabled = atLimit;
-      $("qty-note").textContent = atLimit
-        ? variant.stock < MAX_QTY
-          ? "That's all that's available"
-          : `Maximum ${MAX_QTY} per order`
-        : "";
-    }
-  }
-
-  function open(productId: number) {
-    // No modal on this page, or it's already open
-    if (!dialog || dialog.open) return;
-
-    const p = products.find((x) => x.id === productId);
-    if (!p) return;
-
-    product = p;
-    imageIndex = 0;
-
-    // Open on the type that matches the shop's active filter
-    const filter = new URL(location.href).searchParams.get("filter") ?? "all";
-    const type = startType(p, filter);
-    typeId = type.id;
-    variantId = defaultVariant(type)?.id ?? null;
-
-    render();
-    dialog.showModal();
-    $("scroll").scrollTop = 0; // always start at the top
-    document.documentElement.classList.add("overflow-hidden");
-    lenis()?.stop(); // freeze the page behind the modal
-    animate(dialog, { opacity: [0, 1], y: [16, 0] }, { duration: 0.25 });
-  }
-
-  // Plays the closing animation, then actually closes the dialog
-  async function closeModal() {
-    const d = dialog;
-    if (closing || !d || !d.open) return;
-    closing = true;
-
-    d.dataset.closing = "true"; // fades the backdrop (see <style>)
-    await animate(
-      d,
-      { opacity: [1, 0], y: [0, 16] },
-      { duration: 0.2, ease: "easeIn" },
-    );
-
-    d.close();
-    delete d.dataset.closing;
-    closing = false;
-  }
-
-  // Finds this page's modal and wires it up (runs after every navigation)
-  function setup() {
-    const el = document.querySelector<HTMLDialogElement>("#product-modal");
-    const dataEl = document.querySelector("#shop-data");
-
-    if (!el || !dataEl) {
-      dialog = null;
-      return;
-    }
-
-    dialog = el;
-    products = JSON.parse(dataEl.textContent ?? "[]");
-    closing = false;
-
-    // Listeners are already attached to this element
-    if (el.dataset.ready) return;
-    el.dataset.ready = "true";
-
-    // Interactions inside the modal
-    el.addEventListener("click", (e) => {
-      const t = e.target as HTMLElement;
-
-      if (t === el || t.closest("[data-close]")) return closeModal();
-
-      const thumb = t.closest<HTMLElement>("[data-thumb]");
-      if (thumb) {
-        imageIndex = Number(thumb.dataset.thumb);
-        return render();
-      }
-
-      const typeBtn = t.closest<HTMLElement>("[data-type]");
-      if (typeBtn) {
-        typeId = Number(typeBtn.dataset.type);
-        variantId = defaultVariant(currentType())?.id ?? null;
-        return render();
-      }
-
-      const variantBtn = t.closest<HTMLButtonElement>("[data-variant]");
-      if (variantBtn && !variantBtn.disabled) {
-        variantId = Number(variantBtn.dataset.variant);
-        return render();
-      }
-
-      // First add: swaps the button for the counter
-      if (t.closest("#pm-add")) {
-        const type = currentType();
-        const variant = currentVariant();
-        if (!variant || variant.stock === 0) return;
-
-        addToCart({
-          variantId: variant.id,
-          sku: variant.sku,
-          productId: product.id,
-          title: product.title,
-          typeLabel: type.label,
-          variantLabel: variant.label,
-          category: type.category,
-          price: variant.price,
-          currency: variant.currency,
-          image: product.images[0] ?? "/placeholder.svg",
-          stock: variant.stock,
-        });
-        return render();
-      }
-
-      // Counter: + and − (going below 1 removes it and brings the button back)
-      const inc = t.closest<HTMLButtonElement>("[data-qty-inc]");
-      const dec = t.closest<HTMLButtonElement>("[data-qty-dec]");
-      if ((inc && !inc.disabled) || dec) {
-        const variant = currentVariant();
-        if (!variant) return;
-        setQty(variant.id, getQty(variant.id) + (inc ? 1 : -1));
-        return render();
-      }
-    });
-
-    // Esc: play the closing animation instead of snapping shut
-    el.addEventListener("cancel", (e) => {
-      e.preventDefault();
-      closeModal();
-    });
-
-    el.addEventListener("close", () => {
-      document.documentElement.classList.remove("overflow-hidden");
-      lenis()?.start();
-    });
-  }
-
-  // Open from any [data-open] element (card image or button).
-  // Registered once; it always uses the modal that is on the page right now.
-  document.addEventListener("click", (e) => {
-    const trigger = (e.target as HTMLElement).closest<HTMLElement>("[data-open]");
-    if (trigger) open(Number(trigger.dataset.productId));
-  });
-
-  // The page is about to be replaced: never leave the scroll locked
-  document.addEventListener("astro:before-swap", () => {
-    if (dialog?.open) dialog.close();
-    document.documentElement.classList.remove("overflow-hidden");
-    lenis()?.start();
-    closing = false;
-    dialog = null;
-  });
-
-  setup();
-  document.addEventListener("astro:page-load", setup);
-</script>

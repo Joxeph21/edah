@@ -2,7 +2,13 @@
 import Layout from "@/layouts/Layout.astro";
 ---
 
-<Layout title="Page not found">
+<Layout
+  title="Page not found"
+  description="The page you're looking for has been moved, sold, or never existed. Browse the shop or return to the homepage to explore Edah's artwork."
+  type="website"
+  noIndex={true}
+  noFollow={true}
+>
   <section
     class="content flex min-h-[70vh] w-full flex-col items-center justify-center gap-8 px-10 py-16 text-center"
   >

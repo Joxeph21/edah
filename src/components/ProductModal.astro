@@ -1,4 +1,5 @@
 ---
+// src/components/ProductModal.astro
 import type { Product } from "@/lib/shop";
 
 interface Props {
@@ -36,14 +37,14 @@ const json = JSON.stringify(products).replace(/</g, "\\u003c");
   >
     <div class="grid md:grid-cols-2">
       <!-- Gallery -->
-     <div class="bg-neutral-100 p-4">
-  <div class="flex flex-col gap-3 md:sticky md:top-4">
-    <div class="aspect-4/5 overflow-hidden rounded-xl bg-neutral-200">
-      <img id="pm-image" alt="" class="h-full w-full object-cover" />
-    </div>
-    <div id="pm-thumbs" class="flex gap-2 overflow-x-auto"></div>
-  </div>
-</div>
+      <div class="bg-neutral-100 p-4">
+        <div class="flex flex-col gap-3 md:sticky md:top-4">
+          <div class="aspect-4/5 overflow-hidden rounded-xl bg-neutral-200">
+            <img id="pm-image" alt="" class="h-full w-full object-cover" />
+          </div>
+          <div id="pm-thumbs" class="flex gap-2 overflow-x-auto"></div>
+        </div>
+      </div>
 
       <!-- Details -->
       <div class="flex flex-col gap-5 p-6 sm:p-8">
@@ -156,177 +157,199 @@ const json = JSON.stringify(products).replace(/</g, "\\u003c");
   } from "@/lib/shop";
   import { addToCart, getQty, setQty, maxQtyFor, MAX_QTY } from "@/lib/cart";
 
-  const dialog = document.querySelector<HTMLDialogElement>("#product-modal");
-  const dataEl = document.querySelector("#shop-data");
+  // State for whichever modal is on the page right now
+  let dialog: HTMLDialogElement | null = null;
+  let products: Product[] = [];
+  let product!: Product;
+  let typeId = 0;
+  let variantId: number | null = null;
+  let imageIndex = 0;
+  let closing = false;
 
-  if (dialog && dataEl) {
-    const products: Product[] = JSON.parse(dataEl.textContent ?? "[]");
-    const $ = <T extends HTMLElement = HTMLElement>(id: string) =>
-      dialog.querySelector<T>(`#pm-${id}`)!;
+  const $ = <T extends HTMLElement = HTMLElement>(id: string) =>
+    dialog!.querySelector<T>(`#pm-${id}`)!;
 
-    // Lenis (if present) is paused while the modal is open
-    const lenis = () => (window as any).lenis;
+  const lenis = () => (window as any).lenis;
 
-    const esc = (s: string) =>
-      s.replace(
-        /[&<>"']/g,
-        (c) =>
-          ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[
-            c
-          ]!,
-      );
+  const esc = (s: string) =>
+    s.replace(
+      /[&<>"']/g,
+      (c) =>
+        ({
+          "&": "&amp;",
+          "<": "&lt;",
+          ">": "&gt;",
+          '"': "&quot;",
+          "'": "&#39;",
+        })[c]!,
+    );
 
-    let product!: Product;
-    let typeId = 0;
-    let variantId: number | null = null;
-    let imageIndex = 0;
-    let closing = false;
+  const currentType = () => product.types.find((t) => t.id === typeId)!;
+  const currentVariant = () =>
+    currentType().variants.find((v) => v.id === variantId) ?? null;
 
-    const currentType = () => product.types.find((t) => t.id === typeId)!;
-    const currentVariant = () =>
-      currentType().variants.find((v) => v.id === variantId) ?? null;
+  function render() {
+    const type = currentType();
+    const variant = currentVariant();
 
-    function render() {
-      const type = currentType();
-      const variant = currentVariant();
+    // Gallery
+    const images = product.images.length
+      ? product.images
+      : ["/placeholder.svg"];
+    const img = $<HTMLImageElement>("image");
+    img.src = images[imageIndex];
+    img.alt = product.title;
 
-      // Gallery
-      const images = product.images.length ? product.images : ["/placeholder.svg"];
-      const img = $<HTMLImageElement>("image");
-      img.src = images[imageIndex];
-      img.alt = product.title;
-
-      $("thumbs").innerHTML =
-        images.length > 1
-          ? images
-              .map(
-                (src, i) => `
-          <button type="button" data-thumb="${i}" aria-label="Show image ${i + 1}"
-            aria-current="${i === imageIndex}"
-            class="size-16 shrink-0 cursor-pointer overflow-hidden rounded-lg border-2 border-transparent opacity-70 transition hover:opacity-100 aria-[current=true]:border-primary aria-[current=true]:opacity-100">
-            <img src="${esc(src)}" alt="" class="h-full w-full object-cover" />
-          </button>`,
-              )
-              .join("")
-          : "";
-
-      // Text
-      $("badge").textContent = type.category;
-      $("title").textContent = product.title;
-      $("desc").textContent = product.description ?? "";
-      $("desc").hidden = !product.description;
-
-      // Type selector (only when there is a choice)
-      $("types-wrap").hidden = product.types.length < 2;
-      $("types").innerHTML = product.types
-        .map(
-          (t) => `
-        <button type="button" role="radio" data-type="${t.id}" aria-checked="${t.id === typeId}"
-          class="flex-1 cursor-pointer rounded-md px-3 py-2 text-sm tracking-wider transition aria-checked:bg-white aria-checked:font-semibold aria-checked:shadow-sm">
-          ${esc(t.label)}
+    $("thumbs").innerHTML =
+      images.length > 1
+        ? images
+            .map(
+              (src, i) => `
+        <button type="button" data-thumb="${i}" aria-label="Show image ${i + 1}"
+          aria-current="${i === imageIndex}"
+          class="size-16 shrink-0 cursor-pointer overflow-hidden rounded-lg border-2 border-transparent opacity-70 transition hover:opacity-100 aria-[current=true]:border-primary aria-[current=true]:opacity-100">
+          <img src="${esc(src)}" alt="" class="h-full w-full object-cover" />
         </button>`,
-        )
-        .join("");
-
-      $("type-desc").textContent = type.description ?? "";
-      $("type-desc").hidden = !type.description;
-
-      // Variant selector (only when there is a choice)
-      $("variants-wrap").hidden = type.variants.length < 2;
-      $("variants").innerHTML = type.variants
-        .map(
-          (v) => `
-        <li>
-          <button type="button" data-variant="${v.id}" aria-pressed="${v.id === variantId}"
-            ${v.stock === 0 ? "disabled" : ""}
-            class="cursor-pointer rounded-lg border border-neutral-300 px-4 py-2 text-sm tracking-wider transition hover:border-primary aria-pressed:border-primary aria-pressed:bg-primary aria-pressed:text-white disabled:cursor-not-allowed disabled:text-neutral-400 disabled:line-through disabled:hover:border-neutral-300">
-            ${esc(v.label)}
-          </button>
-        </li>`,
-        )
-        .join("");
-
-      // Price and stock
-      const soldOut = !variant || variant.stock === 0;
-      $("price").textContent = variant
-        ? formatPrice(variant.price, variant.currency)
+            )
+            .join("")
         : "";
-      $("stock").textContent = variant ? stockLabel(variant.stock) : "";
-      $("stock").classList.toggle("text-red-600", soldOut);
 
-      // Add button, or a counter if this variant is already in the cart
-      const inCart = variant ? getQty(variant.id) : 0;
-      const add = $<HTMLButtonElement>("add");
+    // Text (the badge follows the selected type's category)
+    const badge = type.category?.label ?? "";
+    $("badge").textContent = badge;
+    $("badge").hidden = !badge;
 
-      add.hidden = inCart > 0;
-      add.disabled = soldOut;
-      add.textContent = soldOut ? "Sold out" : "Collect this artwork";
+    $("title").textContent = product.title;
+    $("desc").textContent = product.description ?? "";
+    $("desc").hidden = !product.description;
 
-      $("counter").hidden = inCart === 0;
+    // Type selector (only when there is a choice)
+    $("types-wrap").hidden = product.types.length < 2;
+    $("types").innerHTML = product.types
+      .map(
+        (t) => `
+      <button type="button" role="radio" data-type="${t.id}" aria-checked="${t.id === typeId}"
+        class="flex-1 cursor-pointer rounded-md px-3 py-2 text-sm tracking-wider transition aria-checked:bg-white aria-checked:font-semibold aria-checked:shadow-sm">
+        ${esc(t.label)}
+      </button>`,
+      )
+      .join("");
 
-      if (variant && inCart > 0) {
-        const max = maxQtyFor(variant);
-        const atLimit = inCart >= max;
+    $("type-desc").textContent = type.description ?? "";
+    $("type-desc").hidden = !type.description;
 
-        $("qty").textContent = String(inCart);
-        $<HTMLButtonElement>("qty-inc").disabled = atLimit;
-        $("qty-note").textContent = atLimit
-          ? variant.stock < MAX_QTY
-            ? "That's all that's available"
-            : `Maximum ${MAX_QTY} per order`
-          : "";
-      }
+    // Variant selector (only when there is a choice)
+    $("variants-wrap").hidden = type.variants.length < 2;
+    $("variants").innerHTML = type.variants
+      .map(
+        (v) => `
+      <li>
+        <button type="button" data-variant="${v.id}" aria-pressed="${v.id === variantId}"
+          ${v.stock === 0 ? "disabled" : ""}
+          class="cursor-pointer rounded-lg border border-neutral-300 px-4 py-2 text-sm tracking-wider transition hover:border-primary aria-pressed:border-primary aria-pressed:bg-primary aria-pressed:text-white disabled:cursor-not-allowed disabled:text-neutral-400 disabled:line-through disabled:hover:border-neutral-300">
+          ${esc(v.label)}
+        </button>
+      </li>`,
+      )
+      .join("");
+
+    // Price and stock
+    const soldOut = !variant || variant.stock === 0;
+    $("price").textContent = variant
+      ? formatPrice(variant.price, variant.currency)
+      : "Enquire";
+    $("stock").textContent = variant ? stockLabel(variant.stock) : "";
+    $("stock").classList.toggle("text-red-600", soldOut);
+
+    // Add button, or a counter if this variant is already in the cart
+    const inCart = variant ? getQty(variant.id) : 0;
+    const add = $<HTMLButtonElement>("add");
+
+    add.hidden = inCart > 0;
+    add.disabled = soldOut;
+    add.textContent = soldOut ? "Sold out" : "Collect this artwork";
+
+    $("counter").hidden = inCart === 0;
+
+    if (variant && inCart > 0) {
+      const max = maxQtyFor(variant);
+      const atLimit = inCart >= max;
+
+      $("qty").textContent = String(inCart);
+      $<HTMLButtonElement>("qty-inc").disabled = atLimit;
+      $("qty-note").textContent = atLimit
+        ? variant.stock < MAX_QTY
+          ? "That's all that's available"
+          : `Maximum ${MAX_QTY} per order`
+        : "";
+    }
+  }
+
+  function open(productId: number) {
+    // No modal on this page, or it's already open
+    if (!dialog || !dialog.isConnected || dialog.open) return;
+
+    const p = products.find((x) => x.id === productId);
+    if (!p) return;
+
+    const filter =
+      new URL(location.href).searchParams.get("filter")?.toLowerCase() ??
+      "all";
+    const type = startType(p, filter);
+    if (!type) return; // artwork has no types yet
+
+    product = p;
+    imageIndex = 0;
+    typeId = type.id;
+    variantId = defaultVariant(type)?.id ?? null;
+
+    render();
+    dialog.showModal();
+    $("scroll").scrollTop = 0;
+    document.documentElement.classList.add("overflow-hidden");
+    lenis()?.stop();
+    animate(dialog, { opacity: [0, 1], y: [16, 0] }, { duration: 0.25 });
+  }
+
+  async function closeModal() {
+    const d = dialog;
+    if (closing || !d || !d.open) return;
+    closing = true;
+
+    d.dataset.closing = "true";
+    await animate(
+      d,
+      { opacity: [1, 0], y: [0, 16] },
+      { duration: 0.2, ease: "easeIn" },
+    );
+
+    d.close();
+    delete d.dataset.closing;
+    closing = false;
+  }
+
+  // Finds this page's modal and wires it up (runs after every navigation)
+  function setup() {
+    const el = document.querySelector<HTMLDialogElement>("#product-modal");
+    const dataEl = document.querySelector("#shop-data");
+
+    if (!el || !dataEl) {
+      dialog = null;
+      return;
     }
 
-    function open(productId: number) {
-      const p = products.find((x) => x.id === productId);
-      if (!p) return;
+    dialog = el;
+    products = JSON.parse(dataEl.textContent ?? "[]");
+    closing = false;
 
-      product = p;
-      imageIndex = 0;
+    // Listeners are already attached to this element
+    if (el.dataset.ready) return;
+    el.dataset.ready = "true";
 
-      // Open on the type that matches the shop's active filter
-      const filter = new URL(location.href).searchParams.get("filter") ?? "all";
-      const type = startType(p, filter);
-      typeId = type.id;
-      variantId = defaultVariant(type)?.id ?? null;
-
-      render();
-      dialog!.showModal();
-      $("scroll").scrollTop = 0; // always start at the top
-      document.documentElement.classList.add("overflow-hidden");
-      lenis()?.stop(); // freeze the page behind the modal
-      animate(dialog!, { opacity: [0, 1], y: [16, 0] }, { duration: 0.25 });
-    }
-
-    // Plays the closing animation, then actually closes the dialog
-    async function closeModal() {
-      if (closing || !dialog!.open) return;
-      closing = true;
-
-      dialog!.dataset.closing = "true"; // fades the backdrop (see <style>)
-      await animate(
-        dialog!,
-        { opacity: [1, 0], y: [0, 16] },
-        { duration: 0.2, ease: "easeIn" },
-      );
-
-      dialog!.close();
-      delete dialog!.dataset.closing;
-      closing = false;
-    }
-
-    // Open from any [data-open] element (card image or button)
-    document.addEventListener("click", (e) => {
-      const trigger = (e.target as HTMLElement).closest<HTMLElement>("[data-open]");
-      if (trigger) open(Number(trigger.dataset.productId));
-    });
-
-    // Interactions inside the modal
-    dialog.addEventListener("click", (e) => {
+    el.addEventListener("click", (e) => {
       const t = e.target as HTMLElement;
 
-      if (t === dialog || t.closest("[data-close]")) return closeModal();
+      if (t === el || t.closest("[data-close]")) return closeModal();
 
       const thumb = t.closest<HTMLElement>("[data-thumb]");
       if (thumb) {
@@ -347,7 +370,6 @@ const json = JSON.stringify(products).replace(/</g, "\\u003c");
         return render();
       }
 
-      // First add: swaps the button for the counter
       if (t.closest("#pm-add")) {
         const type = currentType();
         const variant = currentVariant();
@@ -360,7 +382,7 @@ const json = JSON.stringify(products).replace(/</g, "\\u003c");
           title: product.title,
           typeLabel: type.label,
           variantLabel: variant.label,
-          category: type.category,
+          category: type.category?.label ?? "",
           price: variant.price,
           currency: variant.currency,
           image: product.images[0] ?? "/placeholder.svg",
@@ -369,7 +391,6 @@ const json = JSON.stringify(products).replace(/</g, "\\u003c");
         return render();
       }
 
-      // Counter: + and − (going below 1 removes it and brings the button back)
       const inc = t.closest<HTMLButtonElement>("[data-qty-inc]");
       const dec = t.closest<HTMLButtonElement>("[data-qty-dec]");
       if ((inc && !inc.disabled) || dec) {
@@ -380,17 +401,36 @@ const json = JSON.stringify(products).replace(/</g, "\\u003c");
       }
     });
 
-    // Esc: play the closing animation instead of snapping shut
-    dialog.addEventListener("cancel", (e) => {
+    el.addEventListener("cancel", (e) => {
       e.preventDefault();
       closeModal();
     });
 
-    dialog.addEventListener("close", () => {
+    el.addEventListener("close", () => {
       document.documentElement.classList.remove("overflow-hidden");
       lenis()?.start();
     });
   }
+
+  // Registered once; always uses the modal that is on the page right now
+  document.addEventListener("click", (e) => {
+    const trigger = (e.target as HTMLElement).closest<HTMLElement>(
+      "[data-open]",
+    );
+    if (trigger) open(Number(trigger.dataset.productId));
+  });
+
+  // The page is about to be replaced: never leave the scroll locked
+  document.addEventListener("astro:before-swap", () => {
+    if (dialog?.open) dialog.close();
+    document.documentElement.classList.remove("overflow-hidden");
+    lenis()?.start();
+    closing = false;
+    dialog = null;
+  });
+
+  setup();
+  document.addEventListener("astro:page-load", setup);
 </script>
 
 <style>

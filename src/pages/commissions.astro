@@ -102,7 +102,19 @@ const labelClass = "mb-2 block text-sm font-medium tracking-wider";
 const errorClass = "mt-1.5 text-sm tracking-wider text-red-600";
 ---
 
-<Layout title="Commissions">
+<Layout
+  title="Commissions"
+  description="Commission custom artwork from Edah — masks, murals, sculptures, and cover art. Share your idea and receive a unique piece made through collaborative process. Worldwide shipping available."
+  type="website"
+  tags={[
+    "custom art commissions",
+    "custom masks",
+    "murals",
+    "sculptures",
+    "cover art",
+    "commission artwork",
+  ]}
+>
   <!-- Hero + commission types -->
   <section class="content w-full px-10 pt-16 pb-10">
     <div class="mx-auto flex max-w-3xl flex-col items-center gap-5 text-center">
@@ -403,6 +415,7 @@ const errorClass = "mt-1.5 text-sm tracking-wider text-red-600";
 </Layout>
 
 <script>
+  import { toast } from "@/lib/toast";
   import {
     commissionSchema,
     isAcceptedFile,
@@ -580,14 +593,17 @@ const errorClass = "mt-1.5 text-sm tracking-wider text-red-600";
         if (files.some((f) => fileKey(f) === fileKey(file))) continue; // duplicate
         if (!isAcceptedFile(file)) {
           error ||= `"${file.name}" isn't a supported file type`;
+          toast.error(error)
           continue;
         }
         if (file.size > MAX_FILE_SIZE) {
           error ||= `"${file.name}" is over ${MAX_MB}MB`;
+          toast.error(error)
           continue;
         }
         if (files.length >= MAX_FILES) {
           error ||= `You can add up to ${MAX_FILES} files`;
+          toast.error(error)
           continue;
         }
         files.push(file);
@@ -650,15 +666,41 @@ const errorClass = "mt-1.5 text-sm tracking-wider text-red-600";
       updateSubmitState();
     });
 
-    form.addEventListener("submit", (e) => {
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+
       let firstInvalid: FieldName | null = null;
       for (const name of names) {
         touched.add(name);
         if (!validateField(name) && !firstInvalid) firstInvalid = name;
       }
-      if (firstInvalid) {
-        e.preventDefault();
-        focusField(firstInvalid);
+      if (firstInvalid) return focusField(firstInvalid);
+
+      submitBtn.disabled = true;
+
+      try {
+        const res = await fetch("/api/commissions", {
+          method: "POST",
+          body: new FormData(form),
+        });
+        const data = await res.json().catch(() => ({}));
+
+        if (res.ok) {
+          toast.success("Request received! I'll reply by email soon.");
+          form.reset();
+          files.length = 0;
+          previewUrls.forEach((url) => URL.revokeObjectURL(url));
+          previewUrls.clear();
+          syncInput();
+          renderFiles();
+          touched.clear();
+        } else {
+          toast.error(data.error ?? "Something went wrong.");
+        }
+      } catch {
+        toast.error("Network error. Please try again.");
+      } finally {
+        updateSubmitState();
       }
     });
 

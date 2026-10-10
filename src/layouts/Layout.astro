@@ -8,28 +8,75 @@ import { Font } from "astro:assets";
 
 import { ClientRouter, fade } from "astro:transitions";
 import Toaster from "@/ui/Toaster.astro";
+import { getSEOMeta, getStructuredData } from "@/lib/seo";
 
 interface Props {
   title?: string;
   description?: string;
   image?: string;
+  type?: "website" | "article" | "product";
+  publishedTime?: string;
+  modifiedTime?: string;
+  author?: string;
+  section?: string;
+  tags?: string[];
+  price?: number;
+  currency?: string;
+  availability?: "in_stock" | "out_of_stock" | "pre_order";
+  noIndex?: boolean;
+  noFollow?: boolean;
 }
-
-const suffix = "Edah Art";
 
 const {
   title,
   description = BIO.bio.slice(0, 350) + "...",
   image = "/og-image.png",
+  type = "website",
+  publishedTime,
+  modifiedTime,
+  author,
+  section,
+  tags,
+  price,
+  currency,
+  availability,
+  noIndex = false,
+  noFollow = false,
 } = Astro.props;
 
-const canonicalURL = new URL(
-  Astro.url.pathname,
-  Astro.site ?? "https://edah.com",
-);
-const socialImageURL = new URL(image, Astro.url);
+const { metaTags, fullTitle, canonicalURL } = getSEOMeta({
+  title,
+  description,
+  image,
+  url: Astro.url.pathname,
+  type,
+  publishedTime,
+  modifiedTime,
+  author,
+  section,
+  tags,
+  price,
+  currency,
+  availability,
+  noIndex,
+  noFollow,
+});
 
-const meta_title = title ? `${title} - ${suffix}` : suffix;
+const structuredData = getStructuredData({
+  title,
+  description,
+  image,
+  url: Astro.url.pathname,
+  type,
+  publishedTime,
+  modifiedTime,
+  author,
+  section,
+  tags,
+  price,
+  currency,
+  availability,
+});
 ---
 
 <!doctype html>
@@ -38,29 +85,24 @@ const meta_title = title ? `${title} - ${suffix}` : suffix;
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width" />
     <link rel="icon" href="/favicon.ico" />
-    <meta name="generator" content={Astro.generator} />
     <Font cssVariable="--font-architects-daughter" preload />
     <Font cssVariable="--font-biryani" preload />
 
-    <!-- General Meta Tags -->
-    <title>{meta_title}</title>
-    <meta name="title" content={meta_title} />
-    <meta name="description" content={description} />
+    <title>{fullTitle}</title>
     <link rel="canonical" href={canonicalURL} />
 
-    <!-- Open Graph / Facebook -->
-    <meta property="og:type" content="website" />
-    <meta property="og:url" content={canonicalURL} />
-    <meta property="og:title" content={meta_title} />
-    <meta property="og:description" content={description} />
-    <meta property="og:image" content={socialImageURL} />
+    {metaTags.map((tag) => (
+      tag.name ? (
+        <meta name={tag.name} content={tag.content} />
+      ) : (
+        <meta property={tag.property} content={tag.content} />
+      )
+    ))}
 
-    <!-- Twitter -->
-    <meta property="twitter:card" content="summary_large_image" />
-    <meta property="twitter:url" content={canonicalURL} />
-    <meta property="twitter:title" content={meta_title} />
-    <meta property="twitter:description" content={description} />
-    <meta property="twitter:image" content={socialImageURL} />
+    <script
+      type="application/ld+json"
+      set:html={JSON.stringify(structuredData)}
+    ></script>
 
     <ClientRouter />
   </head>

@@ -4,7 +4,14 @@ import Layout from "@/layouts/Layout.astro";
 import Receipt from "@/components/receipt.astro";
 ---
 
-<Layout title="Cart">
+<Layout
+  title="Cart"
+  description="Review your selected artwork before checkout. Original paintings, limited edition prints, sculptures, and signed artwork by Edah. Secure checkout with worldwide shipping."
+  type="website"
+  tags={["art cart", "checkout", "buy art", "shopping cart"]}
+  noIndex={true}
+  noFollow={true}
+>
   <section class="content mt-20 px-6 pb-20 md:px-10 min-h-[calc(100vh-20rem)]">
     <header class="mb-10 flex flex-col gap-2">
       <h1 class="text-5xl tracking-widest text-[#6b5252] md:text-6xl">
@@ -13,10 +20,11 @@ import Receipt from "@/components/receipt.astro";
       <p id="cart-count" class="tracking-wide my-6 text-neutral-500"></p>
     </header>
 
-    <!-- Cart with items -->
+    <!-- Cart with items. The script adds "block lg:grid" when there are items,
+         so plain "hidden" wins at every breakpoint when the cart is empty. -->
     <div
       id="cart-layout"
-      class="hidden items-start gap-10 lg:grid lg:grid-cols-[minmax(0,1fr)_24rem] min-h-[calc(100vh-32rem)]"
+      class="hidden items-start gap-10 lg:grid-cols-[minmax(0,1fr)_24rem] min-h-[calc(100vh-32rem)]"
     >
       <div class="flex-1 min-w-0">
         <ul id="cart-items" class="flex flex-col gap-4"></ul>
@@ -157,8 +165,6 @@ import Receipt from "@/components/receipt.astro";
   </template>
 </Layout>
 
-
-
 <script>
   import { animate, stagger } from "motion";
   import {
@@ -287,7 +293,12 @@ import Receipt from "@/components/receipt.astro";
       const items = getCart();
       const isEmpty = items.length === 0;
 
+      // Plain "hidden" wins at every breakpoint when empty, because
+      // "block" and "lg:grid" are only present when there are items
       layout!.classList.toggle("hidden", isEmpty);
+      layout!.classList.toggle("block", !isEmpty);
+      layout!.classList.toggle("lg:grid", !isEmpty);
+
       emptyEl!.classList.toggle("hidden", !isEmpty);
       emptyEl!.classList.toggle("flex", isEmpty);
       receiptWrap!.classList.toggle("hidden", isEmpty);

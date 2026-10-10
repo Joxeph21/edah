@@ -1,180 +1,208 @@
 ---
-// src/pages/privacy.astro
 import LegalLayout from "@/layouts/LegalLayout.astro";
+
 import { LEGAL } from "@/data/legal";
 ---
 
-<LegalLayout title="Privacy Policy">
+<LegalLayout
+  title="Privacy Policy"
+  description="Privacy Policy Edah Artist website. Governs use of the website, purchases of artworks, prints, and commissions. Includes pricing, shipping, returns, commissions, intellectual property, and governing law."
+  noIndex={true}
+  noFollow={true}
+>
   <p>
-    This Privacy Policy explains how <strong>{LEGAL.owner}</strong> ("we", "us"), trading as <strong>{LEGAL.brand}</strong>, collects, uses and protects your personal data when you visit <strong>{LEGAL.siteUrl}</strong> (the "Website"), buy from us, commission work or contact us.
-    We handle personal data in line with the Nigeria Data Protection Act 2023
-    (NDPA) and, where it applies to you, other data protection laws such as the
-    GDPR.
+    These Terms of Service ("Terms") govern your use of <strong>{LEGAL.siteUrl}</strong> (the "Website")
+    and any purchase of artworks, prints or commissions from <strong>{LEGAL.brand}</strong>, operated by <strong>{LEGAL.owner}</strong> ("we", "us", "our"), based in {LEGAL.address}. By using the Website or placing an order, you agree to
+    these Terms. If you do not agree, please do not use the Website.
   </p>
 
-  <h2>1. Who is responsible for your data</h2>
+  <h2>1. Using the Website</h2>
   <p>
-   <strong>{LEGAL.owner}</strong> is the data controller. You can reach us at <a href={`mailto:${LEGAL.email}`}>{LEGAL.email}</a>
+    You must be at least 18 years old to place an order. Some artwork on the
+    Website contains nudity, so the Website is not recommended for anyone under
+    18. You agree to use the Website lawfully and not to:
   </p>
-
-  <h2>2. What we collect</h2>
   <ul>
+    <li>copy, scrape or harvest content from the Website in bulk;</li>
+    <li>interfere with the Website's security or normal operation;</li>
     <li>
-      <strong>Orders and checkout:</strong> your name, email address, phone
-      number, delivery and billing addresses, and what you ordered.
-    </li>
-    <li>
-      <strong>Payments:</strong> handled by {LEGAL.paymentProvider}. We receive
-      confirmation of payment, but we do not see or store your full card details.
-    </li>
-    <li>
-      <strong>Enquiries and commissions:</strong> your name, email address,
-      message, and any reference images or details you choose to send.
-    </li>
-    <li>
-      <strong>Newsletter:</strong> your email address, if you subscribe.
-    </li>
-    <li>
-      <strong>Your cart:</strong> items you add to your cart are saved in your
-      own browser (local storage) on your device. They are not sent to us until
-      you check out.
-    </li>
-    <li>
-      <strong>Technical data:</strong> IP address, browser and device type, and
-      pages visited, collected through server logs and {LEGAL.analytics}.
+      submit false information or use another person's payment details without
+      permission.
     </li>
   </ul>
 
-  <h2>3. How and why we use it</h2>
-  <div class="mb-6 overflow-x-auto">
-    <table>
-      <thead>
-        <tr class="border-b border-neutral-300">
-          <th>Purpose</th>
-          <th>Data</th>
-          <th>Lawful basis</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td>Process, ship and support your orders</td>
-          <td>Contact, delivery and order details</td>
-          <td>Performing a contract with you</td>
-        </tr>
-        <tr>
-          <td>Handle commission enquiries and requests</td>
-          <td>Contact details, messages, references</td>
-          <td>Steps at your request before a contract; contract</td>
-        </tr>
-        <tr>
-          <td>Send the newsletter and updates</td>
-          <td>Email address</td>
-          <td>Your consent (withdraw any time)</td>
-        </tr>
-        <tr>
-          <td>Keep records and meet tax and legal duties</td>
-          <td>Order and payment records</td>
-          <td>Legal obligation</td>
-        </tr>
-        <tr>
-          <td>Secure and improve the Website, prevent fraud</td>
-          <td>Technical data</td>
-          <td>Our legitimate interests</td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
+  <h2>2. Artworks and product descriptions</h2>
+  <p>
+    Our work is handmade. Colours may look different on your screen than in
+    person, and small variations in texture, size and finish are part of the
+    character of each piece. We take care to describe and photograph each item
+    accurately, but we cannot guarantee that every detail will match your screen
+    exactly. Original artworks are one-of-a-kind; prints may be produced in
+    limited editions as described on the product page.
+  </p>
 
-  <h2>4. Who we share it with</h2>
-  <p>We do not sell your personal data. We share it only with providers that help us run the business, and only what they need:</p>
+  <h2>3. Prices and payment</h2>
   <ul>
-    <li>{LEGAL.paymentProvider}, to process payments;</li>
-    <li>{LEGAL.courier}, and other couriers, to deliver your order;</li>
-    <li>{LEGAL.emailProvider}, to send emails and the newsletter;</li>
-    <li>{LEGAL.hostingProvider}, to host the Website;</li>
-    <li>professional advisers, and authorities where the law requires it.</li>
-  </ul>
-  <p>
-    <strong>Instagram:</strong> our Website can show recent posts from our
-    Instagram account. When those images load, they come from Instagram's
-    servers, so Instagram may receive your IP address and device information.
-    Links to Instagram take you to a site governed by Instagram's own policies.
-  </p>
-
-  <h2>5. Cookies and local storage</h2>
-  <p>
-    We use your browser's local storage to remember your cart, which is
-    essential for the shop to work. {LEGAL.analytics} may be used to understand
-    how the Website is used; where it sets non-essential cookies, we will ask
-    for your consent first. You can clear local storage and cookies at any time
-    in your browser settings (this will empty your cart).
-  </p>
-
-  <h2>6. Transfers outside Nigeria</h2>
-  <p>
-    Some of the providers above process data outside Nigeria. When your data is
-    transferred abroad, we take steps to make sure it remains protected in line
-    with the NDPA, for example by using providers that offer appropriate
-    safeguards.
-  </p>
-
-  <h2>7. How long we keep it</h2>
-  <ul>
-    <li>Order and payment records: {LEGAL.retentionYears} years, for tax and accounting.</li>
-    <li>Enquiries and commission messages: up to 12 months after the conversation ends, or longer if a commission is ongoing.</li>
-    <li>Newsletter: until you unsubscribe.</li>
-    <li>Technical logs: for a short period, as set by our hosting provider.</li>
+    <li>Prices are shown in US dollars (USD) unless stated otherwise.</li>
+    <li>
+      Prices do not include shipping, taxes, or import duties unless stated.
+      These are shown or calculated at checkout where possible.
+    </li>
+    <li>
+      Payments are processed securely by {LEGAL.paymentProvider}. We do not
+      receive or store your full card details.
+    </li>
+    <li>
+      If we discover a pricing or listing error, we may correct it and contact
+      you before proceeding; if you no longer wish to buy at the correct price,
+      we will cancel the order and refund you in full.
+    </li>
   </ul>
 
-  <h2>8. How we protect it</h2>
+  <h2>4. Orders and availability</h2>
   <p>
-    We use reasonable technical and organisational measures, such as encrypted
-    connections (HTTPS) and limited access, to protect your data. No online
-    service is completely secure, so we cannot guarantee absolute security. If a
-    breach affects your rights, we will notify you and the regulator where the
-    law requires.
+    Placing an order is an offer to buy. We accept it when we send an order
+    confirmation or dispatch the item. Because original works are one-of-a-kind,
+    if a piece is no longer available when your order is processed we will tell
+    you promptly and refund you in full.
   </p>
 
-  <h2>9. Your rights</h2>
-  <p>Under the NDPA, you have the right to:</p>
+  <h2>5. Shipping and delivery</h2>
   <ul>
-    <li>be informed about how your data is used;</li>
-    <li>access the personal data we hold about you;</li>
-    <li>have inaccurate data corrected;</li>
-    <li>ask us to delete your data, or restrict how we use it, in certain circumstances;</li>
-    <li>object to processing, including for direct marketing;</li>
-    <li>receive your data in a portable format;</li>
-    <li>withdraw consent at any time (this does not affect past processing);</li>
-    <li>not be subject to decisions based solely on automated processing that significantly affect you.</li>
+    <li>
+      We ship using carriers such as {LEGAL.courier}. Delivery times are
+      estimates, not guarantees, and may be affected by customs, weather or
+      carrier delays.
+    </li>
+    <li>
+      You are responsible for providing a correct and complete delivery address,
+      and for any customs duties, import taxes or clearance fees charged by your
+      country.
+    </li>
+    <li>
+      Risk of loss or damage passes to you on delivery. If an item arrives
+      damaged, please follow the steps in our <a href="/refund-policy">Refund &amp; Returns Policy</a>.
+    </li>
   </ul>
+
+  <h2>6. Returns and refunds</h2>
   <p>
-    To use any of these rights, email <a href={`mailto:${LEGAL.email}`}>{LEGAL.email}</a>.
-    We may need to verify your identity first, and we will respond without
-    undue delay, normally within 30 days. You can unsubscribe from the
-    newsletter at any time using the link in any email.
-  </p>
-  <p>
-    If you are unhappy with how we handle your data, please contact us first. You
-    also have the right to complain to the Nigeria Data Protection Commission
-    (NDPC), or to your local data protection authority if you live elsewhere.
+    Our <a href="/refund-policy">Refund &amp; Returns Policy</a> forms part of these
+    Terms.
   </p>
 
-  <h2>10. Children</h2>
+  <h2>7. Commissions</h2>
   <p>
-    The Website is not directed at children under 18, and we do not knowingly
-    collect their personal data. If you believe a child has given us their
-    information, please contact us and we will delete it.
+    Custom work is subject to the following, in addition to the rest of these
+    Terms:
+  </p>
+  <ul>
+    <li>
+      We will agree the subject, size, medium, price and estimated timeline with
+      you in writing before work begins.
+    </li>
+    <li>
+      A deposit of {LEGAL.commissionDepositPercent}% is required to begin a
+      commission, with the balance due before the finished piece is shipped
+      (unless we agree otherwise in writing).
+    </li>
+    <li>
+      We will share a sketch or concept for your approval. Reasonable
+      adjustments at that stage are included; major changes after approval may
+      change the price and timeline.
+    </li>
+    <li>
+      You keep creative trust in the artist: the final piece is an
+      interpretation of the agreed brief, not an exact replica of any reference.
+    </li>
+    <li>
+      Timelines are estimates and depend on how quickly you respond with
+      feedback and approvals.
+    </li>
+    <li>
+      We may photograph and share the finished work (for example in our
+      portfolio and on social media) unless you ask us in writing not to.
+    </li>
+    <li>
+      Cancellations and refunds for commissions are covered in the Refund &amp;
+      Returns Policy.
+    </li>
+  </ul>
+
+  <h2>8. Intellectual property</h2>
+  <p>
+    All artworks, photographs, text, logos and other content on the Website are
+    protected by copyright and belong to {LEGAL.owner} unless stated otherwise.
+  </p>
+  <ul>
+    <li>
+      <strong>Buying a physical artwork</strong> gives you ownership of the object
+      itself. It does not transfer copyright or the right to reproduce, publish, print
+      or make merchandise from the artwork. You are free to display, gift or resell
+      the physical piece.
+    </li>
+    <li>
+      <strong>Prints</strong> are sold for personal, non-commercial use.
+    </li>
+    <li>
+      You may not copy, modify, distribute or use our images or artwork
+      (including to train machine-learning models) without our written
+      permission.
+    </li>
+  </ul>
+
+  <h2>9. Your messages and submissions</h2>
+  <p>
+    If you send us messages, commission briefs or reference images, you confirm
+    you have the right to share them and allow us to use them to respond to you
+    and carry out the work. We will not publish your personal messages.
   </p>
 
-  <h2>11. Changes to this policy</h2>
+  <h2>10. Third-party services and links</h2>
   <p>
-    We may update this policy as the Website or the law changes. The "Last
-    updated" date at the top shows the latest version. If we make significant
-    changes, we will take reasonable steps to let you know.
+    The Website may link to or display content from third parties (for example
+    Instagram) and relies on providers such as payment processors and couriers.
+    We are not responsible for their content, availability or policies, which
+    are governed by their own terms.
   </p>
 
-  <h2>12. Contact</h2>
+  <h2>11. Disclaimers and limitation of liability</h2>
   <p>
-    Questions about privacy? Email <a href={`mailto:${LEGAL.email}`}>{LEGAL.email}</a>.
+    To the fullest extent permitted by law, the Website is provided "as is" and
+    we are not liable for indirect or consequential loss, or for loss caused by
+    events outside our reasonable control. Our total liability in connection
+    with any order is limited to the amount you paid for that order.
+  </p>
+  <p>
+    Nothing in these Terms excludes or limits any liability, or any of your
+    rights as a consumer, that cannot be excluded or limited under applicable
+    law, including the Federal Competition and Consumer Protection Act 2018 of
+    Nigeria.
+  </p>
+
+  <h2>12. Privacy</h2>
+  <p>
+    How we handle your personal information is explained in our <a href="/privacy-policy">Privacy Policy</a>.
+  </p>
+
+  <h2>13. Changes to these Terms</h2>
+  <p>
+    We may update these Terms from time to time. The "Last updated" date at the
+    top shows when they last changed. Orders are governed by the Terms in force
+    when you place them.
+  </p>
+
+  <h2>14. Governing law and disputes</h2>
+  <p>
+    These Terms are governed by the laws of the Federal Republic of Nigeria. If
+    you have a complaint, please contact us first so we can try to resolve it
+    informally within 30 days. If that does not work, the courts of Lagos State
+    have jurisdiction, without affecting any mandatory consumer rights you have
+    under the laws of the country where you live.
+  </p>
+
+  <h2>15. Contact</h2>
+  <p>
+    Questions about these Terms? Email <a href={`mailto:${LEGAL.email}`}>{LEGAL.email}</a>.
   </p>
 </LegalLayout>
