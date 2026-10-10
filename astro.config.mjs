@@ -1,7 +1,7 @@
 // @ts-check
 import { defineConfig, fontProviders } from "astro/config";
 import { resolve } from "node:path";
-import vercel from '@astrojs/vercel';
+import vercel from "@astrojs/vercel";
 import tailwindcss from "@tailwindcss/vite";
 
 // https://astro.build/config
@@ -26,7 +26,7 @@ export default defineConfig({
   vite: {
     server: {
       host: true,
-      allowedHosts: ["https://bobcat-washboard-unmixed.ngrok-free.dev"]
+      allowedHosts: ["https://bobcat-washboard-unmixed.ngrok-free.dev"],
     },
     plugins: [tailwindcss()],
     resolve: {
@@ -35,5 +35,9 @@ export default defineConfig({
       },
     },
   },
-  adapter: vercel()
+  adapter: vercel({
+    webAnalytics: {
+      enabled: true,
+    },
+  }),
 });
