@@ -25,6 +25,9 @@
     "typescript": "^6.0.3",
     "zod": "^4.6.5"
   },
+  "optionalDependencies": {
+    "@rolldown/binding-linux-x64-gnu": "1.2.13"
+  },
   "allowScripts": {
     "esbuild": true
   },

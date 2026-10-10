@@ -39,5 +39,6 @@ export default defineConfig({
     webAnalytics: {
       enabled: true,
     },
+    includeFiles: ["./node_modules/@rolldown/binding-linux-x64-gnu"],
   }),
 });
