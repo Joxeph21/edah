@@ -26,6 +26,7 @@ export default defineConfig({
   vite: {
     server: {
       host: true,
+      allowedHosts: ["https://bobcat-washboard-unmixed.ngrok-free.dev"]
     },
     plugins: [tailwindcss()],
     resolve: {
