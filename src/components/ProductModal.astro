@@ -1,6 +1,7 @@
 ---
 // src/components/ProductModal.astro
 import type { Product } from "@/lib/shop";
+import { inferRemoteSize } from "astro:assets";
 
 interface Props {
   products: Product[];
@@ -17,7 +18,7 @@ const json = JSON.stringify(products).replace(/</g, "\\u003c");
   id="product-modal"
   data-lenis-prevent
   aria-labelledby="pm-title"
-  class="m-auto! max-h-[calc(100dvh-2rem)] w-[min(65rem,calc(100%-2rem))] overflow-hidden rounded-2xl bg-white p-0 text-neutral-900 open:flex open:flex-col relative backdrop:bg-black/50 backdrop:backdrop-blur-sm"
+  class="m-auto! max-h-[calc(95dvh-2rem)] w-[min(65rem,calc(100%-2rem))] overflow-hidden rounded-2xl bg-white p-0 text-neutral-900 open:flex open:flex-col relative backdrop:bg-black/50"
 >
   <button
     type="button"
@@ -44,19 +45,25 @@ const json = JSON.stringify(products).replace(/</g, "\\u003c");
     id="pm-scroll"
     class="min-h-0 md:max-h-[90vh] overflow-y-auto overscroll-contain"
   >
-    <div class="grid  md:grid-cols-2">
+    <div class="grid md:grid-cols-2">
       <!-- Gallery -->
-    <!-- Gallery -->
-<div class="bg-neutral-100 md:p-0">
-  <div
-    class="flex flex-col justify-center gap-3 p-4 md:sticky md:top-0 md:h-[min(90vh,calc(100dvh-2rem))]"
-  >
-    <div class="aspect-4/5 overflow-hidden rounded-xl bg-neutral-200">
-      <img id="pm-image" alt="" class="h-full w-full object-contain" />
-    </div>
-    <div id="pm-thumbs" class="flex gap-2 overflow-x-auto"></div>
-  </div>
-</div>
+      <div class="bg-neutral-100 md:p-0">
+        <div
+          class="flex flex-col justify-center gap-3 p-4 md:sticky md:top-0 md:h-[min(90vh,calc(100dvh-2rem))]"
+        >
+          <div class="aspect-4/5 overflow-hidden rounded-xl bg-neutral-200">
+            <img
+              id="pm-image"
+              alt=""
+              decoding="async"
+              loading="lazy"
+              draggable="false"
+              class="h-full pointer-events-none select-none w-full object-contain"
+            />
+          </div>
+          <div id="pm-thumbs" class="flex gap-2 overflow-x-auto"></div>
+        </div>
+      </div>
 
       <!-- Details -->
       <div class="flex flex-col gap-5 p-6 sm:p-8">
@@ -71,14 +78,29 @@ const json = JSON.stringify(products).replace(/</g, "\\u003c");
         >
         </h2>
 
-        <div
-          id="pm-desc"
-          class="font-light leading-relaxed tracking-wider text-neutral-600
-         [&_p]:mb-4 [&_h3]:mb-2 [&_h3]:mt-6 [&_h3]:text-lg [&_h3]:font-medium [&_h3]:text-neutral-900
-         [&_ul]:mb-4 [&_ul]:list-disc [&_ul]:space-y-1 [&_ul]:pl-5
-         [&_strong]:font-medium [&_strong]:text-neutral-900
-         [&_a]:text-primary [&_a]:underline [&_a]:underline-offset-4"
-        >
+        <div id="pm-desc-wrap">
+          <div
+            id="pm-desc"
+            data-collapsed="true"
+            class="font-light leading-relaxed tracking-wider text-neutral-600
+              data-[collapsed=true]:max-h-28 data-[collapsed=true]:overflow-hidden
+              data-[collapsed=true]:[mask-image:linear-gradient(to_bottom,black_50%,transparent)]
+              [&_p]:mb-4 [&_h3]:mb-2 [&_h3]:mt-6 [&_h3]:text-lg [&_h3]:font-medium [&_h3]:text-neutral-900
+              [&_ul]:mb-4 [&_ul]:list-disc [&_ul]:space-y-1 [&_ul]:pl-5
+              [&_strong]:font-medium [&_strong]:text-neutral-900
+              [&_a]:text-primary [&_a]:underline [&_a]:underline-offset-4"
+          >
+          </div>
+          <button
+            id="pm-desc-toggle"
+            type="button"
+            hidden
+            aria-expanded="false"
+            aria-controls="pm-desc"
+            class="mt-2 cursor-pointer text-sm tracking-wider text-primary underline underline-offset-4 transition-opacity hover:opacity-70"
+          >
+            Read more
+          </button>
         </div>
 
         <div id="pm-types-wrap">
@@ -91,7 +113,10 @@ const json = JSON.stringify(products).replace(/</g, "\\u003c");
           >
           </div>
         </div>
-
+        <div id="pm-variants-wrap">
+          <p class="mb-2 text-sm font-medium tracking-wider">Option</p>
+          <ul id="pm-variants" class="flex flex-wrap gap-2"></ul>
+        </div>
         <div
           id="pm-type-desc"
           class="text-sm font-light leading-7 tracking-wider text-neutral-600
@@ -101,11 +126,6 @@ const json = JSON.stringify(products).replace(/</g, "\\u003c");
          [&_strong]:font-medium [&_strong]:text-neutral-900
          [&_a]:text-primary [&_a]:underline [&_a]:underline-offset-4"
         >
-        </div>
-
-        <div id="pm-variants-wrap">
-          <p class="mb-2 text-sm font-medium tracking-wider">Option</p>
-          <ul id="pm-variants" class="flex flex-wrap gap-2"></ul>
         </div>
 
         <div
@@ -119,16 +139,7 @@ const json = JSON.stringify(products).replace(/</g, "\\u003c");
             >
             </p>
           </div>
-          <div class="mt-auto border-t border-neutral-200 pt-5">
-            <p id="pm-price" class="font-biryani text-2xl font-medium"></p>
-            <p
-              id="pm-stock"
-              class="mt-1 text-sm tracking-wider text-neutral-500"
-            >
-            </p>
-          </div>
 
-          <!-- Not in the cart yet: the add button -->
           <button
             id="pm-add"
             type="button"
@@ -137,7 +148,6 @@ const json = JSON.stringify(products).replace(/</g, "\\u003c");
             Collect this artwork
           </button>
 
-          <!-- Already in the cart: a counter limited by stock -->
           <div id="pm-counter" hidden>
             <div class="flex items-center gap-4">
               <div
@@ -200,6 +210,16 @@ const json = JSON.stringify(products).replace(/</g, "\\u003c");
   } from "@/lib/shop";
   import { addToCart, getQty, setQty, maxQtyFor, MAX_QTY } from "@/lib/cart";
 
+  // Flip to true once you've confirmed Supabase image transformations
+  // work on your plan (open one transformed URL in the browser first)
+  const USE_TRANSFORMS = false;
+
+  const resized = (url: string, width: number) =>
+    USE_TRANSFORMS && url.includes("/storage/v1/object/public/")
+      ? url.replace("/object/public/", "/render/image/public/") +
+        `?width=${width}&quality=75`
+      : url;
+
   // State for whichever modal is on the page right now
   let dialog: HTMLDialogElement | null = null;
   let products: Product[] = [];
@@ -207,12 +227,57 @@ const json = JSON.stringify(products).replace(/</g, "\\u003c");
   let typeId = 0;
   let variantId: number | null = null;
   let imageIndex = 0;
+  let descExpanded = false;
   let closing = false;
+  let galleryKey = ""; // which product + image the gallery is showing
+  let locked = false;
+  let lockedY = 0;
 
   const $ = <T extends HTMLElement = HTMLElement>(id: string) =>
     dialog!.querySelector<T>(`#pm-${id}`)!;
 
   const lenis = () => (window as any).lenis;
+
+  // iOS ignores overflow:hidden on html/body for touch scrolling,
+  // so pin the body in place instead and restore the position on unlock
+  function lockScroll() {
+    if (locked) return;
+    locked = true;
+    lockedY = window.scrollY;
+
+    const b = document.body;
+    b.style.position = "fixed";
+    b.style.top = `-${lockedY}px`;
+    b.style.left = "0";
+    b.style.right = "0";
+    b.style.width = "100%";
+
+    document.documentElement.classList.add("overflow-hidden");
+    lenis()?.stop();
+  }
+
+  function unlockScroll() {
+    if (!locked) return;
+    locked = false;
+
+    const b = document.body;
+    b.style.position = "";
+    b.style.top = "";
+    b.style.left = "";
+    b.style.right = "";
+    b.style.width = "";
+
+    document.documentElement.classList.remove("overflow-hidden");
+    lenis()?.start();
+
+    // Jump back to where the user was, without smooth scrolling
+    window.scrollTo({
+      top: lockedY,
+      left: 0,
+      behavior: "instant" as ScrollBehavior,
+    });
+    lenis()?.scrollTo(lockedY, { immediate: true, force: true });
+  }
 
   const esc = (s: string) =>
     s.replace(
@@ -235,44 +300,54 @@ const json = JSON.stringify(products).replace(/</g, "\\u003c");
     const type = currentType();
     const variant = currentVariant();
 
-    // Gallery
-    const images = product.images.length
-      ? product.images
-      : ["/placeholder.svg"];
-    const img = $<HTMLImageElement>("image");
-    img.src = images[imageIndex];
-    const frame = $("frame");
-    img.onload = () => {
-      const ratio = Math.min(
-        Math.max(img.naturalWidth / img.naturalHeight, 0.6),
-        1.8,
-      );
-      frame.style.aspectRatio = String(ratio);
-    };
-    img.alt = product.title;
+    const key = `${product.id}:${imageIndex}`;
+    if (key !== galleryKey) {
+      galleryKey = key;
 
-    $("thumbs").innerHTML =
-      images.length > 1
-        ? images
-            .map(
-              (src, i) => `
+      const images = product.images.length
+        ? product.images
+        : ["/placeholder.svg"];
+      const img = $<HTMLImageElement>("image");
+      img.src = resized(images[imageIndex], 900);
+      img.alt = product.title;
+      img.draggable = false;
+
+      $("thumbs").innerHTML =
+        images.length > 1
+          ? images
+              .map(
+                (src, i) => `
         <button type="button" data-thumb="${i}" aria-label="Show image ${i + 1}"
           aria-current="${i === imageIndex}"
           class="size-16 shrink-0 cursor-pointer overflow-hidden rounded-lg border-2 border-transparent opacity-70 transition hover:opacity-100 aria-[current=true]:border-primary aria-[current=true]:opacity-100">
-          <img src="${esc(src)}" alt="" class="h-full w-full object-cover" />
+          <img src="${esc(resized(src, 128))}" alt="" loading="lazy" decoding="async" class="h-full w-full object-cover" />
         </button>`,
-            )
-            .join("")
-        : "";
+              )
+              .join("")
+          : "";
+    }
 
-    // Text (the badge follows the selected type's category)
     const badge = type.category?.label ?? "";
     $("badge").textContent = badge;
     $("badge").hidden = !badge;
 
     $("title").textContent = product.title;
-    $("desc").innerHTML = product.description ?? "";
-    $("desc").hidden = !product.description;
+
+    // Description with read more / show less
+    const desc = $("desc");
+    const descToggle = $("desc-toggle");
+    desc.innerHTML = product.description ?? "";
+    $("desc-wrap").hidden = !product.description;
+
+    // Measure in the collapsed state to see if there's anything to hide
+    desc.dataset.collapsed = "true";
+    const overflows = desc.scrollHeight > desc.clientHeight + 1;
+    const collapsed = overflows && !descExpanded;
+
+    desc.dataset.collapsed = String(collapsed);
+    descToggle.hidden = !overflows;
+    descToggle.textContent = collapsed ? "Read more" : "Show less";
+    descToggle.setAttribute("aria-expanded", String(!collapsed));
 
     // Type selector (only when there is a choice)
     $("types-wrap").hidden = product.types.length < 2;
@@ -344,20 +419,23 @@ const json = JSON.stringify(products).replace(/</g, "\\u003c");
     if (!p) return;
 
     const filter =
-      new URL(location.href).searchParams.get("filter")?.toLowerCase() ?? "all";
+      new URL(location.href).searchParams.get("filter")?.toLowerCase() ??
+      "prints";
     const type = startType(p, filter);
     if (!type) return; // artwork has no types yet
 
     product = p;
     imageIndex = 0;
+    descExpanded = false;
     typeId = type.id;
     variantId = defaultVariant(type)?.id ?? null;
+    galleryKey = ""; // force the gallery to build for this opening
 
-    render();
+    // Open first so the description can be measured
     dialog.showModal();
+    render();
     $("scroll").scrollTop = 0;
-    document.documentElement.classList.add("overflow-hidden");
-    lenis()?.stop();
+    lockScroll();
     animate(dialog, { opacity: [0, 1], y: [16, 0] }, { duration: 0.25 });
   }
 
@@ -391,6 +469,7 @@ const json = JSON.stringify(products).replace(/</g, "\\u003c");
     dialog = el;
     products = JSON.parse(dataEl.textContent ?? "[]");
     closing = false;
+    galleryKey = "";
 
     // Listeners are already attached to this element
     if (el.dataset.ready) return;
@@ -417,6 +496,11 @@ const json = JSON.stringify(products).replace(/</g, "\\u003c");
       const variantBtn = t.closest<HTMLButtonElement>("[data-variant]");
       if (variantBtn && !variantBtn.disabled) {
         variantId = Number(variantBtn.dataset.variant);
+        return render();
+      }
+
+      if (t.closest("#pm-desc-toggle")) {
+        descExpanded = !descExpanded;
         return render();
       }
 
@@ -456,10 +540,7 @@ const json = JSON.stringify(products).replace(/</g, "\\u003c");
       closeModal();
     });
 
-    el.addEventListener("close", () => {
-      document.documentElement.classList.remove("overflow-hidden");
-      lenis()?.start();
-    });
+    el.addEventListener("close", unlockScroll);
   }
 
   // Registered once; always uses the modal that is on the page right now
@@ -473,8 +554,7 @@ const json = JSON.stringify(products).replace(/</g, "\\u003c");
   // The page is about to be replaced: never leave the scroll locked
   document.addEventListener("astro:before-swap", () => {
     if (dialog?.open) dialog.close();
-    document.documentElement.classList.remove("overflow-hidden");
-    lenis()?.start();
+    unlockScroll();
     closing = false;
     dialog = null;
   });

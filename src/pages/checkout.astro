@@ -375,8 +375,7 @@ const labelClass = "mb-2 block text-sm font-medium tracking-wider";
       else updateSubmitState();
     }
 
-    // Refresh / back-forward restores form values after load without events.
-    // Coming back from the payment page also lands here, so unlock the button.
+    
     window.addEventListener("pageshow", () => {
       sync();
       if (submitting) setSubmitting(false);

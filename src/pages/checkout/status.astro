@@ -2,25 +2,43 @@
 export const prerender = false;
 
 import Layout from "@/layouts/Layout.astro";
-import supabase from "@/lib/supabase";
+import { serverBase as supabase } from "@/lib/supabase";
 
 Astro.response.headers.set("Cache-Control", "no-store");
 
+const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
 const ref = Astro.url.searchParams.get("ref");
 
-const { data: order } = ref
-  ? await supabase
-      .from("orders")
-      .select("status, order_number")
-      .eq("public_ref", ref)
-      .maybeSingle()
-  : { data: null };
+const { data, error } =
+  ref && UUID.test(ref)
+    ? await supabase.rpc("get_order_by_ref", { p_ref: ref })
+    : { data: null, error: null };
 
-if (!order) return Astro.rewrite("/404");
+if (error) console.error("get_order_by_ref failed:", error);
 
-const status = order.status as "paid" | "pending" | "expired";
+const order = data?.[0];
 
-const copy = {
+console.log("status page debug:", { ref, valid: ref ? UUID.test(ref) : false, error, data });
+if (!order) {
+  return new Response(
+    JSON.stringify({ ref, valid: ref ? UUID.test(ref) : false, error, data }, null, 2),
+    { status: 404, headers: { "content-type": "application/json" } },
+  );
+}
+
+// Database statuses -> the states this page knows how to show
+const statusMap = {
+  pending: "pending",
+  paid: "paid",
+  fulfilled: "paid",
+  cancelled: "expired",
+} as const;
+
+const status =
+  statusMap[order.status as keyof typeof statusMap] ?? ("unknown" as const);
+
+const allCopy = {
   paid: {
     heading: "thank you",
     title: "your order is confirmed",
@@ -36,11 +54,14 @@ const copy = {
     title: "this checkout has expired",
     text: "No payment was taken. Your cart is still saved, so you can pick up where you left off.",
   },
-}[status] ?? {
-  heading: "order status",
-  title: "something looks off",
-  text: "We couldn't read the state of this order. Please get in touch and we'll sort it out.",
+  unknown: {
+    heading: "order status",
+    title: "something looks off",
+    text: "We couldn't read the state of this order. Please get in touch and we'll sort it out.",
+  },
 };
+
+const copy = allCopy[status];
 ---
 
 <Layout
@@ -60,6 +81,7 @@ const copy = {
     <div
       id="status-card"
       data-status={status}
+      data-variants={JSON.stringify(order.variant_ids ?? [])}
       class="flex flex-col items-center gap-6 rounded-xl bg-neutral-100 px-6 py-20 text-center"
     >
       {
@@ -178,6 +200,34 @@ const copy = {
   const POLL_MS = 2500;
   const MAX_POLLS = 20;
 
+  function clearPurchasedItems(card: HTMLElement) {
+    const ref = new URLSearchParams(location.search).get("ref");
+    const key = `cart-cleared:${ref}`;
+
+    try {
+      if (localStorage.getItem(key)) return;
+    } catch {}
+
+    let purchased: Set<number>;
+    try {
+      purchased = new Set<number>(
+        JSON.parse(card.dataset.variants ?? "[]").map(Number),
+      );
+    } catch {
+      return;
+    }
+
+    getCart()
+      .filter((item) => purchased.has(Number(item.variantId)))
+      .forEach((item) => removeFromCart(item.variantId));
+
+    syncCartBadges();
+
+    try {
+      localStorage.setItem(key, "1");
+    } catch {}
+  }
+
   function init() {
     const card = document.querySelector<HTMLElement>("#status-card");
     if (!card) return;
@@ -193,10 +243,8 @@ const copy = {
 
     const status = card.dataset.status;
 
-   
     if (status === "paid") {
-      getCart().forEach((item) => removeFromCart(item.variantId));
-      syncCartBadges();
+      clearPurchasedItems(card);
       return;
     }
 
@@ -220,6 +268,7 @@ const copy = {
           return;
         }
       } catch {
+        // network blip: try again on the next tick
       }
 
       if (polls >= MAX_POLLS) {

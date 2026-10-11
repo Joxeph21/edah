@@ -62,7 +62,11 @@ const visibleCount = products.filter(inFilter).length;
           {
             FILTERS.map((filter) => (
               <a
-                href={`/shop?filter=${encodeURIComponent(filter)}`}
+                href={`${
+                  filter === "all"
+                    ? "/shop"
+                    : `/shop?filter=${encodeURIComponent(filter)}`
+                }`}
                 data-filter={filter}
                 class:list={[
                   "w-full text-left px-4 py-2 rounded-lg transition-colors capitalize",
@@ -158,15 +162,27 @@ const visibleCount = products.filter(inFilter).length;
 
                   <div class="flex flex-1 flex-col gap-3">
                     <div class="flex items-start justify-between gap-4">
-                      <h3 class="font-architects-daughter text-lg leading-tight tracking-wider">
+                      <h3 class="font-architects-daughter max-w-[80%] truncate text-lg leading-tight tracking-wider">
                         {product.title}
                       </h3>
-                      <span
-                        data-price-display
-                        class="font-biryani font-medium whitespace-nowrap"
-                      >
-                        {summary.price}
-                      </span>
+                     {summary.price.toLowerCase() === "enquire"
+                ? (
+                  <a
+                  data-price-display
+                    href="/contact"
+                    class="font-biryani shrink-0 text-sm font-medium text-primary hover:underline underline-offset-4"
+                  >
+                    {summary.price}
+                  </a>
+                )
+                : (
+                  <span 
+                  data-price-display
+                  
+                  class="font-biryani shrink-0 font-medium">
+                    {summary.price}
+                  </span>
+                )}
                     </div>
 
                     <button
