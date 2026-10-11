@@ -4,11 +4,16 @@ import { resolve } from "node:path";
 import vercel from "@astrojs/vercel";
 import tailwindcss from "@tailwindcss/vite";
 
+import sitemap from "@astrojs/sitemap";
+
 // https://astro.build/config
 export default defineConfig({
+  site: "https://edahartist.com",
+
   image: {
     remotePatterns: [{ protocol: "https", hostname: "**.supabase.co" }],
   },
+
   fonts: [
     {
       name: "Architects Daughter",
@@ -23,6 +28,7 @@ export default defineConfig({
       weights: [200, 300, 400, 500, 600, 700, 800, 900],
     },
   ],
+
   vite: {
     server: {
       host: true,
@@ -35,9 +41,12 @@ export default defineConfig({
       },
     },
   },
+
   adapter: vercel({
     webAnalytics: {
       enabled: true,
     },
   }),
+
+  integrations: [sitemap()],
 });

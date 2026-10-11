@@ -18,12 +18,11 @@ export interface SEOProps {
 
 const SITE = {
   name: "Edah Art",
-  url: "https://edah-drab.vercel.app",
+  url: "https://edahartist.com",
   artist: "Edah",
   location: "Lagos, Nigeria",
-  twitter: "@edahart",
+  instagram: "edah.artist",
 } as const;
-
 export function getSEOMeta(props: SEOProps = {}) {
   const {
     title,
@@ -68,7 +67,6 @@ export function getSEOMeta(props: SEOProps = {}) {
     { name: "twitter:title", content: fullTitle },
     { name: "twitter:description", content: description },
     { name: "twitter:image", content: socialImageURL.toString() },
-    { name: "twitter:site", content: SITE.twitter },
     { name: "author", content: author },
     { property: "article:author", content: author },
     { name: "generator", content: "Astro" },
@@ -117,8 +115,7 @@ export function getStructuredData(props: SEOProps = {}) {
       height: 200,
     },
     sameAs: [
-      `https://instagram.com/${SITE.twitter.replace("@", "")}`,
-      `https://twitter.com/${SITE.twitter.replace("@", "")}`,
+      `https://instagram.com/${SITE.instagram}`,
     ],
     address: {
       "@type": "PostalAddress",
