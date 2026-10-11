@@ -18,7 +18,7 @@ export interface SEOProps {
 
 const SITE = {
   name: "Edah Art",
-  url: "https://edah.art",
+  url: "https://edah-drab.vercel.app",
   artist: "Edah",
   location: "Lagos, Nigeria",
   twitter: "@edahart",
