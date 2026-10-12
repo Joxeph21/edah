@@ -44,7 +44,12 @@ export function getSEOMeta(props: SEOProps = {}) {
 
   const canonicalURL = new URL(url, SITE.url);
   const socialImageURL = new URL(image, SITE.url);
-  const fullTitle = title ? `${title} - ${SITE.name}` : SITE.name;
+  const fullTitle =
+    !title || title === "Home"
+      ? "Edah | Multidisciplinary Visual Artist & Fine Art"
+      : title.includes(SITE.name) || title.includes("Edah")
+      ? title
+      : `${title} - ${SITE.name}`;
 
   const robots = `${noIndex ? "noindex" : "index"},${noFollow ? "nofollow" : "follow"}`;
 
@@ -123,9 +128,36 @@ export function getStructuredData(props: SEOProps = {}) {
       addressCountry: "NG",
     },
     founder: {
-      "@type": "Person",
-      name: SITE.artist,
+      "@id": `${SITE.url}/#artist`,
     },
+  });
+
+  base["@graph"].push({
+    "@type": "VisualArtist",
+    "@id": `${SITE.url}/#artist`,
+    name: SITE.artist,
+    alternateName: ["Edah Art", "Edah Artist", "Edah Fine Art"],
+    url: SITE.url,
+    image: `${SITE.url}/og-image.png`,
+    jobTitle: "Visual Artist & Fine Art Painter",
+    description:
+      "Edah is a multidisciplinary fine artist based in Lagos, Nigeria. Fusing magical realism with Afro-surrealism across oil paintings, sculptures, and wearable 3D clay masks.",
+    sameAs: [
+      `https://instagram.com/${SITE.instagram}`,
+    ],
+    address: {
+      "@type": "PostalAddress",
+      addressLocality: "Lagos",
+      addressCountry: "NG",
+    },
+    knowsAbout: [
+      "Fine Art",
+      "Oil Painting",
+      "Afro-surrealism",
+      "Magical Realism",
+      "Sculptures",
+      "Contemporary African Art",
+    ],
   });
 
   base["@graph"].push({
