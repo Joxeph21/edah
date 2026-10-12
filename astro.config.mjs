@@ -50,9 +50,6 @@ export default defineConfig({
 
   integrations: [
     sitemap({
-      customPages: [
-        "https://edahartist.com/shop",
-      ],
       filter: (page) =>
         ![
           "https://edahartist.com/cart",
@@ -63,4 +60,8 @@ export default defineConfig({
         ].some((excluded) => page === excluded || page === excluded + "/"),
     }),
   ],
+
+  redirects: {
+    "/sitemap.xml": "/sitemap-index.xml",
+  },
 });

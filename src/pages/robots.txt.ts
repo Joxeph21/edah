@@ -3,7 +3,8 @@ import type { APIRoute } from "astro";
 export const prerender = true;
 
 export const GET: APIRoute = ({ site }) => {
-  const sitemap = new URL("sitemap-index.xml", site);
+  const sitemapIndex = new URL("sitemap-index.xml", site);
+  const sitemap0 = new URL("sitemap-0.xml", site);
 
   const body = `User-agent: *
 Allow: /
@@ -14,7 +15,8 @@ Disallow: /commisionsv1
 Disallow: /api/
 Disallow: /404
 
-Sitemap: ${sitemap.href}
+Sitemap: ${sitemapIndex.href}
+Sitemap: ${sitemap0.href}
 `;
 
   return new Response(body, {
