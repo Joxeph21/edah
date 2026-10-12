@@ -176,6 +176,49 @@ export function getStructuredData(props: SEOProps = {}) {
     },
   });
 
+  base["@graph"].push({
+    "@type": "ItemList",
+    "@id": `${SITE.url}/#navigation`,
+    name: "Primary Navigation",
+    itemListElement: [
+      {
+        "@type": "SiteNavigationElement",
+        position: 1,
+        name: "Shop",
+        description: "Original paintings, prints, and sculptures",
+        url: `${SITE.url}/shop/`,
+      },
+      {
+        "@type": "SiteNavigationElement",
+        position: 2,
+        name: "Portfolio",
+        description: "Explore paintings, sculptures, and masks",
+        url: `${SITE.url}/portfolio/`,
+      },
+      {
+        "@type": "SiteNavigationElement",
+        position: 3,
+        name: "Commissions",
+        description: "Commission custom artwork and projects",
+        url: `${SITE.url}/commissions/`,
+      },
+      {
+        "@type": "SiteNavigationElement",
+        position: 4,
+        name: "Biography",
+        description: "About the artist and background",
+        url: `${SITE.url}/biography/`,
+      },
+      {
+        "@type": "SiteNavigationElement",
+        position: 5,
+        name: "Contact",
+        description: "Enquiries, sales, and collaborations",
+        url: `${SITE.url}/contact/`,
+      },
+    ],
+  });
+
   if (type === "product" && title) {
     base["@graph"].push({
       "@type": "Product",
