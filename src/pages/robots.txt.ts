@@ -8,7 +8,11 @@ export const GET: APIRoute = ({ site }) => {
   const body = `User-agent: *
 Allow: /
 Disallow: /cart
+Disallow: /checkout
 Disallow: /checkout/
+Disallow: /commisionsv1
+Disallow: /api/
+Disallow: /404
 
 Sitemap: ${sitemap.href}
 `;
