@@ -1,7 +1,7 @@
 export const Socials = [
   {
-    label: "edahartist@gmail.com",
-    link: "mailto:edahartist@gmailcom",
+    label: "info@edahartist.com",
+    link: "mailto:info@edahartist.com",
     type: "link",
     icon: "",
   },
