@@ -48,5 +48,19 @@ export default defineConfig({
     },
   }),
 
-  integrations: [sitemap()],
+  integrations: [
+    sitemap({
+      customPages: [
+        "https://edahartist.com/shop",
+      ],
+      filter: (page) =>
+        ![
+          "https://edahartist.com/cart",
+          "https://edahartist.com/checkout",
+          "https://edahartist.com/checkout/status",
+          "https://edahartist.com/commisionsv1",
+          "https://edahartist.com/404",
+        ].some((excluded) => page === excluded || page === excluded + "/"),
+    }),
+  ],
 });
