@@ -5,7 +5,7 @@ import Header from "@/components/Layout/Header.astro";
 import SmoothScroll from "@/components/SmoothScroll.astro";
 import "@/styles/global.css";
 import { Font } from "astro:assets";
-
+import Analytics from '@vercel/analytics/astro'
 import { ClientRouter, fade } from "astro:transitions";
 import Toaster from "@/ui/Toaster.astro";
 import { getSEOMeta, getStructuredData } from "@/lib/seo";
@@ -117,11 +117,13 @@ const structuredData = getStructuredData({
     <Toaster />
     <SmoothScroll />
     <Header />
+    <Analytics />
 
     <main
       class="w-full max-w-[1920px] mx-auto"
       transition:animate={fade({ duration: "0.3s" })}
     >
+
       <slot />
     </main>
 
